@@ -16,8 +16,7 @@ let package = Package(
         .target( name: "LiveCore", dependencies: [
             "Networking",
             "CodableFirebase",
-            .product(name: "FirebaseFirestore", package: "Firebase"),
-//            .product(name: "FirebaseMessaging", package: "Firebase")
+            .product(name: "FirebaseFirestore", package: "Firebase")
         ]),
         .testTarget(name: "LiveCoreTests", dependencies: ["LiveCore"])
     ]
