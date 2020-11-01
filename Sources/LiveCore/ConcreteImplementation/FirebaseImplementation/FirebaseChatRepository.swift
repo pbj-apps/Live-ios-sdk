@@ -10,11 +10,13 @@ import Foundation
 import Combine
 import Firebase
 
-final class FirebaseChatRepository: ChatRepository {
+public final class FirebaseChatRepository: ChatRepository {
+
+	public init() {}
 	
 	private var listeners = [ListenerRegistration]()
 	
-	func getChatMessages(for livestream: LiveStream) -> AnyPublisher<[ChatMessage], Error> {
+	public func getChatMessages(for livestream: LiveStream) -> AnyPublisher<[ChatMessage], Error> {
 		let publisher = PassthroughSubject<[FirebaseChatMessage], APIError>()
 		let listener = FirestoreClient.shared.getDb()
 			.collection("chat")
@@ -62,7 +64,7 @@ final class FirebaseChatRepository: ChatRepository {
 			.eraseToAnyPublisher()
 	}
 	
-	func postChatMessage(_ user: User?, message: String, on livestream: LiveStream) -> AnyPublisher<Void, Error> {
+	public func postChatMessage(_ user: User?, message: String, on livestream: LiveStream) -> AnyPublisher<Void, Error> {
 		if let user = user,
 			 let request = try? FirebaseChatMessage(text: message,
 																							username: user.firstname,
