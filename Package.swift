@@ -5,24 +5,20 @@ import PackageDescription
 
 let package = Package(
     name: "LiveCore",
-    products: [
-        // Products define the executables and libraries a package produces, and make them visible to other packages.
-        .library(
-            name: "LiveCore",
-            targets: ["LiveCore"]),
-    ],
+    platforms: [.iOS(.v13)],
+    products: [.library(name: "LiveCore", targets: ["LiveCore"])],
     dependencies: [
-        // Dependencies declare other packages that this package depends on.
-        // .package(url: /* package url */, from: "1.0.0"),
+        .package(url: "https://github.com/freshOS/Networking", .exact("0.3.0")),
+        .package(name: "Firebase", url: "https://github.com/firebase/firebase-ios-sdk", .branch("7.0-spm-beta")),
+        .package(url: "https://github.com/alickbass/CodableFirebase", .exact("0.2.2"))
     ],
     targets: [
-        // Targets are the basic building blocks of a package. A target can define a module or a test suite.
-        // Targets can depend on other targets in this package, and on products in packages this package depends on.
-        .target(
-            name: "LiveCore",
-            dependencies: []),
-        .testTarget(
-            name: "LiveCoreTests",
-            dependencies: ["LiveCore"]),
+        .target( name: "LiveCore", dependencies: [
+            "Networking",
+            "CodableFirebase",
+            .product(name: "FirebaseFirestore", package: "Firebase"),
+//            .product(name: "FirebaseMessaging", package: "Firebase")
+        ]),
+        .testTarget(name: "LiveCoreTests", dependencies: ["LiveCore"])
     ]
 )

@@ -3,5 +3,6 @@ import XCTest
 import LiveCoreTests
 
 var tests = [XCTestCaseEntry]()
-tests += LiveCoreTests.allTests()
+tests += UserTests.allTests()
+tests += SurveyTests.allTests()
 XCTMain(tests)
