@@ -12,11 +12,11 @@ struct LivePlayerFinishedStateOverlay: View {
 
 	@EnvironmentObject var theme: Theme
 	let nextLiveStream: LiveStream?
-	let close: () -> Void
+	let close: (() -> Void)?
 	@ObservedObject private var instructorAvatar: FetchImage
-	let proxy: GeometryProxy
+	let proxy: GeometryProxy?
 
-	init(nextLiveStream: LiveStream?, proxy: GeometryProxy, close: @escaping () -> Void) {
+	init(nextLiveStream: LiveStream?, proxy: GeometryProxy?, close: (() -> Void)?) {
 		self.nextLiveStream = nextLiveStream
 		self.proxy = proxy
 		self.close = close
@@ -41,7 +41,7 @@ struct LivePlayerFinishedStateOverlay: View {
 					Spacer()
 					Button(action: {
 						withAnimation {
-							close()
+							close?()
 						}
 					}) {
 						Image(systemName: "xmark")
@@ -89,8 +89,8 @@ struct LivePlayerFinishedStateOverlay: View {
 					}
 				}
 			}
-			.padding(.top, proxy.safeAreaInsets.top)
-			.padding(.bottom, proxy.safeAreaInsets.bottom + 20)
+			.padding(.top, proxy?.safeAreaInsets.top ?? 0)
+			.padding(.bottom, (proxy?.safeAreaInsets.bottom != nil) ? proxy!.safeAreaInsets.bottom + 20 : 0)
 		}
 	}
 }

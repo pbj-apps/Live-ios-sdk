@@ -193,9 +193,9 @@ public class LiveStore:  ObservableObject {
 		}
 	}
 
-	public func send(message: String, with user: User?, for liveStream: LiveStream) -> AnyPublisher<Void, Error> {
+	public func send(message: String, for liveStream: LiveStream) -> AnyPublisher<Void, Error> {
 		if let chatRepository = chatRepository {
-			return chatRepository.postChatMessage(user, message: message, on: liveStream)
+			return chatRepository.postChatMessage(message: message, on: liveStream)
 		} else {
 			return Just(()).setFailureType(to: Error.self).eraseToAnyPublisher()
 		}

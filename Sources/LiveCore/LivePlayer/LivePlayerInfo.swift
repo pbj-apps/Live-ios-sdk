@@ -16,9 +16,8 @@ struct LivePlayerInfo: View {
 	@State private var chatText: String = ""
 
 	let liveStream: LiveStream
-	let currentUser: User?
-	let close: () -> Void
-	let proxy: GeometryProxy
+	let close: (() -> Void)?
+	let proxy: GeometryProxy?
 
 	var body: some View {
 		ZStack(alignment: .top) {
@@ -43,7 +42,7 @@ struct LivePlayerInfo: View {
 						Spacer()
 						Button(action: {
 							withAnimation {
-								close()
+								close?()
 							}
 						}) {
 							Image(systemName: "xmark")
@@ -53,7 +52,7 @@ struct LivePlayerInfo: View {
 								.frame(height: 13)
 						}
 					}
-					.padding(.top, proxy.safeAreaInsets.top)
+					.padding(.top, proxy?.safeAreaInsets.top ?? 0)
 					Spacer()
 					if (liveStream.status == .idle || liveStream.status == .waitingRoom) && !showChat {
 						ThemedText(liveStream.messageToDisplay())
@@ -113,7 +112,7 @@ struct LivePlayerInfo: View {
 											.font(.custom(theme.fonts.light, size: 14))
 									}
 									TextField("", text: $chatText, onCommit: {
-										_ = liveStore.send(message: chatText, with: currentUser, for: liveStream)
+										_ = liveStore.send(message: chatText, for: liveStream)
 										chatText = ""
 									})
 									.font(.custom(theme.fonts.light, size: 14))
@@ -122,7 +121,7 @@ struct LivePlayerInfo: View {
 								}
 								Button(action: {
 									if !chatText.isEmpty {
-										_ = liveStore.send(message: chatText, with: currentUser, for: liveStream)
+										_ = liveStore.send(message: chatText, for: liveStream)
 										chatText = ""
 									}
 								}) {
@@ -139,7 +138,7 @@ struct LivePlayerInfo: View {
 					}
 				}
 				.padding(.horizontal, 20)
-				.padding(.bottom, (proxy.safeAreaInsets.bottom != 0) ? proxy.safeAreaInsets.bottom : 20)
+				.padding(.bottom, (proxy?.safeAreaInsets.bottom != 0) ? proxy!.safeAreaInsets.bottom : 20)
 			}
 		}
 		.onAppear {
@@ -176,10 +175,10 @@ struct LivePlayerInfo_Previews: PreviewProvider {
 	static var previews: some View {
 		GeometryReader { proxy in
 			Group {
-				LivePlayerInfo(liveStream: fakeLivestream(with: .idle), currentUser: nil, close: {}, proxy: proxy)
-				LivePlayerInfo(liveStream: fakeLivestream(with: .waitingRoom), currentUser: nil, close: {}, proxy: proxy)
-				LivePlayerInfo(liveStream: fakeLivestream(with: .broadcasting), currentUser: nil, close: {}, proxy: proxy)
-				LivePlayerInfo(liveStream: fakeLivestream(with: .finished), currentUser: nil, close: {}, proxy: proxy)
+				LivePlayerInfo(liveStream: fakeLivestream(with: .idle), close: {}, proxy: proxy)
+				LivePlayerInfo(liveStream: fakeLivestream(with: .waitingRoom), close: {}, proxy: proxy)
+				LivePlayerInfo(liveStream: fakeLivestream(with: .broadcasting), close: {}, proxy: proxy)
+				LivePlayerInfo(liveStream: fakeLivestream(with: .finished), close: {}, proxy: proxy)
 			}
 		}
 	}

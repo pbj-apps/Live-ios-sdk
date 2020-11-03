@@ -15,9 +15,8 @@ public struct LivePlayer: View, Equatable {
 	let liveStream: LiveStream
 	let nextLiveStream: LiveStream?
 	let finishedPlaying: () -> Void
-	let close: () -> Void
-	let currentUser: User?
-	let proxy: GeometryProxy
+	let close: (() -> Void)?
+	let proxy: GeometryProxy?
 
 	@ObservedObject private var keyboard = KeyboardResponder()
 
@@ -27,14 +26,12 @@ public struct LivePlayer: View, Equatable {
 
 	public init(
 		liveStream: LiveStream,
-		nextLiveStream: LiveStream?,
-		currentUser: User?,
+		nextLiveStream: LiveStream? = nil,
 		finishedPlaying: @escaping () -> Void,
-		close: @escaping () -> Void,
-		proxy: GeometryProxy) {
+		close: (() -> Void)? = nil,
+		proxy: GeometryProxy? = nil) {
 		self.liveStream = liveStream
 		self.nextLiveStream = nextLiveStream
-		self.currentUser = currentUser
 		self.finishedPlaying = finishedPlaying
 		self.close = close
 		self.proxy = proxy
@@ -44,7 +41,7 @@ public struct LivePlayer: View, Equatable {
 	public var body: some View {
 			ZStack {
 				ImageBackground(image: backgroundImage)
-					.frame(width: proxy.size.width)
+					.frame(width: proxy?.size.width ?? 100)
 					.zIndex(0)
 				switch liveStream.status {
 				case .idle, .waitingRoom:
@@ -69,7 +66,6 @@ public struct LivePlayer: View, Equatable {
 				if liveStream.status != .finished && liveStream.status != .idle {
 					if showInfo {
 						LivePlayerInfo(liveStream: liveStream,
-													 currentUser: currentUser,
 													 close: close,
 													 proxy: proxy)
 							.environmentObject(liveStore)
@@ -173,30 +169,33 @@ class LivePlayerAVPlayerView: UIView {
 	}
 }
 
-//struct LivePlayer_Previews: PreviewProvider {
-//	static var previews: some View {
-//		GeometryReader { proxy in
+struct LivePlayer_Previews: PreviewProvider {
+	static var previews: some View {
+		GeometryReader { proxy in
+			LivePlayer(liveStream: fakeLivestream(with: .idle),
+								 nextLiveStream: nil, finishedPlaying: {}, close: {}, proxy: proxy)
+
 //			LivePlayer(liveStream: fakeLivestream(with: .idle),
 //								 nextLiveStream: nil,
-//								 currentUser: fakeStore.user.currentUser,
+//								 currentUser: nil,
 //								 finishedPlaying: {}, close: {}, proxy: proxy)
 //				.previewDisplayName("Idle")
 //			LivePlayer(liveStream: fakeLivestream(with: .waitingRoom),
 //								 nextLiveStream: nil,
-//								 currentUser: fakeStore.user.currentUser,
+//								 currentUser: nil,
 //								 finishedPlaying: {}, close: {}, proxy: proxy)
 //				.previewDisplayName("WaitingRoom")
 //			LivePlayer(liveStream: fakeLivestream(with: .broadcasting),
 //								 nextLiveStream: nil,
-//								 currentUser: fakeStore.user.currentUser,
+//								 currentUser: nil,
 //								 finishedPlaying: {}, close: {}, proxy: proxy)
 //				.previewDisplayName("Broadcasting")
 //			LivePlayer(liveStream: fakeLivestream(with: .finished),
 //								 nextLiveStream: fakeLivestream(with: .idle),
-//								 currentUser: fakeStore.user.currentUser,
+//								 currentUser: nil,
 //								 finishedPlaying: {}, close: {}, proxy: proxy)
 //				.previewDisplayName("Finished")
-//				.environmentObject(Theme())
-//		}
-//	}
-//}
+				.environmentObject(Theme())
+		}
+	}
+}
