@@ -13,12 +13,12 @@ public class LiveStore:  ObservableObject {
 
 	public var firebaseFCMToken: String?
 	public let liveStreamRepository: LiveStreamRepository
-	public let chatRepository: ChatRepository
+	var chatRepository: ChatRepository?
 	private var cancellables = Set<AnyCancellable>()
 	private let feedBackGenerator = UINotificationFeedbackGenerator()
 	@Published private var remindedLiveStreamIds = [String]()
 
-	public init(liveStreamRepository: LiveStreamRepository, chatRepository: ChatRepository) {
+	public init(liveStreamRepository: LiveStreamRepository, chatRepository: ChatRepository?) {
 		self.liveStreamRepository = liveStreamRepository
 		self.chatRepository = chatRepository
 	}
@@ -54,14 +54,6 @@ public class LiveStore:  ObservableObject {
 
 	public func fetchBroadcastUrl(for liveStream: LiveStream) -> AnyPublisher<String, Error> {
 		liveStreamRepository.fetchBroadcastUrl(for: liveStream)
-	}
-
-	public func fetchChatMessages(for liveStream: LiveStream) -> AnyPublisher<[ChatMessage], Error> {
-		chatRepository.getChatMessages(for: liveStream)
-	}
-
-	public func send(message: String, with user: User?, for liveStream: LiveStream) -> AnyPublisher<Void, Error> {
-		chatRepository.postChatMessage(user, message: message, on: liveStream)
 	}
 
 	public func fetchLiveStreams() {
@@ -189,5 +181,23 @@ public class LiveStore:  ObservableObject {
 			completion?()
 		})
 		.store(in: &cancellables)
+	}
+
+	// MARK: - Chat
+
+	public func fetchChatMessages(for liveStream: LiveStream) -> AnyPublisher<[ChatMessage], Error> {
+		if let chatRepository = chatRepository {
+			return chatRepository.getChatMessages(for: liveStream)
+		} else {
+			return Just([]).setFailureType(to: Error.self).eraseToAnyPublisher()
+		}
+	}
+
+	public func send(message: String, with user: User?, for liveStream: LiveStream) -> AnyPublisher<Void, Error> {
+		if let chatRepository = chatRepository {
+			return chatRepository.postChatMessage(user, message: message, on: liveStream)
+		} else {
+			return Just(()).setFailureType(to: Error.self).eraseToAnyPublisher()
+		}
 	}
 }
