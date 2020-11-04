@@ -17,6 +17,7 @@ public class LiveStore:  ObservableObject {
 	private var cancellables = Set<AnyCancellable>()
 	private let feedBackGenerator = UINotificationFeedbackGenerator()
 	@Published private var remindedLiveStreamIds = [String]()
+	public var isChatEnabled: Bool { return chatRepository != nil }
 
 	public init(liveStreamRepository: LiveStreamRepository, chatRepository: ChatRepository?) {
 		self.liveStreamRepository = liveStreamRepository
