@@ -41,7 +41,7 @@ public struct LivePlayer: View, Equatable {
 	public var body: some View {
 			ZStack {
 				ImageBackground(image: backgroundImage)
-					.frame(width: proxy?.size.width ?? 100)
+					.frame(width: proxy?.size.width ?? UIScreen.main.bounds.size.width)
 					.zIndex(0)
 				switch liveStream.status {
 				case .idle, .waitingRoom:

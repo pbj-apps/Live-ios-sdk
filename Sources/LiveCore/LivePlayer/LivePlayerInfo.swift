@@ -79,22 +79,23 @@ struct LivePlayerInfo: View {
 							.transition(.opacity)
 					}
 					HStack {
-						Button(action: {
-							withAnimation {
-								showChat.toggle()
+						if liveStore.isChatEnabled {
+							Button(action: {
+								withAnimation {
+									showChat.toggle()
+								}
+							}) {
+								Image("ChatMessageBubble", bundle: .module)
+								if !showChat {
+									ThemedText("\(liveStore.chatMessages.count)")
+										.foregroundColor(.white)
+										.font(.custom(theme.fonts.regular, size: 14))
+								}
 							}
-						}) {
-							Image("ChatMessageBubble", bundle: .module)
-							if !showChat {
-								ThemedText("\(liveStore.chatMessages.count)")
-									.foregroundColor(.white)
-									.font(.custom(theme.fonts.regular, size: 14))
-							}
+							.buttonStyle(PlainButtonStyle())
+							.padding(.vertical, 9)
+							.padding(.trailing, 9)
 						}
-						.buttonStyle(PlainButtonStyle())
-						.padding(.vertical, 9)
-						.padding(.trailing, 9)
-
 						Spacer()
 						if !showChat {
 							Image("Person", bundle: .module)
@@ -138,7 +139,7 @@ struct LivePlayerInfo: View {
 					}
 				}
 				.padding(.horizontal, 20)
-				.padding(.bottom, (proxy?.safeAreaInsets.bottom != 0) ? proxy!.safeAreaInsets.bottom : 20)
+				.padding(.bottom, (proxy == nil) ? 0 : (proxy!.safeAreaInsets.bottom != 0) ? proxy!.safeAreaInsets.bottom : 20)
 			}
 		}
 		.onAppear {
