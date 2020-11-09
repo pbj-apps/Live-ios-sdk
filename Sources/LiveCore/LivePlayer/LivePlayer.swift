@@ -12,30 +12,32 @@ import AVFoundation
 
 public struct LivePlayer: View, Equatable {
 
-	let liveStream: LiveStream
 	let nextLiveStream: LiveStream?
 	let finishedPlaying: () -> Void
 	let close: (() -> Void)?
 	let proxy: GeometryProxy?
 
+	@ObservedObject var liveStore: LiveStore
 	@ObservedObject private var keyboard = KeyboardResponder()
-
-	@EnvironmentObject var liveStore: LiveStore
 	@ObservedObject private var backgroundImage: FetchImage
 	@State var showInfo = true
 
+	private var liveStream: LiveStream {
+		return liveStore.liveStreamWatched!
+	}
+
 	public init(
-		liveStream: LiveStream,
+		liveStore: LiveStore,
 		nextLiveStream: LiveStream? = nil,
 		finishedPlaying: @escaping () -> Void,
 		close: (() -> Void)? = nil,
 		proxy: GeometryProxy? = nil) {
-		self.liveStream = liveStream
+		self.liveStore = liveStore
 		self.nextLiveStream = nextLiveStream
 		self.finishedPlaying = finishedPlaying
 		self.close = close
 		self.proxy = proxy
-		backgroundImage = FetchImage(url: URL(string: liveStream.previewImageUrl ?? "https://")!)
+		backgroundImage = FetchImage(url: URL(string: liveStore.liveStreamWatched!.previewImageUrl ?? "https://")!)
 	}
 
 	public var body: some View {
@@ -63,7 +65,7 @@ public struct LivePlayer: View, Equatable {
 						.transition(.opacity)
 						.zIndex(2)
 				}
-				if liveStream.status != .finished && liveStream.status != .idle {
+				if liveStream.status != .finished { //} && liveStream.status != .idle {
 					if showInfo {
 						LivePlayerInfo(liveStream: liveStream,
 													 close: close,
@@ -172,8 +174,8 @@ class LivePlayerAVPlayerView: UIView {
 struct LivePlayer_Previews: PreviewProvider {
 	static var previews: some View {
 		GeometryReader { proxy in
-			LivePlayer(liveStream: fakeLivestream(with: .idle),
-								 nextLiveStream: nil, finishedPlaying: {}, close: {}, proxy: proxy)
+//			LivePlayer(liveStream: fakeLivestream(with: .idle),
+//								 nextLiveStream: nil, finishedPlaying: {}, close: {}, proxy: proxy)
 
 //			LivePlayer(liveStream: fakeLivestream(with: .idle),
 //								 nextLiveStream: nil,
@@ -195,7 +197,7 @@ struct LivePlayer_Previews: PreviewProvider {
 //								 currentUser: nil,
 //								 finishedPlaying: {}, close: {}, proxy: proxy)
 //				.previewDisplayName("Finished")
-				.environmentObject(Theme())
+//				.environmentObject(Theme())
 		}
 	}
 }
