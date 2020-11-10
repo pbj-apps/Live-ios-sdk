@@ -48,17 +48,17 @@ public class Theme: ObservableObject {
 		}
 
 		public struct TabBarImages {
-			public var live: UIImage = UIImage(named: "Live", in: .module, compatibleWith: nil)!
-			public var liveSelected: UIImage = UIImage(named: "LiveSelected", in: .module, compatibleWith: nil)!
-			public var vod: UIImage = UIImage(named: "VOD", in: .module, compatibleWith: nil)!
-			public var vodSelected: UIImage = UIImage(named: "VODSelected", in: .module, compatibleWith: nil)!
-			public var profile: UIImage = UIImage(named: "Profile", in: .module, compatibleWith: nil)!
-			public var profileSelected: UIImage = UIImage(named: "ProfileSelected", in: .module, compatibleWith: nil)!
+			public lazy var live: UIImage = UIImage(named: "Live", in: .module, compatibleWith: nil)!
+			public lazy var liveSelected: UIImage = UIImage(named: "LiveSelected", in: .module, compatibleWith: nil)!
+			public lazy var vod: UIImage = UIImage(named: "VOD", in: .module, compatibleWith: nil)!
+			public lazy var vodSelected: UIImage = UIImage(named: "VODSelected", in: .module, compatibleWith: nil)!
+			public lazy var profile: UIImage = UIImage(named: "Profile", in: .module, compatibleWith: nil)!
+			public lazy var profileSelected: UIImage = UIImage(named: "ProfileSelected", in: .module, compatibleWith: nil)!
 		}
 	}
 
 	public struct Landing {
-		public var backgroundImage: UIImage = UIImage(named: "LandingBackground", in: .module, compatibleWith: nil)!
+		public lazy var backgroundImage: UIImage = UIImage(named: "LandingBackground", in: .module, compatibleWith: nil)!
 		public var titleFontSize: CGFloat = 60
 		public var isTitleCentered: Bool = true
 		public var hidesSignUp = false
