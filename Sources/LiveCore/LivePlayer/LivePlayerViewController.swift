@@ -29,6 +29,7 @@ public class LivePlayerViewController: UIViewController {
 		self.domain = domain
 		self.apiKey = apiKey
 		self.liveStreamId = liveStreamId
+		modalPresentationStyle = .fullScreen
 	}
 
 	public override func viewDidLoad() {

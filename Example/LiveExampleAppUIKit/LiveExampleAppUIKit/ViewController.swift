@@ -35,7 +35,6 @@ class ViewController: UIViewController {
 																								apiKey: "pk_OllxJqe45s4ofRuTP3yHADCBNraEyXjcds1ZufBiOCwoKjrkkt1ecpBuKNNSxfvREBKROe" +
 																									"fKOBq3aCkbLUviVv7T24vFQGxuA6kX9vpwMuqBfX7sviF8ZA5c72dw3wzeFRKnoY9nzwGCOLyoJlR", liveStreamId: "bd67a021-9bc0-4cd7-9abe-e7d3f2f5d6b4")
 		livePlayerVC.delegate = self
-		livePlayerVC.modalPresentationStyle = .fullScreen
 		present(livePlayerVC, animated: true, completion: nil)
 	}
 }
