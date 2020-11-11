@@ -1,6 +1,6 @@
 import XCTest
 import Combine
-@testable import LiveCore
+@testable import Live
 
 final class UserTests: XCTestCase {
 	

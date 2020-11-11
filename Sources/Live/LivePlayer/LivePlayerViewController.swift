@@ -39,6 +39,7 @@ public class LivePlayerViewController: UIViewController {
 		self.liveStore = LiveStore(liveStreamRepository: restApi!, chatRepository: nil)
 
 		// At the moment, an authenticated user is needed to get a Livestream.
+		// TODO Remove and replace by the correct authentication method.
 		restApi?.authenticationToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2F1dGhlbnRpY2F0aW9uX2lkIjoiZGFjYTgwYjQtMWZiZC00YzU3LTg5ZTktMTc3M2EzYzRlNDVkIn0.PjpDmM40LzbVjyKl86rXZ4dWfX6cZFRhSCLEww4KC7g"
 
 

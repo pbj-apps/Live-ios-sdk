@@ -1,6 +1,6 @@
 import XCTest
 
-import LiveCoreTests
+import LiveTests
 
 var tests = [XCTestCaseEntry]()
 tests += UserTests.allTests()
