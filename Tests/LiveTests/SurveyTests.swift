@@ -5,7 +5,7 @@
 //  Created by Sacha on 24/08/2020.
 //
 import XCTest
-@testable import LiveCore
+@testable import Live
 
 final class SurveyTests: XCTestCase {
 	

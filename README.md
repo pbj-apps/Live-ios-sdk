@@ -15,9 +15,9 @@ Stream your PBJ.live content from your iOS App.
 https://github.com/pbj-apps/Live-ios-sdk
 ```
 
-## 2. Import LiveCore at the top of your file
+## 2. Import Live at the top of your file
 ```swift
-import LiveCore
+import Live
 ```
 
 ## 3. Create a LivePlayerViewController with your credentials 
