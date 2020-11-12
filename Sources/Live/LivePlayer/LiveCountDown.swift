@@ -8,16 +8,19 @@
 import SwiftUI
 
 struct LiveCountDown: View {
-	
-	@EnvironmentObject var theme: Theme
+
 	let date: Date
+	let isAllCaps: Bool
+	let lightForegroundColor: Color
+	let regularFont: String
+
 	@State var liveIn = "..."
 	let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
 	
 	var body: some View {
-		ThemedText(liveIn)
-			.foregroundColor(theme.lightForegroundColor)
-			.font(.custom(theme.fonts.regular, size: 45))
+		UppercasedText(liveIn, uppercased: isAllCaps)
+			.foregroundColor(lightForegroundColor)
+			.font(.custom(regularFont, size: 45))
 			.onAppear {
 				liveIn = countdown()
 			}
@@ -40,7 +43,10 @@ struct LiveCountDown: View {
 
 struct LiveCountDown_Previews: PreviewProvider {
 	static var previews: some View {
-		LiveCountDown(date: Date().addingTimeInterval(1000), liveIn: "Test")
+		LiveCountDown(date:  Date().addingTimeInterval(1000),
+									isAllCaps: false,
+									lightForegroundColor: .white, regularFont: "HelveticaNeue",
+									liveIn: "Test")
 			.background(Color.black)
 			.previewLayout(PreviewLayout.fixed(width: 300, height: 100))
 	}

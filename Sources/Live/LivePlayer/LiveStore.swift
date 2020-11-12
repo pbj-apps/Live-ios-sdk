@@ -71,11 +71,11 @@ public func fetchLiveStreams() {
 //			.removeDuplicates()
 			.map { liveStreams in liveStreams.filter { $0.status != .finished } }// Remove finished streams
 //			.map { liveStreams in liveStreams.filter { Date() <= $0.endDate } }// Remove finished streams
-//			.map { [weak self] in
-//				$0.forEach { if $0.status == .broadcasting { self?.zfetchBroacastUrl(for: $0) } }
-//				self?.isLoadingLiveStreams = false
-//				return $0
-//			}
+			.map { [weak self] in
+				$0.forEach { if $0.status == .broadcasting { self?.zfetchBroacastUrl(for: $0) } }
+				self?.isLoadingLiveStreams = false
+				return $0
+			}
 			.assign(to: \.liveStreams, on: self)
 			.store(in: &cancellables)
 	}

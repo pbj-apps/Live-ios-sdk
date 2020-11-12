@@ -9,14 +9,17 @@ import SwiftUI
 
 struct RemindMeButton: View {
 
-	@EnvironmentObject var theme: Theme
+	let backgroundColor: Color
+	let isAllCapps: Bool
+	let accentColor: Color
+	let regularFont: String
 
 	var body: some View {
 		HStack {
 			Spacer()
-			ThemedText("Remind Me")
-				.accentColor(theme.accentColor)
-				.font(.custom(theme.fonts.regular, size: 16))
+			UppercasedText("Remind Me", uppercased: isAllCapps)
+				.accentColor(accentColor)
+				.font(.custom(regularFont, size: 16))
 			Image(systemName: "bell.fill")
 				.resizable()
 				.scaledToFit()
@@ -25,15 +28,14 @@ struct RemindMeButton: View {
 			Spacer()
 		}
 		.frame(height: 50)
-		.background(theme.backgroundColor)
+		.background(backgroundColor)
 		.cornerRadius(10)
 	}
 }
 
 struct RemindMeButton_Previews: PreviewProvider {
 	static var previews: some View {
-		RemindMeButton()
-			.environmentObject(Theme())
+		RemindMeButton(backgroundColor: .black, isAllCapps: true, accentColor: .red, regularFont: "Helvetica")
 			.previewLayout(.sizeThatFits)
 	}
 }

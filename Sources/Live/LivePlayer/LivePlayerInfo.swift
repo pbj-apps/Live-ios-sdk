@@ -9,7 +9,10 @@ import SwiftUI
 
 struct LivePlayerInfo: View {
 
-	@EnvironmentObject var theme: Theme
+	let isAllCaps: Bool
+	let regularFont: String
+	let lightFont: String
+	let lightForegroundColor: Color
 	@EnvironmentObject var liveStore: LiveStore
 
 	@State private var showChat = false
@@ -36,9 +39,9 @@ struct LivePlayerInfo: View {
 					HStack {
 						LiveIndicatorView(isLive: liveStream.status == .broadcasting)
 						Spacer()
-						ThemedText(liveStream.title)
+						UppercasedText(liveStream.title, uppercased: isAllCaps)
 							.foregroundColor(Color.white)
-							.font(.custom(theme.fonts.regular, size: 18))
+							.font(.custom(regularFont, size: 18))
 						Spacer()
 						Button(action: {
 							withAnimation {
@@ -55,25 +58,31 @@ struct LivePlayerInfo: View {
 					.padding(.top, proxy?.safeAreaInsets.top ?? 0)
 					Spacer()
 					if (liveStream.status == .idle || liveStream.status == .waitingRoom) && !showChat {
-						ThemedText(liveStream.messageToDisplay())
+						UppercasedText(liveStream.messageToDisplay(), uppercased: isAllCaps)
 							.lineLimit(5)
 							.foregroundColor(Color.white)
-							.font(.custom(theme.fonts.regular, size: 50))
+							.font(.custom(regularFont, size: 50))
 							.transition(.opacity)
 							.lineSpacing(0.1)
 							.padding(.bottom, 55)
 
-						ThemedText("Live in")
+						UppercasedText("Live in", uppercased: isAllCaps)
 							.foregroundColor(Color.white)
-							.font(.custom(theme.fonts.regular, size: 14))
+							.font(.custom(regularFont, size: 14))
 							.transition(.opacity)
-						LiveCountDown(date: liveStream.startDate)
+						LiveCountDown(
+							date: liveStream.startDate,
+							isAllCaps: isAllCaps,
+							lightForegroundColor: lightForegroundColor,
+							regularFont: regularFont)
+
 							.transition(.opacity)
 							.padding(.bottom, 50)
 					}
 
 					if showChat {
-						Chat()
+						Chat(regularFont: regularFont,
+								 lightFont: lightFont)
 							.padding(.bottom, 15)
 							.environmentObject(liveStore)
 							.transition(.opacity)
@@ -87,9 +96,9 @@ struct LivePlayerInfo: View {
 							}) {
 								Image("ChatMessageBubble", bundle: .module)
 								if !showChat {
-									ThemedText("\(liveStore.chatMessages.count)")
+									UppercasedText("\(liveStore.chatMessages.count)", uppercased: isAllCaps)
 										.foregroundColor(.white)
-										.font(.custom(theme.fonts.regular, size: 14))
+										.font(.custom(regularFont, size: 14))
 								}
 							}
 							.buttonStyle(PlainButtonStyle())
@@ -99,25 +108,25 @@ struct LivePlayerInfo: View {
 						Spacer()
 						if !showChat {
 							Image("Person", bundle: .module)
-							ThemedText("518k")
+							UppercasedText("518k", uppercased: isAllCaps)
 								.transition(.opacity)
 								.foregroundColor(.white)
-								.font(.custom(theme.fonts.regular, size: 14))
+								.font(.custom(regularFont, size: 14))
 						} else {
 							HStack {
 								ZStack(alignment: .leading) {
 									if chatText.isEmpty {
 										Text("Type a message")
-											.foregroundColor(theme.lightForegroundColor)
+											.foregroundColor(lightForegroundColor)
 											.opacity(0.75)
-											.font(.custom(theme.fonts.light, size: 14))
+											.font(.custom(lightFont, size: 14))
 									}
 									TextField("", text: $chatText, onCommit: {
 										_ = liveStore.send(message: chatText, for: liveStream)
 										chatText = ""
 									})
-									.font(.custom(theme.fonts.light, size: 14))
-									.foregroundColor(theme.lightForegroundColor)
+									.font(.custom(lightFont, size: 14))
+									.foregroundColor(lightForegroundColor)
 									.simultaneousGesture(TapGesture())
 								}
 								Button(action: {
@@ -133,7 +142,7 @@ struct LivePlayerInfo: View {
 							.padding(9)
 							.overlay(
 								RoundedRectangle(cornerRadius: 8)
-									.stroke(theme.lightForegroundColor.opacity(0.5), lineWidth: 1)
+									.stroke(lightForegroundColor.opacity(0.5), lineWidth: 1)
 							)
 						}
 					}
@@ -173,13 +182,23 @@ public func fakeLivestream(with state: LiveStreamStatus) -> LiveStream {
 }
 
 struct LivePlayerInfo_Previews: PreviewProvider {
+
+	static func info(with status: LiveStreamStatus, proxy: GeometryProxy) -> LivePlayerInfo {
+		LivePlayerInfo(
+			isAllCaps: false,
+			regularFont: "HelveticaNeue",
+			lightFont: "Helvetica-Light",
+			lightForegroundColor: .white,
+			liveStream: fakeLivestream(with: status), close: { }, proxy: proxy)
+	}
+
 	static var previews: some View {
 		GeometryReader { proxy in
 			Group {
-				LivePlayerInfo(liveStream: fakeLivestream(with: .idle), close: {}, proxy: proxy)
-				LivePlayerInfo(liveStream: fakeLivestream(with: .waitingRoom), close: {}, proxy: proxy)
-				LivePlayerInfo(liveStream: fakeLivestream(with: .broadcasting), close: {}, proxy: proxy)
-				LivePlayerInfo(liveStream: fakeLivestream(with: .finished), close: {}, proxy: proxy)
+				info(with: .idle, proxy: proxy)
+				info(with:.waitingRoom, proxy: proxy)
+				info(with: .broadcasting, proxy: proxy)
+				info(with: .finished, proxy: proxy)
 			}
 		}
 	}

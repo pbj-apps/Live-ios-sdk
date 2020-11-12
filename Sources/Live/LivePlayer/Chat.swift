@@ -9,8 +9,11 @@ import SwiftUI
 import Combine
 
 struct Chat: View {
+
+	var regularFont: String
+	var lightFont: String
+
 	@EnvironmentObject var liveStore: LiveStore
-	@EnvironmentObject var theme: Theme
 
 	var body: some View {
 		ScrollView(.vertical, showsIndicators: false) {
@@ -19,10 +22,10 @@ struct Chat: View {
 					HStack(alignment: .center, spacing: 5) {
 						Text(message.username)
 							.foregroundColor(.white)
-							.font(.custom(theme.fonts.regular, size: 14))
+							.font(.custom(regularFont, size: 14))
 						Text(message.text)
 							.foregroundColor(.white)
-							.font(.custom(theme.fonts.light, size: 14))
+							.font(.custom(lightFont, size: 14))
 						Spacer()
 					}
 					.flippedUpsideDown()
@@ -37,6 +40,6 @@ struct Chat: View {
 
 struct Chat_Previews: PreviewProvider {
 	static var previews: some View {
-		Chat()
+		Chat(regularFont: "HelveticaNeue", lightFont: "Helvetica-Light")
 	}
 }

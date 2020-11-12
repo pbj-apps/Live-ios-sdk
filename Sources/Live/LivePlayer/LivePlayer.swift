@@ -12,6 +12,14 @@ import AVFoundation
 
 public struct LivePlayer: View, Equatable {
 
+	let isAllCaps: Bool
+	let regularFont: String
+	let lightFont: String
+	let lightForegroundColor: Color
+	let imagePlaceholderColor: Color
+	let accentColor: Color
+	let remindMeButtonBackgroundColor: Color
+
 	let nextLiveStream: LiveStream?
 	let finishedPlaying: () -> Void
 	let close: (() -> Void)?
@@ -31,12 +39,29 @@ public struct LivePlayer: View, Equatable {
 		nextLiveStream: LiveStream? = nil,
 		finishedPlaying: @escaping () -> Void,
 		close: (() -> Void)? = nil,
-		proxy: GeometryProxy? = nil) {
+		proxy: GeometryProxy? = nil,
+		isAllCaps: Bool,
+		regularFont: String,
+		lightFont: String,
+		lightForegroundColor: Color,
+		imagePlaceholderColor: Color,
+		accentColor: Color,
+		remindMeButtonBackgroundColor: Color
+		) {
 		self.liveStore = liveStore
 		self.nextLiveStream = nextLiveStream
 		self.finishedPlaying = finishedPlaying
 		self.close = close
 		self.proxy = proxy
+
+		self.isAllCaps = isAllCaps
+		self.regularFont = regularFont
+		self.lightFont = lightFont
+		self.lightForegroundColor = lightForegroundColor
+		self.imagePlaceholderColor = imagePlaceholderColor
+		self.accentColor = accentColor
+		self.remindMeButtonBackgroundColor = remindMeButtonBackgroundColor
+
 		backgroundImage = FetchImage(url: URL(string: liveStore.liveStreamWatched!.previewImageUrl ?? "https://")!)
 	}
 
@@ -59,15 +84,28 @@ public struct LivePlayer: View, Equatable {
 							.zIndex(1)
 					}
 				case .finished:
-					LivePlayerFinishedStateOverlay(nextLiveStream: nextLiveStream,
-																				 proxy: proxy,
-																				 close: close)
+					LivePlayerFinishedStateOverlay(
+						nextLiveStream: nextLiveStream,
+						proxy: proxy,
+						close: close,
+						regularFont: regularFont,
+						lightFont: lightFont,
+						isAllCaps: isAllCaps,
+						imagePlaceholderColor: imagePlaceholderColor,
+						lightForegroundColor: lightForegroundColor,
+						accentColor: accentColor,
+						remindMeButtonBackgroundColor: remindMeButtonBackgroundColor)
 						.transition(.opacity)
 						.zIndex(2)
 				}
 				if liveStream.status != .finished { //} && liveStream.status != .idle {
 					if showInfo {
-						LivePlayerInfo(liveStream: liveStream,
+						LivePlayerInfo(
+							isAllCaps: isAllCaps,
+							regularFont: regularFont,
+							lightFont: lightFont,
+							lightForegroundColor: lightForegroundColor,
+							liveStream: liveStream,
 													 close: close,
 													 proxy: proxy)
 							.environmentObject(liveStore)
@@ -90,22 +128,6 @@ public struct LivePlayer: View, Equatable {
 		lhs.liveStream.id == rhs.liveStream.id && lhs.liveStream.status == rhs.liveStream.status && lhs.liveStream.broadcastUrl == rhs.liveStream.broadcastUrl && lhs.liveStream.previewVideoUrl == rhs.liveStream.previewVideoUrl
 	}
 
-}
-
-public struct ImageBackground: View {
-
-	@EnvironmentObject var theme: Theme
-	@ObservedObject var image: FetchImage
-
-	public var body: some View {
-		ZStack {
-			image.view?
-				.resizable()
-				.aspectRatio(contentMode: .fill)
-		}
-		.onAppear(perform: image.fetch)
-		.onDisappear(perform: image.cancel)
-	}
 }
 
 struct LivePlayerView: UIViewRepresentable {
