@@ -18,8 +18,8 @@ public class LivePlayerViewController: UIViewController {
 	public var delegate: LivePlayerViewControllerDelegate?
 	private var domain: String = ""
 	private var apiKey: String = ""
-	public var liveStore: LiveStore?
-	var cancellables = Set<AnyCancellable>()
+	private var liveStore: LiveStore?
+	private var cancellables = Set<AnyCancellable>()
 	private var restApi:RestApi?
 	private var liveStreamId: String?
 
@@ -119,14 +119,24 @@ public class LivePlayerViewController: UIViewController {
 	}
 
 	private func showPlayer(liveStream: LiveStream) {
-		let livePlayerView = AnyView(GeometryReader { proxy in
-			LivePlayer(liveStore: self.liveStore!, finishedPlaying: {
-				print("Finished playing")
-			}, close: { [weak self] in
-				self?.delegate?.livePlayerViewControllerDidTapClose()
-			}, proxy: proxy)
-		})
-		.environmentObject(Theme())
+		let livePlayerView = AnyView(
+			GeometryReader { proxy in
+				LivePlayer(
+					liveStore: self.liveStore!,
+					finishedPlaying: { print("Finished playing") },
+					close: { [weak self] in
+						self?.delegate?.livePlayerViewControllerDidTapClose()
+					},
+					proxy: proxy,
+					isAllCaps: false,
+					regularFont: "HelveticaNeue",
+					lightFont: "Helvetica-Light",
+					lightForegroundColor: .white,
+					imagePlaceholderColor: Color(red: 239.0/255, green: 239.0/255, blue: 239.0/255),
+					accentColor: .black,
+					remindMeButtonBackgroundColor: .white
+				)
+			})
 
 		let livePlayerVC = UIHostingController(rootView: livePlayerView)
 		addChild(livePlayerVC)

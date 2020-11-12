@@ -8,18 +8,19 @@
 import SwiftUI
 import FetchImage
 
-public struct ImageView: View {
+public struct LiveImageView: View {
 
-	@EnvironmentObject var theme: Theme
+	let placeholderColor: Color
 	@ObservedObject var image: FetchImage
 
-	public init(image: FetchImage) {
+	public init(image: FetchImage, placeholderColor: Color) {
 		self.image = image
+		self.placeholderColor = placeholderColor
 	}
 
 	public var body: some View {
 		ZStack {
-			Rectangle().fill(theme.imagePlaceholderColor)
+			Rectangle().fill(placeholderColor)
 			image.view?
 				.resizable()
 				.aspectRatio(contentMode: .fill)

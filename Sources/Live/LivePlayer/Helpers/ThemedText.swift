@@ -7,23 +7,23 @@
 
 import SwiftUI
 
-public struct ThemedText: View {
+public struct UppercasedText: View {
 
-	@EnvironmentObject var theme: Theme
+	let uppercased: Bool
 	private let text: String
 
-	public init(_ content: String) {
+	public init(_ content: String, uppercased: Bool) {
 		self.text = content
+		self.uppercased = uppercased
 	}
 
 	public var body: some View {
-		Text(theme.isAllCaps ? text.uppercased() : text)
+		Text(uppercased ? text.uppercased() : text)
 	}
 }
 
 struct ThemedText_Previews: PreviewProvider {
 	static var previews: some View {
-		ThemedText("Hello, World!")
-			.environmentObject(Theme())
+		UppercasedText("Hello, World!", uppercased: true)
 	}
 }

@@ -10,16 +10,41 @@ import FetchImage
 
 struct LivePlayerFinishedStateOverlay: View {
 
-	@EnvironmentObject var theme: Theme
+	let regularFont: String
+	let lightFont: String
+	let isAllCaps: Bool
+	let imagePlaceholderColor: Color
+	let lightForegroundColor: Color
+	let accentColor: Color
+	let remindMeButtonBackgroundColor: Color
+
 	let nextLiveStream: LiveStream?
 	let close: (() -> Void)?
 	@ObservedObject private var instructorAvatar: FetchImage
 	let proxy: GeometryProxy?
 
-	init(nextLiveStream: LiveStream?, proxy: GeometryProxy?, close: (() -> Void)?) {
+	init(nextLiveStream: LiveStream?,
+			 proxy: GeometryProxy?,
+			 close: (() -> Void)?,
+			 regularFont: String,
+			 lightFont: String,
+			 isAllCaps: Bool,
+			 imagePlaceholderColor: Color,
+			 lightForegroundColor: Color,
+			 accentColor: Color,
+			 remindMeButtonBackgroundColor: Color
+	) {
 		self.nextLiveStream = nextLiveStream
 		self.proxy = proxy
 		self.close = close
+
+		self.regularFont = regularFont
+		self.lightFont = lightFont
+		self.isAllCaps = isAllCaps
+		self.imagePlaceholderColor = imagePlaceholderColor
+		self.lightForegroundColor = lightForegroundColor
+		self.accentColor = accentColor
+		self.remindMeButtonBackgroundColor = remindMeButtonBackgroundColor
 
 		if let url = URL(string: nextLiveStream?.instructor.avatarUrl ?? "") {
 			instructorAvatar = FetchImage(url: url)
@@ -35,9 +60,9 @@ struct LivePlayerFinishedStateOverlay: View {
 			VStack(spacing: 0) {
 				HStack {
 					Spacer()
-					ThemedText("Thanks for watching!")
+					UppercasedText("Thanks for watching!", uppercased: isAllCaps)
 						.foregroundColor(Color.white)
-						.font(.custom(theme.fonts.regular, size: 18))
+						.font(.custom(regularFont, size: 18))
 					Spacer()
 					Button(action: {
 						withAnimation {
@@ -57,34 +82,42 @@ struct LivePlayerFinishedStateOverlay: View {
 				Spacer()
 				if let nextLiveStream = nextLiveStream {
 					VStack(spacing: 0) {
-						ThemedText("Next up")
+						UppercasedText("Next up", uppercased: isAllCaps)
 							.foregroundColor(Color.white)
-							.font(.custom(theme.fonts.regular, size: 18))
+							.font(.custom(regularFont, size: 18))
 							.padding(.bottom, 10)
-						ThemedText(nextLiveStream.title)
+						UppercasedText(nextLiveStream.title, uppercased: isAllCaps)
 							.foregroundColor(Color.white)
-							.font(.custom(theme.fonts.regular, size: 39))
+							.font(.custom(regularFont, size: 39))
 							.multilineTextAlignment(.center)
 							.padding(.bottom, 12)
 						HStack(spacing: 0) {
-							ImageView(image: instructorAvatar)
+							LiveImageView(image: instructorAvatar, placeholderColor: imagePlaceholderColor)
 								.frame(width: 30, height: 30)
 								.clipShape(RoundedRectangle(cornerRadius: 7.43))
 								.padding(.trailing, 10)
-							ThemedText("with ")
+							UppercasedText("with ", uppercased: isAllCaps)
 								.foregroundColor(Color.white)
-								.font(.custom(theme.fonts.light, size: 18))
-							ThemedText("\(nextLiveStream.instructor.firstname) \(nextLiveStream.instructor.lastname)")
+								.font(.custom(lightFont, size: 18))
+							UppercasedText("\(nextLiveStream.instructor.firstname) \(nextLiveStream.instructor.lastname)", uppercased: isAllCaps)
 								.foregroundColor(Color.white)
-								.font(.custom(theme.fonts.regular, size: 18))
+								.font(.custom(regularFont, size: 18))
 						}
 						.padding(.bottom, 10)
-						LiveCountDown(date: nextLiveStream.startDate)
+						LiveCountDown(
+							date: nextLiveStream.startDate,
+							isAllCaps: isAllCaps,
+							lightForegroundColor: lightForegroundColor,
+							regularFont: regularFont)
+
 
 					}.padding(.horizontal, 60)
 					Spacer()
 					Button(action: {}) {
-						RemindMeButton()
+						RemindMeButton(backgroundColor: remindMeButtonBackgroundColor,
+													 isAllCapps: isAllCaps,
+													 accentColor: accentColor,
+													 regularFont: regularFont)
 							.padding(.horizontal, 23)
 					}
 				}
