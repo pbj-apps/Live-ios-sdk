@@ -10,15 +10,14 @@ import Combine
 
 struct Chat: View {
 
-	var regularFont: String
-	var lightFont: String
-
-	@EnvironmentObject var liveStore: LiveStore
+	let chatMessages: [ChatMessage]
+	let regularFont: String
+	let lightFont: String
 
 	var body: some View {
 		ScrollView(.vertical, showsIndicators: false) {
 			VStack(alignment: .leading) {
-				ForEach(liveStore.chatMessages) { message in
+				ForEach(chatMessages) { message in
 					HStack(alignment: .center, spacing: 5) {
 						Text(message.username)
 							.foregroundColor(.white)
@@ -40,6 +39,9 @@ struct Chat: View {
 
 struct Chat_Previews: PreviewProvider {
 	static var previews: some View {
-		Chat(regularFont: "HelveticaNeue", lightFont: "Helvetica-Light")
+		Chat(
+			chatMessages: [],
+			regularFont: "HelveticaNeue",
+			lightFont: "Helvetica-Light")
 	}
 }

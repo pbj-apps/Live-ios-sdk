@@ -13,116 +13,81 @@ public protocol LivePlayerViewControllerDelegate {
 	func livePlayerViewControllerDidTapClose()
 }
 
-public class LivePlayerViewController: UIViewController {
+public class LivePlayerViewController: UIViewController, ObservableObject {
 
 	public var delegate: LivePlayerViewControllerDelegate?
-	private var domain: String = ""
-	private var apiKey: String = ""
-	private var liveStore: LiveStore?
 	private var cancellables = Set<AnyCancellable>()
-	private var restApi:RestApi?
+	private var api: RestApi!
 	private var liveStreamId: String?
+	private var livePlayerViewModel: LivePlayerViewModel?
 
+	public override func loadView() {
+		view = LivePlayerViewControllerView()
+	}
 
 	public convenience init(domain: String, apiKey: String, liveStreamId: String?) {
 		self.init(nibName: nil, bundle: nil)
-		self.domain = domain
-		self.apiKey = apiKey
 		self.liveStreamId = liveStreamId
+		self.api = RestApi(apiUrl: "https://\(domain)/api", webSocketsUrl: "wss://\(domain)/ws", apiKey: apiKey)
+		// At the moment, an authenticated user is needed to get a Livestream.
+		// TODO Remove and replace by the correct authentication method.
+		api.authenticationToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2F1dGhlbnRpY2F0aW9uX2lkIjoiZGFjYTgwYjQtMWZiZC00YzU3LTg5ZTktMTc3M2EzYzRlNDVkIn0.PjpDmM40LzbVjyKl86rXZ4dWfX6cZFRhSCLEww4KC7g"
 		modalPresentationStyle = .fullScreen
 	}
 
 	public override func viewDidLoad() {
 		super.viewDidLoad()
 
-		self.restApi = RestApi(apiUrl: "https://\(domain)/api", webSocketsUrl: "wss://\(domain)/ws", apiKey: apiKey)
-		self.liveStore = LiveStore(liveStreamRepository: restApi!, chatRepository: nil)
-
-		// At the moment, an authenticated user is needed to get a Livestream.
-		// TODO Remove and replace by the correct authentication method.
-		restApi?.authenticationToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2F1dGhlbnRpY2F0aW9uX2lkIjoiZGFjYTgwYjQtMWZiZC00YzU3LTg5ZTktMTc3M2EzYzRlNDVkIn0.PjpDmM40LzbVjyKl86rXZ4dWfX6cZFRhSCLEww4KC7g"
-
-
-		view.backgroundColor = .black
-
-		addLoadingSpinner()
-
-		var playerShown = false
-		liveStore!.$liveStreams.sink { livestreams in
-			if !livestreams.isEmpty, !playerShown {
-
-				if let liveStreamId = self.liveStreamId,
-					 let index = livestreams.firstIndex(where: { $0.id  == liveStreamId}) {
-
-					self.liveStore?.liveStreamWatchedIndex = index
-					Timer.scheduledTimer(withTimeInterval: 1, repeats: false) { _ in
-						print(self.liveStore?.liveStreamWatched?.id)
-						if let livestream = self.liveStore?.liveStreamWatched {
-							self.showPlayer(liveStream: livestream)
-						}
-					}
-
-				} else {
-					let randomIndex = Int.random(in: 0..<livestreams.count)
-					self.liveStore?.liveStreamWatchedIndex = randomIndex
-					Timer.scheduledTimer(withTimeInterval: 1, repeats: false) { _ in
-						print(self.liveStore?.liveStreamWatched?.id)
-						if let livestream = self.liveStore?.liveStreamWatched {
-							self.showPlayer(liveStream: livestream)
-						}
-					}
-				}
-				playerShown = true
+		api.getLiveStreams().map { [unowned self] liveStreams -> LiveStream in
+			if let liveStreamFound = liveStreams.first(where: { $0.id == self.liveStreamId }) {
+				return liveStreamFound
+			} else {
+				return liveStreams.randomElement()!
 			}
-		}.store(in: &cancellables)
-
-		liveStore?.fetchLiveStreams()
-	}
-
-	private func addLoadingSpinner() {
-
-		let label = UILabel()
-		label.textColor = .white
-		label.text = "Loading Livestream..."
-		label.translatesAutoresizingMaskIntoConstraints = false
-		view.addSubview(label)
-		label.centerYAnchor.constraint(equalTo: view.centerYAnchor).isActive = true
-		label.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
-
-		let spinner = UIActivityIndicatorView()
-		spinner.color = .white
-		spinner.translatesAutoresizingMaskIntoConstraints = false
-		view.addSubview(spinner)
-		spinner.topAnchor.constraint(equalTo: label.bottomAnchor, constant: 10).isActive = true
-		spinner.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
-		spinner.startAnimating()
-	}
-
-	public override func viewDidAppear(_ animated: Bool) {
-		super.viewDidAppear(animated)
-		liveStore?.listenToLiveStreamUpdates()
-	}
-
-	public override func viewDidDisappear(_ animated: Bool) {
-		super.viewDidDisappear(animated)
-		liveStore?.stopListeningToLiveStreamUpdates()
-	}
-
-	func showRandomLivestramAvailable() {
-		restApi?.getLiveStreamsSchedule().then{ livestreams in
-			if let firstLivestream = livestreams.randomElement() {
-				self.showPlayer(liveStream: firstLivestream)
-			}
+		} .map { [unowned self] liveStream in
+			self.livePlayerViewModel = LivePlayerViewModel(liveStream: liveStream)
+			self.showPlayer()
 		}
 		.sink()
 		.store(in: &cancellables)
 	}
 
-	private func showPlayer(liveStream: LiveStream) {
+	public override func viewDidAppear(_ animated: Bool) {
+		super.viewDidAppear(animated)
+
+		api.registerForRealTimeLiveStreamUpdates()
+			.receive(on: RunLoop.main)
+			.sink { [unowned self] update in
+				if let liveStream = self.livePlayerViewModel?.liveStream, update.id == liveStream.id {
+					self.livePlayerViewModel?.liveStream.waitingRomDescription = update.waitingRoomDescription
+					self.livePlayerViewModel?.liveStream.status = update.status
+					if update.status == .broadcasting { // Fetch broadcastURL
+						self.fetchBroadcastURL(liveStream: liveStream)
+					}
+				}
+			}.store(in: &cancellables)
+	}
+
+	func fetchBroadcastURL(liveStream: LiveStream) {
+		api.fetchBroadcastUrl(for: liveStream)
+			.receive(on: RunLoop.main)
+			.then { [unowned self] broadcastURL in
+				self.livePlayerViewModel?.liveStream.broadcastUrl = broadcastURL
+			}
+			.sink()
+			.store(in: &cancellables)
+	}
+
+	public override func viewDidDisappear(_ animated: Bool) {
+		super.viewDidDisappear(animated)
+		api.leaveRealTimeLiveStreamUpdates()
+	}
+
+	private func showPlayer() {
 		let livePlayerView = AnyView(
 			GeometryReader { proxy in
 				LivePlayer(
-					liveStore: self.liveStore!,
+					viewModel: self.livePlayerViewModel!,
 					finishedPlaying: { print("Finished playing") },
 					close: { [weak self] in
 						self?.delegate?.livePlayerViewControllerDidTapClose()
@@ -134,7 +99,11 @@ public class LivePlayerViewController: UIViewController {
 					lightForegroundColor: .white,
 					imagePlaceholderColor: Color(red: 239.0/255, green: 239.0/255, blue: 239.0/255),
 					accentColor: .black,
-					remindMeButtonBackgroundColor: .white
+					remindMeButtonBackgroundColor: .white,
+					isChatEnabled: false,
+					chatMessages: [],
+					fetchMessages: {},
+					sendMessage: { _ in }
 				)
 			})
 
@@ -154,5 +123,15 @@ public class LivePlayerViewController: UIViewController {
 		UIView.animate(withDuration: 0.3) {
 			livePlayerVC.view.alpha = 1
 		}
+	}
+}
+
+
+public class LivePlayerViewModel: ObservableObject {
+
+	@Published var liveStream: LiveStream
+
+	init(liveStream: LiveStream) {
+		self.liveStream = liveStream
 	}
 }

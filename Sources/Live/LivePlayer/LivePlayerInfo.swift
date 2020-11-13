@@ -9,11 +9,16 @@ import SwiftUI
 
 struct LivePlayerInfo: View {
 
+	// Chat
+	let isChatEnabled: Bool
+	let chatMessages: [ChatMessage]
+	let fetchMessages: () -> Void
+	let sendMessage: (String) -> Void
+
 	let isAllCaps: Bool
 	let regularFont: String
 	let lightFont: String
 	let lightForegroundColor: Color
-	@EnvironmentObject var liveStore: LiveStore
 
 	@State private var showChat = false
 	@State private var chatText: String = ""
@@ -81,14 +86,15 @@ struct LivePlayerInfo: View {
 					}
 
 					if showChat {
-						Chat(regularFont: regularFont,
-								 lightFont: lightFont)
+						Chat(
+							chatMessages: chatMessages,
+							regularFont: regularFont,
+							lightFont: lightFont)
 							.padding(.bottom, 15)
-							.environmentObject(liveStore)
 							.transition(.opacity)
 					}
 					HStack {
-						if liveStore.isChatEnabled {
+						if isChatEnabled {
 							Button(action: {
 								withAnimation {
 									showChat.toggle()
@@ -96,7 +102,7 @@ struct LivePlayerInfo: View {
 							}) {
 								Image("ChatMessageBubble", bundle: .module)
 								if !showChat {
-									UppercasedText("\(liveStore.chatMessages.count)", uppercased: isAllCaps)
+									UppercasedText("\(chatMessages.count)", uppercased: isAllCaps)
 										.foregroundColor(.white)
 										.font(.custom(regularFont, size: 14))
 								}
@@ -122,7 +128,7 @@ struct LivePlayerInfo: View {
 											.font(.custom(lightFont, size: 14))
 									}
 									TextField("", text: $chatText, onCommit: {
-										_ = liveStore.send(message: chatText, for: liveStream)
+										sendMessage(chatText)
 										chatText = ""
 									})
 									.font(.custom(lightFont, size: 14))
@@ -131,7 +137,7 @@ struct LivePlayerInfo: View {
 								}
 								Button(action: {
 									if !chatText.isEmpty {
-										_ = liveStore.send(message: chatText, for: liveStream)
+										sendMessage(chatText)
 										chatText = ""
 									}
 								}) {
@@ -152,7 +158,7 @@ struct LivePlayerInfo: View {
 			}
 		}
 		.onAppear {
-			liveStore.fetchMessages(for: liveStream)
+			fetchMessages()
 		}
 	}
 }
@@ -185,6 +191,10 @@ struct LivePlayerInfo_Previews: PreviewProvider {
 
 	static func info(with status: LiveStreamStatus, proxy: GeometryProxy) -> LivePlayerInfo {
 		LivePlayerInfo(
+			isChatEnabled: true,
+			chatMessages: [],
+			fetchMessages: {},
+			sendMessage: { _ in },
 			isAllCaps: false,
 			regularFont: "HelveticaNeue",
 			lightFont: "Helvetica-Light",
