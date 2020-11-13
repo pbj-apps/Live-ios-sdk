@@ -12,6 +12,14 @@ import AVFoundation
 
 public struct LivePlayer: View, Equatable {
 
+	@ObservedObject var viewModel: LivePlayerViewModel
+
+	// Chat
+	let isChatEnabled: Bool
+	let chatMessages: [ChatMessage]
+	let fetchMessages: () -> Void
+	let sendMessage: (String) -> Void
+
 	let isAllCaps: Bool
 	let regularFont: String
 	let lightFont: String
@@ -20,22 +28,22 @@ public struct LivePlayer: View, Equatable {
 	let accentColor: Color
 	let remindMeButtonBackgroundColor: Color
 
+//	let liveStream: LiveStream
+	var liveStream: LiveStream {
+		return viewModel.liveStream
+	}
+
 	let nextLiveStream: LiveStream?
 	let finishedPlaying: () -> Void
 	let close: (() -> Void)?
 	let proxy: GeometryProxy?
 
-	@ObservedObject var liveStore: LiveStore
 	@ObservedObject private var keyboard = KeyboardResponder()
 	@ObservedObject private var backgroundImage: FetchImage
 	@State var showInfo = true
 
-	private var liveStream: LiveStream {
-		return liveStore.liveStreamWatched!
-	}
-
 	public init(
-		liveStore: LiveStore,
+		viewModel: LivePlayerViewModel,
 		nextLiveStream: LiveStream? = nil,
 		finishedPlaying: @escaping () -> Void,
 		close: (() -> Void)? = nil,
@@ -46,9 +54,15 @@ public struct LivePlayer: View, Equatable {
 		lightForegroundColor: Color,
 		imagePlaceholderColor: Color,
 		accentColor: Color,
-		remindMeButtonBackgroundColor: Color
+		remindMeButtonBackgroundColor: Color,
+		// Chat
+		isChatEnabled: Bool,
+		chatMessages: [ChatMessage],
+		fetchMessages: @escaping () -> Void,
+		sendMessage: @escaping (String) -> Void
 		) {
-		self.liveStore = liveStore
+//		self.liveStream = liveStream
+		self.viewModel = viewModel
 		self.nextLiveStream = nextLiveStream
 		self.finishedPlaying = finishedPlaying
 		self.close = close
@@ -62,7 +76,12 @@ public struct LivePlayer: View, Equatable {
 		self.accentColor = accentColor
 		self.remindMeButtonBackgroundColor = remindMeButtonBackgroundColor
 
-		backgroundImage = FetchImage(url: URL(string: liveStore.liveStreamWatched!.previewImageUrl ?? "https://")!)
+		self.isChatEnabled = isChatEnabled
+		self.chatMessages = chatMessages
+		self.fetchMessages = fetchMessages
+		self.sendMessage = sendMessage
+
+		backgroundImage = FetchImage(url: URL(string: viewModel.liveStream.previewImageUrl ?? "https://")!)
 	}
 
 	public var body: some View {
@@ -101,6 +120,10 @@ public struct LivePlayer: View, Equatable {
 				if liveStream.status != .finished { //} && liveStream.status != .idle {
 					if showInfo {
 						LivePlayerInfo(
+							isChatEnabled: isChatEnabled,
+							chatMessages: chatMessages,
+							fetchMessages: fetchMessages,
+							sendMessage: sendMessage,
 							isAllCaps: isAllCaps,
 							regularFont: regularFont,
 							lightFont: lightFont,
@@ -108,7 +131,6 @@ public struct LivePlayer: View, Equatable {
 							liveStream: liveStream,
 													 close: close,
 													 proxy: proxy)
-							.environmentObject(liveStore)
 							.transition(.opacity)
 							.padding(.bottom, keyboard.currentHeight)
 							.zIndex(3)

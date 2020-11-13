@@ -33,7 +33,7 @@ class ViewController: UIViewController {
 		// 2) Create a LivePlayerViewController with your credentials
 		let livePlayerVC = LivePlayerViewController(domain: "api.pbj-live.dev.pbj.engineering",
 																								apiKey: "pk_OllxJqe45s4ofRuTP3yHADCBNraEyXjcds1ZufBiOCwoKjrkkt1ecpBuKNNSxfvREBKROe" +
-																									"fKOBq3aCkbLUviVv7T24vFQGxuA6kX9vpwMuqBfX7sviF8ZA5c72dw3wzeFRKnoY9nzwGCOLyoJlR", liveStreamId: "bd67a021-9bc0-4cd7-9abe-e7d3f2f5d6b4")
+																									"fKOBq3aCkbLUviVv7T24vFQGxuA6kX9vpwMuqBfX7sviF8ZA5c72dw3wzeFRKnoY9nzwGCOLyoJlR", liveStreamId: "0418ea46-c157-4b2c-8fa8-b002857dfdc8")
 		livePlayerVC.delegate = self
 		present(livePlayerVC, animated: true, completion: nil)
 	}
