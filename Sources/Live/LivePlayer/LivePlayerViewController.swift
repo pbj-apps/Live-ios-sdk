@@ -126,12 +126,3 @@ public class LivePlayerViewController: UIViewController, ObservableObject {
 	}
 }
 
-
-public class LivePlayerViewModel: ObservableObject {
-
-	@Published var liveStream: LiveStream
-
-	init(liveStream: LiveStream) {
-		self.liveStream = liveStream
-	}
-}

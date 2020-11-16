@@ -10,6 +10,15 @@ import SwiftUI
 import FetchImage
 import AVFoundation
 
+public class LivePlayerViewModel: ObservableObject {
+
+	@Published public var liveStream: LiveStream
+
+	public init(liveStream: LiveStream) {
+		self.liveStream = liveStream
+	}
+}
+
 public struct LivePlayer: View, Equatable {
 
 	@ObservedObject var viewModel: LivePlayerViewModel
