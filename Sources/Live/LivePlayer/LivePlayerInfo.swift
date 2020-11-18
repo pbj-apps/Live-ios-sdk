@@ -20,7 +20,7 @@ struct LivePlayerInfo: View {
 	let lightFont: String
 	let lightForegroundColor: Color
 
-	@State private var showChat = false
+	@State private var isChatShown = false
 	@State private var chatText: String = ""
 
 	let liveStream: LiveStream
@@ -62,7 +62,8 @@ struct LivePlayerInfo: View {
 					}
 					.padding(.top, proxy?.safeAreaInsets.top ?? 0)
 					Spacer()
-					if (liveStream.status == .idle || liveStream.status == .waitingRoom) && !showChat {
+
+					if liveStream.status == .idle || (liveStream.status == .waitingRoom && !isChatShown) {
 						UppercasedText(liveStream.messageToDisplay(), uppercased: isAllCaps)
 							.lineLimit(5)
 							.foregroundColor(Color.white)
@@ -85,7 +86,7 @@ struct LivePlayerInfo: View {
 							.padding(.bottom, 50)
 					}
 
-					if showChat {
+					if canShowChat && isChatShown {
 						Chat(
 							chatMessages: chatMessages,
 							regularFont: regularFont,
@@ -94,14 +95,14 @@ struct LivePlayerInfo: View {
 							.transition(.opacity)
 					}
 					HStack {
-						if isChatEnabled {
+						if canShowChat {
 							Button(action: {
 								withAnimation {
-									showChat.toggle()
+									isChatShown.toggle()
 								}
 							}) {
 								Image("ChatMessageBubble", bundle: .module)
-								if !showChat {
+								if !isChatShown {
 									UppercasedText("\(chatMessages.count)", uppercased: isAllCaps)
 										.foregroundColor(.white)
 										.font(.custom(regularFont, size: 14))
@@ -112,13 +113,7 @@ struct LivePlayerInfo: View {
 							.padding(.trailing, 9)
 						}
 						Spacer()
-						if !showChat {
-							Image("Person", bundle: .module)
-							UppercasedText("518k", uppercased: isAllCaps)
-								.transition(.opacity)
-								.foregroundColor(.white)
-								.font(.custom(regularFont, size: 14))
-						} else {
+						if canShowChat && isChatShown {
 							HStack {
 								ZStack(alignment: .leading) {
 									if chatText.isEmpty {
@@ -160,6 +155,10 @@ struct LivePlayerInfo: View {
 		.onAppear {
 			fetchMessages()
 		}
+	}
+
+	var canShowChat: Bool {
+		isChatEnabled && (liveStream.status == .waitingRoom || liveStream.status == .broadcasting)
 	}
 }
 
