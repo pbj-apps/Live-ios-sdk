@@ -146,6 +146,14 @@ struct LivePlayerInfo: View {
 									.stroke(lightForegroundColor.opacity(0.5), lineWidth: 1)
 							)
 						}
+						else {
+							// Hide for now as we don't have this data yet.
+//							Image("Person", bundle: .module)
+//							UppercasedText("518k", uppercased: isAllCaps)
+//								.transition(.opacity)
+//								.foregroundColor(.white)
+//								.font(.custom(regularFont, size: 14))
+						}
 					}
 				}
 				.padding(.horizontal, 20)
