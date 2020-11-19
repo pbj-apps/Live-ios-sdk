@@ -10,6 +10,8 @@ import SwiftUI
 import FetchImage
 import AVFoundation
 
+let sharedKeyboardResponder = KeyboardResponder()
+
 public class LivePlayerViewModel: ObservableObject {
 
 	@Published public var liveStream: LiveStream
@@ -19,7 +21,7 @@ public class LivePlayerViewModel: ObservableObject {
 	}
 }
 
-public struct LivePlayer: View, Equatable {
+public struct LivePlayer: View {
 
 	@ObservedObject var viewModel: LivePlayerViewModel
 
@@ -37,7 +39,6 @@ public struct LivePlayer: View, Equatable {
 	let accentColor: Color
 	let remindMeButtonBackgroundColor: Color
 
-//	let liveStream: LiveStream
 	var liveStream: LiveStream {
 		return viewModel.liveStream
 	}
@@ -47,7 +48,7 @@ public struct LivePlayer: View, Equatable {
 	let close: (() -> Void)?
 	let proxy: GeometryProxy?
 
-	@ObservedObject private var keyboard = KeyboardResponder()
+	@ObservedObject private var keyboard = sharedKeyboardResponder
 	@ObservedObject private var backgroundImage: FetchImage
 	@State var showInfo = true
 
@@ -70,7 +71,6 @@ public struct LivePlayer: View, Equatable {
 		fetchMessages: @escaping () -> Void,
 		sendMessage: @escaping (String) -> Void
 		) {
-//		self.liveStream = liveStream
 		self.viewModel = viewModel
 		self.nextLiveStream = nextLiveStream
 		self.finishedPlaying = finishedPlaying
@@ -154,11 +154,6 @@ public struct LivePlayer: View, Equatable {
 			}
 		}
 	}
-
-	public static func == (lhs: LivePlayer, rhs: LivePlayer) -> Bool {
-		lhs.liveStream.id == rhs.liveStream.id && lhs.liveStream.status == rhs.liveStream.status && lhs.liveStream.broadcastUrl == rhs.liveStream.broadcastUrl && lhs.liveStream.previewVideoUrl == rhs.liveStream.previewVideoUrl
-	}
-
 }
 
 struct LivePlayerView: UIViewRepresentable {
