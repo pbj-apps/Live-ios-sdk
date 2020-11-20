@@ -6,12 +6,19 @@
 //
 
 import UIKit
+import Live // 1) Import Live
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
 	var window: UIWindow?
 	func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+
+		// 2) Setup SDK with your domain & API Key
+		LiveSDK.initialize(
+			withDomain: "api.pbj-live.dev.pbj.engineering",
+			apiKey: "***REMOVED***")
+
 		window = UIWindow(frame: UIScreen.main.bounds)
 		window?.rootViewController = UINavigationController(rootViewController: ViewController())
 		window?.makeKeyAndVisible()
