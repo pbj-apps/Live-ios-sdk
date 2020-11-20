@@ -23,7 +23,7 @@ public struct LiveStream: Identifiable, Hashable {
 	public let startDate: Date
 	public let endDate: Date
 	public var waitingRomDescription: String
-	
+
 	public init(
 		id: String,
 		title: String,

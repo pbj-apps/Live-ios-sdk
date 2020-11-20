@@ -8,7 +8,7 @@
 import Foundation
 
 public struct VodVideo: IsVodItem, Hashable, Identifiable {
-	
+
 	public let id: String
 	public let title: String
 	public let description: String
@@ -16,7 +16,7 @@ public struct VodVideo: IsVodItem, Hashable, Identifiable {
 	public let thumbnailImageUrl: URL?
 	public let videoURL: URL?
 	public let duration: Int?
-	
+
 	public init(
 		id: String,
 		title: String,

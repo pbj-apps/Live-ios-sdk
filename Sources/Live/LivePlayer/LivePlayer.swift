@@ -221,7 +221,7 @@ class LivePlayerAVPlayerView: UIView {
 
 struct LivePlayer_Previews: PreviewProvider {
 	static var previews: some View {
-		GeometryReader { proxy in
+		GeometryReader { _ in
 //			LivePlayer(liveStream: fakeLivestream(with: .idle),
 //								 nextLiveStream: nil, finishedPlaying: {}, close: {}, proxy: proxy)
 

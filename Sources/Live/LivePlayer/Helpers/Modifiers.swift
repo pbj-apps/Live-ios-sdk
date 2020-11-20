@@ -16,7 +16,7 @@ struct FlippedUpsideDown: ViewModifier {
 }
 
 extension View {
-	func flippedUpsideDown() -> some View{
+	func flippedUpsideDown() -> some View {
 		self.modifier(FlippedUpsideDown())
 	}
 }

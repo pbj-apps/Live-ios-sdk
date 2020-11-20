@@ -10,7 +10,7 @@ import Combine
 import Networking
 
 extension RestApi: UserRepository {
-	
+
 	public func signup(email: Email, password: Password, firstname: String, lastname: String) -> AnyPublisher<User, SignupError> {
 		post("/auth/register",
 				 params: [
@@ -25,7 +25,7 @@ extension RestApi: UserRepository {
 			.mapError { $0.toSignupError() }
 			.eraseToAnyPublisher()
 	}
-	
+
 	public func login(email: String, password: String) -> AnyPublisher<User, LoginError> {
 		authenticationToken = nil
 		return post("/auth/login", params: ["email": email, "password": password])
@@ -36,13 +36,13 @@ extension RestApi: UserRepository {
 			.mapError { $0.toLoginError() }
 			.eraseToAnyPublisher()
 	}
-	
+
 	public func fetch(user: User) -> AnyPublisher<User, Error> {
 		return get("/me").map { (jsonUser: JSONUser) -> User in
 			return jsonUser.toUser()
 		}.eraseToAnyPublisher()
 	}
-	
+
 	public func editUser(firstname: String?, lastname: String?) -> AnyPublisher<Void, EditUserError> {
 		var params = [String: AnyHashable]()
 		if let firstname = firstname {
@@ -82,7 +82,7 @@ typealias ID = String
 extension JSONUser: NetworkingJSONDecodable {}
 
 struct JSONUser: Decodable {
-	
+
 	let id: ID
 	let firstname: String
 	let lastname: String
@@ -93,7 +93,7 @@ struct JSONUser: Decodable {
 	let authToken: String?
 	let hasAnsweredSurvey: Bool
 	let avatarUrl: String?
-	
+
 	enum CodingKeys: String, CodingKey {
 		case id
 		case first_name
@@ -106,15 +106,15 @@ struct JSONUser: Decodable {
 		case auth_token
 		case is_survey_attempted
 	}
-	
+
 	enum ProfileImageKeys: String, CodingKey {
 		case image
 	}
-	
+
 	enum ImageKeys: String, CodingKey {
 		case small
 	}
-	
+
 	init(from decoder: Decoder) throws {
 		let values = try decoder.container(keyedBy: CodingKeys.self)
 		id = try values.decode(String.self, forKey: .id)

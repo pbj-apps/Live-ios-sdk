@@ -16,7 +16,7 @@ struct LiveCountDown: View {
 
 	@State var liveIn = "..."
 	let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
-	
+
 	var body: some View {
 		UppercasedText(liveIn, uppercased: isAllCaps)
 			.foregroundColor(lightForegroundColor)
@@ -28,7 +28,7 @@ struct LiveCountDown: View {
 				liveIn = countdown()
 			}
 	}
-	
+
 	func countdown() -> String {
 		if date < Date() {
 			return ""
@@ -43,7 +43,7 @@ struct LiveCountDown: View {
 
 struct LiveCountDown_Previews: PreviewProvider {
 	static var previews: some View {
-		LiveCountDown(date:  Date().addingTimeInterval(1000),
+		LiveCountDown(date: Date().addingTimeInterval(1000),
 									isAllCaps: false,
 									lightForegroundColor: .white, regularFont: "HelveticaNeue",
 									liveIn: "Test")

@@ -8,11 +8,11 @@
 import Foundation
 
 public struct LocalStorageCurrentUserRepository: CurrentUserRepository {
-	
+
 	private let defaults = UserDefaults.standard
-	
+
 	private let kCurrentUserKey = "CurrentUser"
-	
+
 	var getCurrentAuthTokenCall: () -> String?
 	var setCurrentAuthTokenCall: (String) -> Void
 
@@ -20,7 +20,7 @@ public struct LocalStorageCurrentUserRepository: CurrentUserRepository {
 		self.getCurrentAuthTokenCall = getCurrentAuthTokenCall
 		self.setCurrentAuthTokenCall = setCurrentAuthTokenCall
 	}
-	
+
 	public func setCurrentUser(user: User) {
 		let savableUser = SavableUser(
 			firstname: user.firstname,
@@ -35,7 +35,7 @@ public struct LocalStorageCurrentUserRepository: CurrentUserRepository {
 			defaults.synchronize()
 		}
 	}
-	
+
 	public func getCurrentUser() -> User? {
 		if let savedUser = defaults.object(forKey: kCurrentUserKey) as? Data {
 			let decoder = JSONDecoder()
@@ -48,7 +48,7 @@ public struct LocalStorageCurrentUserRepository: CurrentUserRepository {
 		}
 		return nil
 	}
-	
+
 	public func signOut() {
 		defaults.removeObject(forKey: kCurrentUserKey)
 		defaults.synchronize()

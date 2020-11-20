@@ -8,9 +8,9 @@ import XCTest
 @testable import Live
 
 final class SurveyTests: XCTestCase {
-	
+
 	func testParsingSurvey() {
-		
+
 		let json = """
         {
             "id": "aee4a99c-23d2-4527-954d-b9cb350199cd",
@@ -63,7 +63,7 @@ final class SurveyTests: XCTestCase {
 		let decoder = JSONDecoder()
 		let jsonSurvey = try? decoder.decode(JSONSurvey.self, from: data)
 		let survey = jsonSurvey?.survey
-		
+
 		XCTAssertEqual(survey?.id, "aee4a99c-23d2-4527-954d-b9cb350199cd")
 		XCTAssertEqual(survey?.title, "What are you interested in?")
 		XCTAssertEqual(survey?.description, "We will help you out with appropriate content.")
@@ -81,8 +81,8 @@ final class SurveyTests: XCTestCase {
 		XCTAssertEqual(survey?.options[3].title, "Option D")
 		XCTAssertEqual(survey?.options[3].iconURL, URL(string: "https://pbj-live-media-demo.s3.amazonaws.com/excerciseD.png"))
 	}
-	
+
 	static var allTests = [
-		("testParsingSurvey", testParsingSurvey),
+		("testParsingSurvey", testParsingSurvey)
 	]
 }

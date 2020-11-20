@@ -22,7 +22,7 @@ struct JSONLiveStream: Decodable {
 	let startDate: String
 	let endDate: String
 	let waitingRoomDescription: String
-	
+
 	enum CodingKeys: String, CodingKey {
 		case id
 		case title
@@ -36,17 +36,17 @@ struct JSONLiveStream: Decodable {
 		case show
 		case streaming_info
 	}
-	
+
 	enum ShowKeys: String, CodingKey {
 		case id
 		case preview_asset
 		case waiting_room_description
 	}
-	
+
 	enum StreamingInfoKeys: String, CodingKey {
 		case broadcast_url
 	}
-	
+
 	init(from decoder: Decoder) throws {
 		let values = try decoder.container(keyedBy: CodingKeys.self)
 		id = try values.decode(String.self, forKey: .id)
@@ -60,7 +60,7 @@ struct JSONLiveStream: Decodable {
 		endDate = try values.decode(String.self, forKey: .ends_at)
 		let showKeys = try values.nestedContainer(keyedBy: ShowKeys.self, forKey: .show)
 		showId = try showKeys.decode(String.self, forKey: .id)
-		
+
 		let previewAsset = try? showKeys.decode(JSONPreviewAsset.self, forKey: .preview_asset)
 		previewImageUrl = previewAsset?.image.medium
 		previewVideoUrl = previewAsset?.asset_type == "video" ? previewAsset?.asset_url : nil

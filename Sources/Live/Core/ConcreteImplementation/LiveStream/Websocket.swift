@@ -22,7 +22,7 @@ class Websocket: NSObject, URLSessionWebSocketDelegate {
 		self.url = url
 		self.apiKey = apiKey
 	}
-	
+
 	func joinEpisodeUpdates() -> AnyPublisher<LiveStreamStatusUpdate, Never> {
 		sendMessage(json: "{ \"command\": \"join-episode-updates\" }")
 		return statusUpdatePublisher

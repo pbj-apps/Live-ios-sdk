@@ -3,11 +3,11 @@ import Combine
 @testable import Live
 
 final class UserTests: XCTestCase {
-	
+
 	var cancellables = Set<AnyCancellable>()
-	
+
 	// Login
-	
+
 	func testMockedLoginSucceeds() {
 		let exp = expectation(description: "expectation")
 		let sut = MockedUserRepository()
@@ -18,7 +18,7 @@ final class UserTests: XCTestCase {
 		.store(in: &cancellables)
 		waitForExpectations(timeout: 1, handler: nil)
 	}
-	
+
 	func testMockedLoginFails() {
 		let exp = expectation(description: "expectation")
 		let sut = MockedUserRepository()
@@ -29,9 +29,9 @@ final class UserTests: XCTestCase {
 		.store(in: &cancellables)
 		waitForExpectations(timeout: 1, handler: nil)
 	}
-	
+
 	// Signup
-	
+
 	func testMockedSignupSucceeds() {
 		let exp = expectation(description: "expectation")
 		let sut = MockedUserRepository()
@@ -42,7 +42,7 @@ final class UserTests: XCTestCase {
 		.store(in: &cancellables)
 		waitForExpectations(timeout: 1, handler: nil)
 	}
-	
+
 	func testMockedSignupFails() {
 		let exp = expectation(description: "expectation")
 		let sut = MockedUserRepository()
@@ -53,16 +53,16 @@ final class UserTests: XCTestCase {
 		.store(in: &cancellables)
 		waitForExpectations(timeout: 1, handler: nil)
 	}
-	
+
 	// CurrentUser
-	
+
 	func testCanGetCurrentUser() {
 		let currentUserRepository: CurrentUserRepository = MockedCurrentUserRepository()
 		XCTAssertNil(currentUserRepository.getCurrentUser())
 		MockedCurrentUserRepository.savedUser = User(firstname: "user1", lastname: "flix", email: "test@user.com", username: "", hasAnsweredSurvey: false)
 		XCTAssertNotNil(currentUserRepository.getCurrentUser())
 	}
-	
+
 	func testCanSetCurrentUser() {
 		MockedCurrentUserRepository.savedUser = nil
 		let currentUserRepository: CurrentUserRepository = MockedCurrentUserRepository()
@@ -75,7 +75,7 @@ final class UserTests: XCTestCase {
 		XCTAssertEqual(user?.lastname, "flix")
 		XCTAssertEqual(user?.email, "test@user.com")
 	}
-	
+
 	static var allTests = [
 		("testMockedLoginSucceeds", testMockedLoginSucceeds),
 		("testMockedLoginFails", testMockedLoginFails),
@@ -87,7 +87,7 @@ final class UserTests: XCTestCase {
 }
 
 struct MockedUserRepository: UserRepository {
-	
+
 	func login(email: String, password: String) -> AnyPublisher<User, LoginError> {
 		if password == "1234" {
 			return Just(User(firstname: "John", lastname: "Doe", email: "johndoe@gmail.com", username: "", hasAnsweredSurvey: false))
@@ -98,7 +98,7 @@ struct MockedUserRepository: UserRepository {
 				.eraseToAnyPublisher()
 		}
 	}
-	
+
 	func signup(email: Email, password: Password, firstname: String, lastname: String) -> AnyPublisher<User, SignupError> {
 		if email != "" {
 			return Just(User(firstname: "John", lastname: "Doe", email: "johndoe@gmail.com", username: "", hasAnsweredSurvey: false))
@@ -109,13 +109,13 @@ struct MockedUserRepository: UserRepository {
 				.eraseToAnyPublisher()
 		}
 	}
-	
+
 	func fetch(user: User) -> AnyPublisher<User, Error> {
 		return Just(User(firstname: "John", lastname: "Doe", email: "johndoe@gmail.com", username: "", hasAnsweredSurvey: false))
 			.setFailureType(to: Error.self)
 			.eraseToAnyPublisher()
 	}
-	
+
 	func editUser(firstname: String?, lastname: String?) -> AnyPublisher<Void, EditUserError> {
 		Just(())
 			.setFailureType(to: EditUserError.self)
@@ -124,17 +124,17 @@ struct MockedUserRepository: UserRepository {
 }
 
 struct MockedCurrentUserRepository: CurrentUserRepository {
-	
+
 	static var savedUser: User?
 	func setCurrentUser(user: User) {
 		MockedCurrentUserRepository.savedUser = user
 	}
-	
+
 	func getCurrentUser() -> User? {
 		return MockedCurrentUserRepository.savedUser
 	}
-	
+
 	func signOut() {
-		
+
 	}
 }
