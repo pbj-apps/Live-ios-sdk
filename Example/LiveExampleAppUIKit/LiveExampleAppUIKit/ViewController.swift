@@ -30,10 +30,8 @@ class ViewController: UIViewController {
 
 	@objc
 	func buttonTapped() {
-		// 2) Create a LivePlayerViewController with your credentials
-		let livePlayerVC = LivePlayerViewController(domain: "api.pbj-live.dev.pbj.engineering",
-																								apiKey: "pk_OllxJqe45s4ofRuTP3yHADCBNraEyXjcds1ZufBiOCwoKjrkkt1ecpBuKNNSxfvREBKROe" +
-																									"fKOBq3aCkbLUviVv7T24vFQGxuA6kX9vpwMuqBfX7sviF8ZA5c72dw3wzeFRKnoY9nzwGCOLyoJlR", liveStreamId: "0418ea46-c157-4b2c-8fa8-b002857dfdc8")
+		// 3) Create a LivePlayerViewController
+		let livePlayerVC = LivePlayerViewController() // Optionally pass in a LivestreamId to target a specific show.
 		livePlayerVC.delegate = self
 		present(livePlayerVC, animated: true, completion: nil)
 	}
