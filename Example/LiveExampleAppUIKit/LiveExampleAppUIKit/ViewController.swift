@@ -9,14 +9,14 @@ import UIKit
 import Live // 1) Import Live.
 
 class ViewController: UIViewController {
-	
+
 	override func viewDidLoad() {
 		super.viewDidLoad()
 		title = "Home"
 		view.backgroundColor = .white
 		setUpButton()
 	}
-	
+
 	func setUpButton() {
 		let button = UIButton()
 		button.setTitle("Watch Live", for: .normal)
@@ -27,7 +27,7 @@ class ViewController: UIViewController {
 		button.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
 		button.addTarget(self, action: #selector(buttonTapped), for: .touchUpInside)
 	}
-	
+
 	@objc
 	func buttonTapped() {
 		// 2) Create a LivePlayerViewController with your credentials
@@ -40,7 +40,7 @@ class ViewController: UIViewController {
 }
 
 extension ViewController: LivePlayerViewControllerDelegate {
-	
+
 	func livePlayerViewControllerDidTapClose() {
 		self.dismiss(animated: true, completion: nil)
 	}

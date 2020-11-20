@@ -9,7 +9,7 @@ import SwiftUI
 
 public struct LiveIndicatorView: View {
 	let isLive: Bool
-	
+
 	public init(isLive: Bool) {
 		self.isLive = isLive
 	}

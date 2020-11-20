@@ -18,11 +18,11 @@ extension RestApi: SurveyRepository {
 			return survey
 		}.eraseToAnyPublisher()
 	}
-	
+
 	public func answerSurvey(survey: Survey, with options: [SurveyOption]) -> AnyPublisher<Void, Error> {
 		post("/survey/questions/\(survey.id)/answer", params: ["options": options.map { $0.id }])
 	}
-	
+
 	public func markSurveyAsAnswered() -> AnyPublisher<Void, Error> {
 		post("/me/survey-attempted")
 	}

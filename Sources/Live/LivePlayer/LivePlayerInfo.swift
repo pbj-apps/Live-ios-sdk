@@ -145,8 +145,7 @@ struct LivePlayerInfo: View {
 								RoundedRectangle(cornerRadius: 8)
 									.stroke(lightForegroundColor.opacity(0.5), lineWidth: 1)
 							)
-						}
-						else {
+						} else {
 							// Hide for now as we don't have this data yet.
 //							Image("Person", bundle: .module)
 //							UppercasedText("518k", uppercased: isAllCaps)
@@ -213,7 +212,7 @@ struct LivePlayerInfo_Previews: PreviewProvider {
 		GeometryReader { proxy in
 			Group {
 				info(with: .idle, proxy: proxy)
-				info(with:.waitingRoom, proxy: proxy)
+				info(with: .waitingRoom, proxy: proxy)
 				info(with: .broadcasting, proxy: proxy)
 				info(with: .finished, proxy: proxy)
 			}

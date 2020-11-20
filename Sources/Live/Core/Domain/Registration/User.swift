@@ -15,8 +15,8 @@ public struct User: Hashable {
 	public var username: String
 	public var hasAnsweredSurvey: Bool
 	public var avatarUrl: String?
-	
-	public init(firstname: String, lastname: String, email: Email, username :String, hasAnsweredSurvey: Bool, avatarUrl: String? = nil) {
+
+	public init(firstname: String, lastname: String, email: Email, username: String, hasAnsweredSurvey: Bool, avatarUrl: String? = nil) {
 		self.firstname = firstname
 		self.lastname = lastname
 		self.email = email

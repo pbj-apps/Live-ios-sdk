@@ -110,7 +110,6 @@ struct LivePlayerFinishedStateOverlay: View {
 							lightForegroundColor: lightForegroundColor,
 							regularFont: regularFont)
 
-
 					}.padding(.horizontal, 60)
 					Spacer()
 					Button(action: {}) {

@@ -8,7 +8,7 @@
 import Foundation
 
 public struct VodItem: Identifiable, Hashable {
-	
+
 	public init(type: VodItemType) {
 		self.type = type
 	}
@@ -36,7 +36,7 @@ public struct VodItem: Identifiable, Hashable {
 			return false
 		}
 	}
-	
+
 	private var item: IsVodItem {
 		switch type {
 		case .video(let video):

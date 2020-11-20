@@ -13,7 +13,7 @@ extension RestApi: VodRepository {
 	public func getVodCategories() -> AnyPaginator<VodCategory> {
 		return AnyPaginator(RestApiPaginator<JSONVodCategory, VodCategory>(baseUrl: baseUrl, "/vod/categories?items_per_category=10", client: network, mapping: { $0.toVodCategory() }))
 	}
-	
+
 	public func getPlaylist(playlist: VodPlaylist) -> AnyPublisher<VodPlaylist, Error> {
 		return get("/vod/playlists/\(playlist.id)").map { (jsonPlaylist: JSONVodPlaylist) in
 			jsonPlaylist.playlist
@@ -23,9 +23,9 @@ extension RestApi: VodRepository {
 }
 
 struct JSONVodVideo: Decodable {
-	
+
 	let video: VodVideo
-	
+
 	enum CodingKeys: String, CodingKey {
 		case id
 		case title
@@ -34,7 +34,7 @@ struct JSONVodVideo: Decodable {
 		case asset
 		case duration
 	}
-	
+
 	init(from decoder: Decoder) throws {
 		let values = try decoder.container(keyedBy: CodingKeys.self)
 		let asset = try values.decode(JSONPreviewAsset.self, forKey: .asset)
@@ -49,9 +49,9 @@ struct JSONVodVideo: Decodable {
 }
 
 struct JSONVodPlaylist: Decodable, NetworkingJSONDecodable {
-	
+
 	let playlist: VodPlaylist
-	
+
 	enum CodingKeys: String, CodingKey {
 		case id
 		case title
@@ -60,7 +60,7 @@ struct JSONVodPlaylist: Decodable, NetworkingJSONDecodable {
 		case videos
 		case preview_asset
 	}
-	
+
 	init(from decoder: Decoder) throws {
 		let values = try decoder.container(keyedBy: CodingKeys.self)
 		let id = try values.decode(String.self, forKey: .id)
@@ -92,11 +92,11 @@ struct JSONVodCategory: Decodable {
 }
 
 struct JSONPreviewAsset: Decodable {
-	
+
 	let asset_url: String
 	let asset_type: String
 	let image: JSONPreviewAssetImage
-	
+
 	struct JSONPreviewAssetImage: Decodable {
 		let medium: String
 	}
@@ -112,13 +112,13 @@ struct JSONVodItem: Decodable {
 	let videoCount: Int?
 	let videoUrl: String?
 	let duration: Int?
-	
+
 	enum CodingKeys: String, CodingKey {
 		case is_featured
 		case item_type
 		case item
 	}
-	
+
 	enum ItemKeys: String, CodingKey {
 		case id
 		case title
@@ -128,7 +128,7 @@ struct JSONVodItem: Decodable {
 		case video_count
 		case duration
 	}
-	
+
 	init(from decoder: Decoder) throws {
 		let values = try decoder.container(keyedBy: CodingKeys.self)
 		isFeatured = try values.decode(Bool.self, forKey: .is_featured)
@@ -138,7 +138,7 @@ struct JSONVodItem: Decodable {
 		title = try itemValues.decode(String.self, forKey: .title)
 		description = try itemValues.decode(String.self, forKey: .description)
 		duration = try? itemValues.decode(Int.self, forKey: .duration)
-		
+
 		if itemType == .playlist {
 			let asset = try itemValues.decode(JSONPreviewAsset.self, forKey: .preview_asset)
 			thumbnailImageUrl = asset.image.medium
@@ -213,7 +213,7 @@ extension APIError {
 			return underlying.localizedDescription
 		}
 	}
-	
+
 	var code: Int? {
 		if case .remoteError(let underlying) = self {
 			return (underlying as NSError).code

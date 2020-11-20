@@ -10,7 +10,7 @@ import Networking
 import Combine
 
 public final class RestApi: NetworkingService {
-	
+
 	private let kAuthorizationKey = "Authorization"
 	public var authenticationToken: String? {
 		didSet {
@@ -21,13 +21,13 @@ public final class RestApi: NetworkingService {
 			}
 		}
 	}
-	
+
 	public var network: NetworkingClient
 	internal let baseUrl: String
 	internal let webSocket: Websocket!
-	
+
 	var cancellable: AnyCancellable?
-	
+
 	public init(apiUrl: String, webSocketsUrl: String, apiKey: String) {
 		self.baseUrl = apiUrl
 		var client = NetworkingClient(baseURL: apiUrl)

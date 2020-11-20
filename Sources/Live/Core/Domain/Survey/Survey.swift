@@ -25,7 +25,7 @@ public struct SurveyOption: Equatable {
 	public let id: String
 	public let title: String
 	public let iconURL: URL?
-	
+
 	public init(id: String, title: String, iconURL: URL?) {
 		self.id = id
 		self.title = title

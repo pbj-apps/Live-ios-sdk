@@ -11,7 +11,7 @@ public struct VodCategory: Identifiable, Hashable, Equatable {
 	public var id: String
 	public let title: String
 	public let items: [VodItem]
-	
+
 	public init(id: String, title: String, items: [VodItem]) {
 		self.id = id
 		self.title = title
