@@ -9,6 +9,18 @@ import SwiftUI
 import Combine
 import AVKit
 
+public class LiveSDK {
+
+	static let shared = LiveSDK()
+	var domain: String = ""
+	var apiKey: String = ""
+
+	public static func initialize(withDomain: String, apiKey: String) {
+		shared.domain = withDomain
+		shared.apiKey = apiKey
+	}
+}
+
 public protocol LivePlayerViewControllerDelegate {
 	func livePlayerViewControllerDidTapClose()
 }
@@ -25,9 +37,20 @@ public class LivePlayerViewController: UIViewController, ObservableObject {
 		view = LivePlayerViewControllerView()
 	}
 
-	public convenience init(domain: String, apiKey: String, liveStreamId: String?) {
+	public convenience init() {
+		self.init(nibName: nil, bundle: nil)
+		setup()
+	}
+
+	public convenience init(liveStreamId: String) {
 		self.init(nibName: nil, bundle: nil)
 		self.liveStreamId = liveStreamId
+		setup()
+	}
+
+	private func setup() {
+		let domain = LiveSDK.shared.domain
+		let apiKey = LiveSDK.shared.apiKey
 		self.api = RestApi(apiUrl: "https://\(domain)/api", webSocketsUrl: "wss://\(domain)/ws", apiKey: apiKey)
 		// At the moment, an authenticated user is needed to get a Livestream.
 		// TODO Remove and replace by the correct authentication method.
