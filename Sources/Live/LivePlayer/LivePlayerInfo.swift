@@ -187,6 +187,7 @@ public func fakeLivestream(with state: LiveStreamStatus) -> LiveStream {
 											avatarUrl: nil),
 										previewImageUrl:
 											"https://image.shutterstock.com/image-photo/gopher-stands-on-hind-legs-600w-1447516073.jpg",
+										previewImageUrlFullSize: "https://image.shutterstock.com/image-photo/gopher-stands-on-hind-legs-600w-1447516073.jpg",
 										previewVideoUrl: nil,
 										startDate: Date().addingTimeInterval(10000),
 										endDate: Date(),

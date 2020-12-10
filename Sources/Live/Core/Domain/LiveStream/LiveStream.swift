@@ -19,6 +19,7 @@ public struct LiveStream: Identifiable, Hashable {
 	public let chatMode: ChatMode
 	public let instructor: User
 	public let previewImageUrl: String?
+	public let previewImageUrlFullSize: String?
 	public let previewVideoUrl: String?
 	public let startDate: Date
 	public let endDate: Date
@@ -35,6 +36,7 @@ public struct LiveStream: Identifiable, Hashable {
 		chatMode: ChatMode,
 		instructor: User,
 		previewImageUrl: String?,
+		previewImageUrlFullSize: String?,
 		previewVideoUrl: String?,
 		startDate: Date,
 		endDate: Date,
@@ -49,6 +51,7 @@ public struct LiveStream: Identifiable, Hashable {
 		self.chatMode = chatMode
 		self.instructor = instructor
 		self.previewImageUrl = previewImageUrl
+		self.previewImageUrlFullSize = previewImageUrlFullSize
 		self.previewVideoUrl = previewVideoUrl
 		self.startDate = startDate
 		self.endDate = endDate

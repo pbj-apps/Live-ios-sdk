@@ -18,6 +18,7 @@ struct JSONLiveStream: Decodable {
 	let chatMode: ChatMode
 	let instructor: JSONUser?
 	let previewImageUrl: String?
+	let previewImageUrlFullSize: String?
 	let previewVideoUrl: String?
 	let startDate: String
 	let endDate: String
@@ -63,6 +64,7 @@ struct JSONLiveStream: Decodable {
 
 		let previewAsset = try? showKeys.decode(JSONPreviewAsset.self, forKey: .preview_asset)
 		previewImageUrl = previewAsset?.image.medium
+		previewImageUrlFullSize = previewAsset?.image.full_size
 		previewVideoUrl = previewAsset?.asset_type == "video" ? previewAsset?.asset_url : nil
 		let streamingInfoKeys = try? values.nestedContainer(keyedBy: StreamingInfoKeys.self, forKey: .streaming_info)
 		broadcastUrlString = try? streamingInfoKeys?.decode(String.self, forKey: .broadcast_url)
@@ -82,6 +84,7 @@ extension JSONLiveStream {
 											chatMode: chatMode,
 											instructor: instructor?.toUser() ?? User(firstname: "no streamer", lastname: "no streamer", email: "no streamer", username: "username", hasAnsweredSurvey: false, avatarUrl: nil),
 											previewImageUrl: previewImageUrl,
+											previewImageUrlFullSize: previewImageUrlFullSize,
 											previewVideoUrl: previewVideoUrl,
 											startDate: startDate.toRestApiDate() ?? Date(),
 											endDate: endDate.toRestApiDate() ?? Date(),
