@@ -9,6 +9,7 @@ import Foundation
 import Combine
 
 public protocol LiveStreamRepository {
+	func fetch(liveStream: LiveStream) -> AnyPublisher<LiveStream, Error>
 	func getLiveStreams() -> AnyPublisher<[LiveStream], Error>
 	func getLiveStreamsSchedule() -> AnyPublisher<[LiveStream], Error>
 	func registerForRealTimeLiveStreamUpdates() -> AnyPublisher<LiveStreamStatusUpdate, Never>
