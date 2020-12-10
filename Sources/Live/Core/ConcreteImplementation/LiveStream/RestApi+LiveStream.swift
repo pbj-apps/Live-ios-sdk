@@ -11,6 +11,12 @@ import Networking
 
 extension RestApi: LiveStreamRepository {
 
+	public func fetch(liveStream: LiveStream) -> AnyPublisher<LiveStream, Error> {
+		return get("/live-streams/\(liveStream.id)").map { (jsonLivestream: JSONLiveStream) in
+			return jsonLivestream.toLiveStream()
+		}.eraseToAnyPublisher()
+	}
+
 	public func getLiveStreams() -> AnyPublisher<[LiveStream], Error> {
 		return get("/live-streams").map { (page: JSONPage<JSONLiveStream>) in
 			return page.results.map { $0.toLiveStream() }
@@ -74,3 +80,5 @@ extension RestApi: LiveStreamRepository {
 struct WatchJSONResponse: Decodable, NetworkingJSONDecodable {
 	let broadcast_url: String
 }
+
+extension JSONLiveStream: NetworkingJSONDecodable {}
