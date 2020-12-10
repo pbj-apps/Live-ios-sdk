@@ -7,6 +7,7 @@
 
 import Foundation
 import Combine
+import UIKit
 
 class Websocket: NSObject, URLSessionWebSocketDelegate {
 
@@ -17,10 +18,29 @@ class Websocket: NSObject, URLSessionWebSocketDelegate {
 	private var webSocketTask: URLSessionWebSocketTask?
 	private var pingTimer: Timer?
 	private var statusUpdatePublisher = PassthroughSubject<LiveStreamStatusUpdate, Never>()
+	private var wasReceivingUpdates = false
+	private var cancellables = Set<AnyCancellable>()
+
 
 	init(url: String, apiKey: String) {
 		self.url = url
 		self.apiKey = apiKey
+		super.init()
+
+		// Cut connection proactively (if active) when application enters background.
+		NotificationCenter.default.publisher(for: UIApplication.didEnterBackgroundNotification).sink { [unowned self] _ in
+			if self.webSocketTask != nil {
+				self.wasReceivingUpdates = true
+				self.leaveEpisodeUpdates()
+			}
+		}.store(in: &cancellables)
+		
+		// Restart connection on entering foreground if connection was previously active.
+		NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification).sink { [unowned self] _ in
+			if self.wasReceivingUpdates {
+				_ = self.joinEpisodeUpdates()
+			}
+		}.store(in: &cancellables)
 	}
 
 	func joinEpisodeUpdates() -> AnyPublisher<LiveStreamStatusUpdate, Never> {
