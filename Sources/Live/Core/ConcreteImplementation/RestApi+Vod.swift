@@ -98,7 +98,9 @@ struct JSONPreviewAsset: Decodable {
 	let image: JSONPreviewAssetImage
 
 	struct JSONPreviewAssetImage: Decodable {
+		let small: String
 		let medium: String
+		let full_size: String
 	}
 }
 
