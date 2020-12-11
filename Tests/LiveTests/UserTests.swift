@@ -87,6 +87,12 @@ final class UserTests: XCTestCase {
 }
 
 struct MockedUserRepository: UserRepository {
+	
+	func changePassword(currentPassword: Password, newPassword: Password) -> AnyPublisher<Void, ChangePasswordError> {
+		Just(())
+			.setFailureType(to: ChangePasswordError.self)
+			.eraseToAnyPublisher()
+	}
 
 	func login(email: String, password: String) -> AnyPublisher<User, LoginError> {
 		if password == "1234" {

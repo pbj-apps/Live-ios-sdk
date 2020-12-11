@@ -56,11 +56,13 @@ extension RestApi: UserRepository {
 			.eraseToAnyPublisher()
 	}
 
-	public func changePassword(currentPassword: Password, newPassword: Password) -> AnyPublisher<Void, Error> {
+	public func changePassword(currentPassword: Password, newPassword: Password) -> AnyPublisher<Void, ChangePasswordError> {
 		return post("/auth/password-change", params: [
 			"current_password" : currentPassword,
 			"new_password" : newPassword,
 		])
+		.mapError { $0.toChangePasswordError() }
+		.eraseToAnyPublisher()
 	}
 }
 
@@ -89,18 +91,13 @@ private extension Error {
 		if let networkingError = self as? NetworkingError {
 			if networkingError.code == 400 {
 				if let jsonError = networkingError.jsonPayload as? [String: Any],
-					 jsonError["error_type"] as? String == "ValidationError" {
-
-					if let errors = jsonError["errors"] as? [[String: String]] {
-						if let firstError = errors.first {
-
-							if firstError["field"] == "current_password" && firstError["message"] == "Current password does not match" {
-								return ChangePasswordError.currentPasswordDoesNotMatch
-							}
-						}
-					}
-					return LoginError.unknown
+					 jsonError["error_type"] as? String == "ValidationError",
+					 let errors = jsonError["errors"] as? [[String: String]],
+					 let firstError = errors.first,
+					 let firstMessage = firstError["message"] {
+					return ChangePasswordError.validationError(wording: firstMessage)
 				}
+				return ChangePasswordError.unknown
 			}
 		}
 		return ChangePasswordError.unknown
