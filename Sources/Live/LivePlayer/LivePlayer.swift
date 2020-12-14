@@ -90,7 +90,7 @@ public struct LivePlayer: View {
 		self.fetchMessages = fetchMessages
 		self.sendMessage = sendMessage
 
-		backgroundImage = FetchImage(url: URL(string: viewModel.liveStream.previewImageUrlFullSize ?? "https://")!)
+		backgroundImage = FetchImage(url: URL(string: viewModel.liveStream.previewImageUrl ?? "https://")!)
 	}
 
 	public var body: some View {
