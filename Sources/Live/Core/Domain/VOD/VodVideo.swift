@@ -16,6 +16,7 @@ public struct VodVideo: IsVodItem, Hashable, Identifiable {
 	public let thumbnailImageUrl: URL?
 	public let videoURL: URL?
 	public let duration: Int?
+	public let instructor: User?
 
 	public init(
 		id: String,
@@ -24,7 +25,8 @@ public struct VodVideo: IsVodItem, Hashable, Identifiable {
 		isFeatured: Bool,
 		thumbnailImageUrl: URL?,
 		videoURL: URL?,
-		duration: Int?) {
+		duration: Int?,
+		instructor: User?) {
 		self.id = id
 		self.title = title
 		self.description = description
@@ -32,5 +34,6 @@ public struct VodVideo: IsVodItem, Hashable, Identifiable {
 		self.thumbnailImageUrl = thumbnailImageUrl
 		self.videoURL = videoURL
 		self.duration = duration
+		self.instructor = instructor
 	}
 }

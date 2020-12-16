@@ -11,4 +11,5 @@ import Combine
 public protocol VodRepository {
 	func getVodCategories() -> AnyPaginator<VodCategory>
 	func getPlaylist(playlist: VodPlaylist) -> AnyPublisher<VodPlaylist, Error>
+	func fetch(video: VodVideo) -> AnyPublisher<VodVideo, Error>
 }
