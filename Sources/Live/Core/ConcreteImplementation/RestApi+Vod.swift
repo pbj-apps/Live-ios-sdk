@@ -10,6 +10,7 @@ import Combine
 import Networking
 
 extension RestApi: VodRepository {
+
 	public func getVodCategories() -> AnyPaginator<VodCategory> {
 		return AnyPaginator(RestApiPaginator<JSONVodCategory, VodCategory>(baseUrl: baseUrl, "/vod/categories?items_per_category=10", client: network, mapping: { $0.toVodCategory() }))
 	}
@@ -20,9 +21,16 @@ extension RestApi: VodRepository {
 		}
 		.eraseToAnyPublisher()
 	}
+
+	public func fetch(video: VodVideo) -> AnyPublisher<VodVideo, Error> {
+		return get("/vod/videos/\(video.id)").map { (jsonVideo: JSONVodVideo) in
+			jsonVideo.video
+		}
+		.eraseToAnyPublisher()
+	}
 }
 
-struct JSONVodVideo: Decodable {
+struct JSONVodVideo: Decodable, NetworkingJSONDecodable {
 
 	let video: VodVideo
 
@@ -33,18 +41,21 @@ struct JSONVodVideo: Decodable {
 		case video_count
 		case asset
 		case duration
+		case instructors
 	}
 
 	init(from decoder: Decoder) throws {
 		let values = try decoder.container(keyedBy: CodingKeys.self)
 		let asset = try values.decode(JSONPreviewAsset.self, forKey: .asset)
+		let instructors = try? values.decode([JSONUser].self, forKey: .instructors)
 		video = VodVideo(id: try values.decode(String.self, forKey: .id),
 										 title: try values.decode(String.self, forKey: .title),
 										 description: try values.decode(String.self, forKey: .description),
 										 isFeatured: false,
 										 thumbnailImageUrl: URL(string: asset.image.medium),
 										 videoURL: URL(string: asset.asset_url),
-										 duration: try? values.decode(Int.self, forKey: .duration))
+										 duration: try? values.decode(Int.self, forKey: .duration),
+										 instructor: instructors?.first?.toUser())
 	}
 }
 
@@ -171,7 +182,8 @@ extension JSONVodItem {
 																					 isFeatured: isFeatured,
 																					 thumbnailImageUrl: URL(string: thumbnailImageUrl),
 																					 videoURL: URL(string: videoUrl!),
-																					 duration: duration)))
+																					 duration: duration,
+																					 instructor: nil)))
 		case .playlist:
 			return VodItem(type: .playlist(VodPlaylist(id: id,
 																								 title: title,
