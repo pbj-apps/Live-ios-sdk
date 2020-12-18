@@ -47,7 +47,8 @@ extension RestApi: UserRepository {
 		var params = [String: AnyHashable]()
 		if let firstname = firstname {
 			params["first_name"] = firstname
-		} else if let lastname = lastname {
+		}
+		if let lastname = lastname {
 			params["last_name"] = lastname
 		}
 		return patch("/me", params: params)
