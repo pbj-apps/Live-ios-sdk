@@ -70,6 +70,8 @@ extension RestApi: UserRepository {
 	public func uploadProfilePicture(image: UIImage) -> AnyPublisher<Void, Error> {
 		return uploadImageAsset(image: image).flatMap { [unowned self] response -> AnyPublisher<Void, Error> in
 			return self.editUserProfileImage(assetId: response.id)
+		}
+		.eraseToAnyPublisher()
 	}
 	
 	private func uploadImageAsset(image: UIImage) -> AnyPublisher<(JSONUploadAssetResponse), Error> {
