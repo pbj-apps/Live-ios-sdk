@@ -77,14 +77,18 @@ extension RestApi: UserRepository {
 	private func uploadImageAsset(image: UIImage) -> AnyPublisher<(JSONUploadAssetResponse), Error> {
 		let data = image.jpegData(compressionQuality: 0.5)
 		let multipartData = MultipartData(name: "image", fileData: data!, fileName: "profile_picture.jpg", mimeType: "image/jpeg")
-		return Future { promise in
-			let publisher = self.network.post("/profile-images", multipartData: multipartData)
+		return Future { [unowned self] promise in
+			let publisher = network.post("/profile-images", multipartData: multipartData)
 			publisher.then { (data, progress) in
-				if let data = data, let response = try? JSONDecoder().decode(JSONUploadAssetResponse.self, from: data) {
-					promise(.success(response))
+				if let data = data {
+					if let response = try? JSONDecoder().decode(JSONUploadAssetResponse.self, from: data) {
+						promise(.success(response))
+					} else {
+						promise(.failure(EditUserError.unknown))
+					}
 				}
-			}.onError { e in
-				promise(.failure(e))
+			}.onError { error in
+				promise(.failure(error))
 			}
 			.sink()
 			.store(in: &self.cancellables)
