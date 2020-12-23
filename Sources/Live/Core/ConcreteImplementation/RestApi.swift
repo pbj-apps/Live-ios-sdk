@@ -26,7 +26,7 @@ public final class RestApi: NetworkingService {
 	internal let baseUrl: String
 	internal let webSocket: Websocket!
 
-	var cancellable: AnyCancellable?
+	var cancellables = Set<AnyCancellable>()
 
 	public init(apiUrl: String, webSocketsUrl: String, apiKey: String) {
 		self.baseUrl = apiUrl

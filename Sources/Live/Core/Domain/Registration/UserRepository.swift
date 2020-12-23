@@ -7,6 +7,7 @@
 
 import Foundation
 import Combine
+import UIKit
 
 public typealias Email = String
 public typealias Password = String
@@ -36,4 +37,5 @@ public protocol UserRepository {
 	func fetch(user: User) -> AnyPublisher<User, Error>
 	func editUser(firstname: String?, lastname: String?) -> AnyPublisher<Void, EditUserError>
 	func changePassword(currentPassword: Password, newPassword: Password) -> AnyPublisher<Void, ChangePasswordError>
+    func uploadProfilePicture(image: UIImage) -> AnyPublisher<Void, Error>
 }
