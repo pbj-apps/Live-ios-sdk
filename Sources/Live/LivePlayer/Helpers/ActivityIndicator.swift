@@ -14,7 +14,7 @@ public struct ActivityIndicator: UIViewRepresentable {
 	let style: UIActivityIndicatorView.Style
 	let color: UIColor?
 
-	public init(isAnimating: Binding<Bool>, style: UIActivityIndicatorView.Style, color: UIColor?) {
+	public init(isAnimating: Binding<Bool> = .constant(true), style: UIActivityIndicatorView.Style = .medium, color: UIColor?) {
 		self._isAnimating = isAnimating
 		self.style = style
 		self.color = color

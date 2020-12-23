@@ -8,6 +8,7 @@
 import Foundation
 import Combine
 import Networking
+import UIKit
 
 extension RestApi: UserRepository {
 
@@ -65,7 +66,41 @@ extension RestApi: UserRepository {
 		.mapError { $0.toChangePasswordError() }
 		.eraseToAnyPublisher()
 	}
+	
+	public func uploadProfilePicture(image: UIImage) -> AnyPublisher<Void, Error> {
+		return uploadImageAsset(image: image).flatMap { [unowned self] response -> AnyPublisher<Void, Error> in
+			return self.editUserProfileImage(assetId: response.id)
+	}
+	
+	private func uploadImageAsset(image: UIImage) -> AnyPublisher<(JSONUploadAssetResponse), Error> {
+		let data = image.jpegData(compressionQuality: 0.5)
+		let multipartData = MultipartData(name: "image", fileData: data!, fileName: "profile_picture.jpg", mimeType: "image/jpeg")
+		return Future { promise in
+			let publisher = self.network.post("/profile-images", multipartData: multipartData)
+			publisher.then { (data, progress) in
+				if let data = data, let response = try? JSONDecoder().decode(JSONUploadAssetResponse.self, from: data) {
+					promise(.success(response))
+				}
+			}.onError { e in
+				promise(.failure(e))
+			}
+			.sink()
+			.store(in: &self.cancellables)
+		}.eraseToAnyPublisher()
+	}
+	
+	private func editUserProfileImage(assetId: String) -> AnyPublisher<Void, Error> {
+		return patch("/me", params: ["profile_image": assetId])
+			.map { (_: JSONUser) -> Void in }
+			.eraseToAnyPublisher()
+	}
 }
+
+struct JSONUploadAssetResponse: Decodable {
+	let id: String
+}
+
+extension JSONUploadAssetResponse: NetworkingJSONDecodable {}
 
 private extension Error {
 	func toSignupError() -> SignupError {
