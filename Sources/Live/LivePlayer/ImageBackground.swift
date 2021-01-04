@@ -9,9 +9,9 @@ import SwiftUI
 import FetchImage
 
 struct ImageBackground: View {
-	
+
 	@ObservedObject var image: FetchImage
-	
+
 	public var body: some View {
 		// Somehow without the top level GeometryReader
 		// The image "pushes" the content down and buttons
