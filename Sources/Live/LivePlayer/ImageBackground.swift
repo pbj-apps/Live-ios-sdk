@@ -8,16 +8,22 @@
 import SwiftUI
 import FetchImage
 
-public struct ImageBackground: View {
-
+struct ImageBackground: View {
+	
 	@ObservedObject var image: FetchImage
-
+	
 	public var body: some View {
-		ZStack {
+		// Somehow without the top level GeometryReader
+		// The image "pushes" the content down and buttons
+		// end up cropped.
+		GeometryReader { proxy in
 			image.view?
 				.resizable()
-				.aspectRatio(contentMode: .fill)
+				.scaledToFill()
+				.frame(width: proxy.size.width, height: proxy.size.height)
+				.clipped()
 		}
+		.edgesIgnoringSafeArea(.all)
 		.onAppear(perform: image.fetch)
 		.onDisappear(perform: image.cancel)
 	}
