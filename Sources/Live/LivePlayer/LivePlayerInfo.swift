@@ -60,7 +60,7 @@ struct LivePlayerInfo: View {
 								.frame(height: 13)
 						}
 					}
-					.padding(.top, proxy?.safeAreaInsets.top ?? 0)
+					.padding(.top, topSpace)
 					Spacer()
 
 					if liveStream.status == .idle || (liveStream.status == .waitingRoom && !isChatShown) {
@@ -155,13 +155,33 @@ struct LivePlayerInfo: View {
 						}
 					}
 				}
-				.padding(.horizontal, 20)
-				.padding(.bottom, (proxy == nil) ? 0 : (proxy!.safeAreaInsets.bottom != 0) ? proxy!.safeAreaInsets.bottom : 20)
+				.padding(.leading, leadingSpace)
+				.padding(.trailing, trailingSpace)
+				.padding(.bottom, bottomSpace)
 			}
 		}
 		.onAppear {
 			fetchMessages()
 		}
+	}
+	
+	// When rotating landscape, safeAreaInsets.top == 0.
+	// that's why we have to check.
+	var topSpace: CGFloat {
+		max(proxy?.safeAreaInsets.top ?? 0, 20)
+	}
+	
+	var leadingSpace: CGFloat {
+		max(proxy?.safeAreaInsets.leading ?? 0, 20)
+	}
+	
+	var bottomSpace: CGFloat {
+		max(proxy?.safeAreaInsets.bottom ?? 0, 20)
+	}
+
+	
+	var trailingSpace: CGFloat {
+		max(proxy?.safeAreaInsets.trailing ?? 0, 20)
 	}
 
 	var canShowChat: Bool {
