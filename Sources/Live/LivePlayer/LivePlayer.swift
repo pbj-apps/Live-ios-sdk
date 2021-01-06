@@ -95,21 +95,23 @@ public struct LivePlayer: View {
 
 	public var body: some View {
 			ZStack {
+				Color.black
+					.zIndex(0)
 				ImageBackground(image: backgroundImage)
 					.frame(width: proxy?.size.width ?? UIScreen.main.bounds.size.width)
-					.zIndex(0)
+					.zIndex(1)
 				switch liveStream.status {
 				case .idle, .waitingRoom:
 					if let previewVideoUrl = liveStream.previewVideoUrl {
 						VideoPlayer(url: previewVideoUrl, looping: true, isPlaying: true)
-							.zIndex(1)
+							.zIndex(2)
 					}
 				case .broadcasting:
 					if let broadcastUrl = liveStream.broadcastUrl {
 						Color.black
 						ActivityIndicator(isAnimating: .constant(true), style: .large, color: UIColor.white)
 						LivePlayerView(broadcastUrl: broadcastUrl, finishedPlaying: finishedPlaying)
-							.zIndex(1)
+							.zIndex(2)
 					}
 				case .finished:
 					LivePlayerFinishedStateOverlay(
@@ -124,7 +126,7 @@ public struct LivePlayer: View {
 						accentColor: accentColor,
 						remindMeButtonBackgroundColor: remindMeButtonBackgroundColor)
 						.transition(.opacity)
-						.zIndex(2)
+						.zIndex(3)
 				}
 				if liveStream.status != .finished { //} && liveStream.status != .idle {
 					if showInfo {
@@ -142,7 +144,7 @@ public struct LivePlayer: View {
 													 proxy: proxy)
 							.transition(.opacity)
 							.padding(.bottom, keyboard.currentHeight)
-							.zIndex(3)
+							.zIndex(4)
 					}
 				}
 			}
