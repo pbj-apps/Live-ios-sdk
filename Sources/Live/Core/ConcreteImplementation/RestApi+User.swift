@@ -206,7 +206,7 @@ struct JSONUser: Decodable {
 
 extension JSONUser {
 	func toUser() -> User {
-		return User(firstname: firstname, lastname: lastname, email: email, username: username, hasAnsweredSurvey: hasAnsweredSurvey, avatarUrl: avatarUrl)
+		return User(id: id, firstname: firstname, lastname: lastname, email: email, username: username, hasAnsweredSurvey: hasAnsweredSurvey, avatarUrl: avatarUrl)
 	}
 }
 

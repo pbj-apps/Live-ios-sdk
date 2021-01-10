@@ -82,7 +82,7 @@ extension JSONLiveStream {
 											showId: showId,
 											broadcastUrl: broadcastUrlString,
 											chatMode: chatMode,
-											instructor: instructor?.toUser() ?? User(firstname: "no streamer", lastname: "no streamer", email: "no streamer", username: "username", hasAnsweredSurvey: false, avatarUrl: nil),
+											instructor: instructor?.toUser() ?? User(id: "unknown", firstname: "no streamer", lastname: "no streamer", email: "no streamer", username: "username", hasAnsweredSurvey: false, avatarUrl: nil),
 											previewImageUrl: previewImageUrl,
 											previewImageUrlFullSize: previewImageUrlFullSize,
 											previewVideoUrl: previewVideoUrl,
