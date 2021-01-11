@@ -55,7 +55,7 @@ struct JSONVodVideo: Decodable, NetworkingJSONDecodable {
 										 thumbnailImageUrl: URL(string: asset.image.medium),
 										 videoURL: URL(string: asset.asset_url),
 										 duration: try? values.decode(Int.self, forKey: .duration),
-										 instructor: instructors?.first?.toUser())
+										 instructors: instructors?.map { $0.toUser() } ?? [])
 	}
 }
 
@@ -183,7 +183,7 @@ extension JSONVodItem {
 																					 thumbnailImageUrl: URL(string: thumbnailImageUrl),
 																					 videoURL: URL(string: videoUrl!),
 																					 duration: duration,
-																					 instructor: nil)))
+																					 instructors: [])))
 		case .playlist:
 			return VodItem(type: .playlist(VodPlaylist(id: id,
 																								 title: title,
