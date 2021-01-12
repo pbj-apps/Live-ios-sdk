@@ -42,12 +42,14 @@ struct JSONVodVideo: Decodable, NetworkingJSONDecodable {
 		case asset
 		case duration
 		case instructors
+		case categories
 	}
 
 	init(from decoder: Decoder) throws {
 		let values = try decoder.container(keyedBy: CodingKeys.self)
 		let asset = try values.decode(JSONPreviewAsset.self, forKey: .asset)
 		let instructors = try? values.decode([JSONUser].self, forKey: .instructors)
+		let categories = try? values.decode([JSONVodVideoCategory].self, forKey: .categories)
 		video = VodVideo(id: try values.decode(String.self, forKey: .id),
 										 title: try values.decode(String.self, forKey: .title),
 										 description: try values.decode(String.self, forKey: .description),
@@ -55,7 +57,18 @@ struct JSONVodVideo: Decodable, NetworkingJSONDecodable {
 										 thumbnailImageUrl: URL(string: asset.image.medium),
 										 videoURL: URL(string: asset.asset_url),
 										 duration: try? values.decode(Int.self, forKey: .duration),
-										 instructors: instructors?.map { $0.toUser() } ?? [])
+										 instructors: instructors?.map { $0.toUser() } ?? [],
+										 categories: categories?.map { $0.toCategory() } ?? [])
+	}
+}
+
+struct JSONVodVideoCategory: Decodable {
+	let id: String
+	let title: String
+	let description: String
+
+	func toCategory() -> VodCategory {
+		return VodCategory(id: id, title: title, items: [])
 	}
 }
 
