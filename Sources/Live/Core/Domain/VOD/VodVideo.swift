@@ -18,6 +18,7 @@ public struct VodVideo: IsVodItem, Hashable, Identifiable {
 	public let duration: Int?
 	public let instructors: [User]
 	public let categories: [VodCategory]
+	public let playlists: [VodPlaylist]
 	public var instructor: User? {
 		return instructors.first
 	}
@@ -31,7 +32,8 @@ public struct VodVideo: IsVodItem, Hashable, Identifiable {
 		videoURL: URL?,
 		duration: Int?,
 		instructors: [User] = [User](),
-		categories: [VodCategory] = [VodCategory]()) {
+		categories: [VodCategory] = [VodCategory](),
+		playlists: [VodPlaylist] = [VodPlaylist]()) {
 		self.id = id
 		self.title = title
 		self.description = description
@@ -41,5 +43,6 @@ public struct VodVideo: IsVodItem, Hashable, Identifiable {
 		self.duration = duration
 		self.instructors = instructors
 		self.categories = categories
+		self.playlists = playlists
 	}
 }

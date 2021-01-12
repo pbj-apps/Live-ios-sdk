@@ -43,6 +43,7 @@ struct JSONVodVideo: Decodable, NetworkingJSONDecodable {
 		case duration
 		case instructors
 		case categories
+		case playlists
 	}
 
 	init(from decoder: Decoder) throws {
@@ -50,6 +51,7 @@ struct JSONVodVideo: Decodable, NetworkingJSONDecodable {
 		let asset = try values.decode(JSONPreviewAsset.self, forKey: .asset)
 		let instructors = try? values.decode([JSONUser].self, forKey: .instructors)
 		let categories = try? values.decode([JSONVodVideoCategory].self, forKey: .categories)
+		let playlists = try? values.decode([JSONVodPlaylist].self, forKey: .playlists)
 		video = VodVideo(id: try values.decode(String.self, forKey: .id),
 										 title: try values.decode(String.self, forKey: .title),
 										 description: try values.decode(String.self, forKey: .description),
@@ -58,7 +60,8 @@ struct JSONVodVideo: Decodable, NetworkingJSONDecodable {
 										 videoURL: URL(string: asset.asset_url),
 										 duration: try? values.decode(Int.self, forKey: .duration),
 										 instructors: instructors?.map { $0.toUser() } ?? [],
-										 categories: categories?.map { $0.toCategory() } ?? [])
+										 categories: categories?.map { $0.toCategory() } ?? [],
+										 playlists: playlists?.map { $0.playlist } ?? [])
 	}
 }
 
@@ -89,17 +92,17 @@ struct JSONVodPlaylist: Decodable, NetworkingJSONDecodable {
 		let values = try decoder.container(keyedBy: CodingKeys.self)
 		let id = try values.decode(String.self, forKey: .id)
 		let title = try values.decode(String.self, forKey: .title)
-		let description = try values.decode(String.self, forKey: .description)
-		let videoCount = try values.decode(Int.self, forKey: .video_count)
-		let previewAsset = try values.decode(JSONPreviewAsset.self, forKey: .preview_asset)
+		let description = try? values.decode(String.self, forKey: .description)
+		let videoCount = try? values.decode(Int.self, forKey: .video_count)
+		let previewAsset = try? values.decode(JSONPreviewAsset.self, forKey: .preview_asset)
 		let jsonVideos: [JSONVodVideo] = (try? values.decode([JSONVodVideo].self, forKey: .videos)) ?? []
 		playlist = VodPlaylist(id: id,
 													 title: title,
-													 description: description,
+													 description: description ?? "",
 													 isFeatured: false,
-													 thumbnailImageUrl: URL(string: previewAsset.image.medium),
+													 thumbnailImageUrl: (previewAsset == nil) ? nil : URL(string: previewAsset!.image.medium),
 													 videos: jsonVideos.map { $0.video },
-													 videoCount: videoCount)
+													 videoCount: videoCount ?? 0)
 	}
 }
 
