@@ -42,12 +42,16 @@ struct JSONVodVideo: Decodable, NetworkingJSONDecodable {
 		case asset
 		case duration
 		case instructors
+		case categories
+		case playlists
 	}
 
 	init(from decoder: Decoder) throws {
 		let values = try decoder.container(keyedBy: CodingKeys.self)
 		let asset = try values.decode(JSONPreviewAsset.self, forKey: .asset)
 		let instructors = try? values.decode([JSONUser].self, forKey: .instructors)
+		let categories = try? values.decode([JSONVodVideoCategory].self, forKey: .categories)
+		let playlists = try? values.decode([JSONVodPlaylist].self, forKey: .playlists)
 		video = VodVideo(id: try values.decode(String.self, forKey: .id),
 										 title: try values.decode(String.self, forKey: .title),
 										 description: try values.decode(String.self, forKey: .description),
@@ -55,7 +59,19 @@ struct JSONVodVideo: Decodable, NetworkingJSONDecodable {
 										 thumbnailImageUrl: URL(string: asset.image.medium),
 										 videoURL: URL(string: asset.asset_url),
 										 duration: try? values.decode(Int.self, forKey: .duration),
-										 instructor: instructors?.first?.toUser())
+										 instructors: instructors?.map { $0.toUser() } ?? [],
+										 categories: categories?.map { $0.toCategory() } ?? [],
+										 playlists: playlists?.map { $0.playlist } ?? [])
+	}
+}
+
+struct JSONVodVideoCategory: Decodable {
+	let id: String
+	let title: String
+	let description: String
+
+	func toCategory() -> VodCategory {
+		return VodCategory(id: id, title: title, items: [])
 	}
 }
 
@@ -76,17 +92,17 @@ struct JSONVodPlaylist: Decodable, NetworkingJSONDecodable {
 		let values = try decoder.container(keyedBy: CodingKeys.self)
 		let id = try values.decode(String.self, forKey: .id)
 		let title = try values.decode(String.self, forKey: .title)
-		let description = try values.decode(String.self, forKey: .description)
-		let videoCount = try values.decode(Int.self, forKey: .video_count)
-		let previewAsset = try values.decode(JSONPreviewAsset.self, forKey: .preview_asset)
+		let description = try? values.decode(String.self, forKey: .description)
+		let videoCount = try? values.decode(Int.self, forKey: .video_count)
+		let previewAsset = try? values.decode(JSONPreviewAsset.self, forKey: .preview_asset)
 		let jsonVideos: [JSONVodVideo] = (try? values.decode([JSONVodVideo].self, forKey: .videos)) ?? []
 		playlist = VodPlaylist(id: id,
 													 title: title,
-													 description: description,
+													 description: description ?? "",
 													 isFeatured: false,
-													 thumbnailImageUrl: URL(string: previewAsset.image.medium),
+													 thumbnailImageUrl: (previewAsset == nil) ? nil : URL(string: previewAsset!.image.medium),
 													 videos: jsonVideos.map { $0.video },
-													 videoCount: videoCount)
+													 videoCount: videoCount ?? 0)
 	}
 }
 
@@ -183,7 +199,7 @@ extension JSONVodItem {
 																					 thumbnailImageUrl: URL(string: thumbnailImageUrl),
 																					 videoURL: URL(string: videoUrl!),
 																					 duration: duration,
-																					 instructor: nil)))
+																					 instructors: [])))
 		case .playlist:
 			return VodItem(type: .playlist(VodPlaylist(id: id,
 																								 title: title,

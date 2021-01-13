@@ -23,6 +23,7 @@ public struct LocalStorageCurrentUserRepository: CurrentUserRepository {
 
 	public func setCurrentUser(user: User) {
 		let savableUser = SavableUser(
+			id: user.id,
 			firstname: user.firstname,
 			lastname: user.lastname,
 			email: user.email,
@@ -56,6 +57,7 @@ public struct LocalStorageCurrentUserRepository: CurrentUserRepository {
 }
 
 private struct SavableUser: Codable {
+	var id: String
 	var firstname: String
 	var lastname: String
 	var email: Email
@@ -66,6 +68,6 @@ private struct SavableUser: Codable {
 
 extension SavableUser {
 	func toUser() -> User {
-		return User(firstname: firstname, lastname: lastname, email: email, username: username, hasAnsweredSurvey: hasAnsweredSurvey, avatarUrl: nil)
+		return User(id: id, firstname: firstname, lastname: lastname, email: email, username: username, hasAnsweredSurvey: hasAnsweredSurvey, avatarUrl: nil)
 	}
 }
