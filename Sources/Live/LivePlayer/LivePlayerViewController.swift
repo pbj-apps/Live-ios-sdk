@@ -54,7 +54,7 @@ public class LivePlayerViewController: UIViewController, ObservableObject {
 		self.api = RestApi(apiUrl: "https://\(domain)/api", webSocketsUrl: "wss://\(domain)/ws", apiKey: apiKey)
 		// At the moment, an authenticated user is needed to get a Livestream.
 		// TODO Remove and replace by the correct authentication method.
-		api.authenticationToken = "***REMOVED***"
+		api.authenticationToken = "Auth_Token"
 		modalPresentationStyle = .fullScreen
 	}
 

@@ -17,7 +17,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 		// 2) Setup SDK with your domain & API Key
 		LiveSDK.initialize(
 			withDomain: "api.pbj-live.dev.pbj.engineering",
-			apiKey: "***REMOVED***")
+			apiKey: "ORG_API_KEY")
 
 		window = UIWindow(frame: UIScreen.main.bounds)
 		window?.rootViewController = UINavigationController(rootViewController: ViewController())
