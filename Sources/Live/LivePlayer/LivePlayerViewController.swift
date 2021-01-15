@@ -39,29 +39,28 @@ public class LivePlayerViewController: UIViewController, ObservableObject {
 
 	public convenience init() {
 		self.init(nibName: nil, bundle: nil)
-		setup()
+		initialize()
 	}
 
 	public convenience init(liveStreamId: String) {
 		self.init(nibName: nil, bundle: nil)
 		self.liveStreamId = liveStreamId
-		setup()
+		initialize()
 	}
 
-	private func setup() {
+	private func initialize() {
 		let domain = LiveSDK.shared.domain
 		let apiKey = LiveSDK.shared.apiKey
 		self.api = RestApi(apiUrl: "https://\(domain)/api", webSocketsUrl: "wss://\(domain)/ws", apiKey: apiKey)
-		// At the moment, an authenticated user is needed to get a Livestream.
-		// TODO Remove and replace by the correct authentication method.
-		api.authenticationToken = "Auth_Token"
 		modalPresentationStyle = .fullScreen
 	}
 
 	public override func viewDidLoad() {
 		super.viewDidLoad()
 
-		api.getLiveStreams().map { [unowned self] liveStreams -> LiveStream in
+		api.authenticateAsGuest().flatMap {
+			return self.api.getLiveStreams()
+		}.map { [unowned self] liveStreams -> LiveStream in
 			if let liveStreamFound = liveStreams.first(where: { $0.id == self.liveStreamId }) {
 				return liveStreamFound
 			} else {
@@ -70,6 +69,9 @@ public class LivePlayerViewController: UIViewController, ObservableObject {
 		} .map { [unowned self] liveStream in
 			self.livePlayerViewModel = LivePlayerViewModel(liveStream: liveStream)
 			self.showPlayer()
+		}
+		.onError{ e in
+			print(e)
 		}
 		.sink()
 		.store(in: &cancellables)
