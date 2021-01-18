@@ -57,24 +57,28 @@ public class LivePlayerViewController: UIViewController, ObservableObject {
 
 	public override func viewDidLoad() {
 		super.viewDidLoad()
-
-		api.authenticateAsGuest().flatMap {
-			return self.api.getLiveStreams()
-		}.map { [unowned self] liveStreams -> LiveStream in
-			if let liveStreamFound = liveStreams.first(where: { $0.id == self.liveStreamId }) {
-				return liveStreamFound
-			} else {
-				return liveStreams.randomElement()!
+		
+		if let liveStreamId = liveStreamId {
+			api.authenticateAsGuest().flatMap { [unowned self] in
+				return self.api.fetchLiveStream(liveStreamId: liveStreamId)
+			} .map { [unowned self] liveStream in
+				self.livePlayerViewModel = LivePlayerViewModel(liveStream: liveStream)
+				self.showPlayer()
 			}
-		} .map { [unowned self] liveStream in
-			self.livePlayerViewModel = LivePlayerViewModel(liveStream: liveStream)
-			self.showPlayer()
+			.sink()
+			.store(in: &cancellables)
+		} else {
+			api.authenticateAsGuest().flatMap { [unowned self] in
+				return self.api.getLiveStreams()
+			}.map { [unowned self] liveStreams -> LiveStream in
+					return liveStreams.randomElement()!
+			} .map { [unowned self] liveStream in
+				self.livePlayerViewModel = LivePlayerViewModel(liveStream: liveStream)
+				self.showPlayer()
+			}
+			.sink()
+			.store(in: &cancellables)
 		}
-		.onError{ e in
-			print(e)
-		}
-		.sink()
-		.store(in: &cancellables)
 	}
 
 	public override func viewDidAppear(_ animated: Bool) {
