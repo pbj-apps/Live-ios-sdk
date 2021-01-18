@@ -22,6 +22,12 @@ extension RestApi: LiveStreamRepository {
 			return page.results.map { $0.toLiveStream() }
 		}.eraseToAnyPublisher()
 	}
+	
+	public func getCurrentLiveStreams() -> AnyPublisher<[LiveStream], Error> {
+		return get("/episodes/current").map { (page: JSONPage<JSONLiveStream>) in
+			return page.results.map { $0.toLiveStream() }
+		}.eraseToAnyPublisher()
+	}
 
 	public func getLiveStreamsSchedule() -> AnyPublisher<[LiveStream], Error> {
 		let paginator = RestApiPaginator<JSONLiveStream, LiveStream>(baseUrl: baseUrl, "/live-streams/schedule?days_ahead=7", client: network, mapping: { $0.toLiveStream() })
