@@ -39,45 +39,59 @@ public class LivePlayerViewController: UIViewController, ObservableObject {
 
 	public convenience init() {
 		self.init(nibName: nil, bundle: nil)
-		setup()
+		initialize()
 	}
 
 	public convenience init(liveStreamId: String) {
 		self.init(nibName: nil, bundle: nil)
 		self.liveStreamId = liveStreamId
-		setup()
+		initialize()
 	}
 
-	private func setup() {
+	private func initialize() {
 		let domain = LiveSDK.shared.domain
 		let apiKey = LiveSDK.shared.apiKey
 		self.api = RestApi(apiUrl: "https://\(domain)/api", webSocketsUrl: "wss://\(domain)/ws", apiKey: apiKey)
-		// At the moment, an authenticated user is needed to get a Livestream.
-		// TODO Remove and replace by the correct authentication method.
-		api.authenticationToken = "Auth_Token"
 		modalPresentationStyle = .fullScreen
 	}
 
 	public override func viewDidLoad() {
 		super.viewDidLoad()
-
-		api.getLiveStreams().map { [unowned self] liveStreams -> LiveStream in
-			if let liveStreamFound = liveStreams.first(where: { $0.id == self.liveStreamId }) {
-				return liveStreamFound
-			} else {
-				return liveStreams.randomElement()!
+		
+		if let liveStreamId = liveStreamId {
+			api.authenticateAsGuest().flatMap { [unowned self] in
+				return self.api.fetchLiveStream(liveStreamId: liveStreamId)
+			} .map { [unowned self] liveStream in
+				self.livePlayerViewModel = LivePlayerViewModel(liveStream: liveStream)
+				self.showPlayer()
 			}
-		} .map { [unowned self] liveStream in
-			self.livePlayerViewModel = LivePlayerViewModel(liveStream: liveStream)
-			self.showPlayer()
+			.sink()
+			.store(in: &cancellables)
+		} else {
+			api.authenticateAsGuest().flatMap { [unowned self] () -> AnyPublisher<LiveStream?, Error>  in
+				self.registerForRealTimeLiveStreamUpdates()
+				return self.api.getCurrentLiveStream()
+			}.map { [unowned self] currentLiveStream in
+				if let liveStream = currentLiveStream {
+					self.livePlayerViewModel = LivePlayerViewModel(liveStream: liveStream)
+					self.showPlayer()
+				} else {
+					let alertVC = UIAlertController(
+						title: "No livestream",
+						message: "There is no livestream available at the moment",
+						preferredStyle: UIAlertController.Style.alert)
+					alertVC.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: { a in
+						self.dismiss(animated: true, completion: nil)
+					}))
+					present(alertVC, animated: true, completion: nil)
+				}
+			}
+			.sink()
+			.store(in: &cancellables)
 		}
-		.sink()
-		.store(in: &cancellables)
 	}
-
-	public override func viewDidAppear(_ animated: Bool) {
-		super.viewDidAppear(animated)
-
+	
+	func registerForRealTimeLiveStreamUpdates() {
 		api.registerForRealTimeLiveStreamUpdates()
 			.receive(on: RunLoop.main)
 			.sink { [unowned self] update in
