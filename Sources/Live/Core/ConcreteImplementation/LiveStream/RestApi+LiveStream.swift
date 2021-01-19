@@ -28,6 +28,12 @@ extension RestApi: LiveStreamRepository {
 			return page.results.map { $0.toLiveStream() }
 		}.eraseToAnyPublisher()
 	}
+	
+	public func getCurrentLiveStream() -> AnyPublisher<LiveStream?, Error> {
+		return getCurrentLiveStreams().map { livestreams -> LiveStream? in
+			return livestreams.first
+		}.eraseToAnyPublisher()
+	}
 
 	public func fetchLiveStream(liveStreamId: String) -> AnyPublisher<LiveStream, Error> {
 		return get("/live-streams/\(liveStreamId)").map { (jsonLiveStream: JSONLiveStream) in

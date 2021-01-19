@@ -68,22 +68,30 @@ public class LivePlayerViewController: UIViewController, ObservableObject {
 			.sink()
 			.store(in: &cancellables)
 		} else {
-			api.authenticateAsGuest().flatMap { [unowned self] in
-				return self.api.getLiveStreams()
-			}.map { [unowned self] liveStreams -> LiveStream in
-					return liveStreams.randomElement()!
-			} .map { [unowned self] liveStream in
-				self.livePlayerViewModel = LivePlayerViewModel(liveStream: liveStream)
-				self.showPlayer()
+			api.authenticateAsGuest().flatMap { [unowned self] () -> AnyPublisher<LiveStream?, Error>  in
+				self.registerForRealTimeLiveStreamUpdates()
+				return self.api.getCurrentLiveStream()
+			}.map { [unowned self] currentLiveStream in
+				if let liveStream = currentLiveStream {
+					self.livePlayerViewModel = LivePlayerViewModel(liveStream: liveStream)
+					self.showPlayer()
+				} else {
+					let alertVC = UIAlertController(
+						title: "No livestream",
+						message: "There is no livestream available at the moment",
+						preferredStyle: UIAlertController.Style.alert)
+					alertVC.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: { a in
+						self.dismiss(animated: true, completion: nil)
+					}))
+					present(alertVC, animated: true, completion: nil)
+				}
 			}
 			.sink()
 			.store(in: &cancellables)
 		}
 	}
-
-	public override func viewDidAppear(_ animated: Bool) {
-		super.viewDidAppear(animated)
-
+	
+	func registerForRealTimeLiveStreamUpdates() {
 		api.registerForRealTimeLiveStreamUpdates()
 			.receive(on: RunLoop.main)
 			.sink { [unowned self] update in
