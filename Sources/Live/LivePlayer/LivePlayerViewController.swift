@@ -73,6 +73,7 @@ public class LivePlayerViewController: UIViewController, ObservableObject {
 				return self.api.getCurrentLiveStream()
 			}.map { [unowned self] currentLiveStream in
 				if let liveStream = currentLiveStream {
+					self.fetchBroadcastURL(liveStream: liveStream)
 					self.livePlayerViewModel = LivePlayerViewModel(liveStream: liveStream)
 					self.showPlayer()
 				} else {
