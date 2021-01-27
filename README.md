@@ -22,7 +22,7 @@ import Live
 
 // [...]
 
-LiveSDK.initialize(withDomain: "YOUR_DOMAIN", apiKey: "YOUR_API_KEY")
+LiveSDK.initialize(apiKey: "YOUR_API_KEY")
 ```
 
 ## 3. Create a LivePlayerViewController
