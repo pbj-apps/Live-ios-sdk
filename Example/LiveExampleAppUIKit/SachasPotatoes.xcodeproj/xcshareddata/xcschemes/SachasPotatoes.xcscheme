@@ -15,9 +15,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "9965AD3B2551EE6300E88127"
-               BuildableName = "LiveExampleAppUIKit.app"
-               BlueprintName = "LiveExampleAppUIKit"
-               ReferencedContainer = "container:LiveExampleAppUIKit.xcodeproj">
+               BuildableName = "SachasPotatoes.app"
+               BlueprintName = "SachasPotatoes"
+               ReferencedContainer = "container:SachasPotatoes.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -45,9 +45,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "9965AD3B2551EE6300E88127"
-            BuildableName = "LiveExampleAppUIKit.app"
-            BlueprintName = "LiveExampleAppUIKit"
-            ReferencedContainer = "container:LiveExampleAppUIKit.xcodeproj">
+            BuildableName = "SachasPotatoes.app"
+            BlueprintName = "SachasPotatoes"
+            ReferencedContainer = "container:SachasPotatoes.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -62,9 +62,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "9965AD3B2551EE6300E88127"
-            BuildableName = "LiveExampleAppUIKit.app"
-            BlueprintName = "LiveExampleAppUIKit"
-            ReferencedContainer = "container:LiveExampleAppUIKit.xcodeproj">
+            BuildableName = "SachasPotatoes.app"
+            BlueprintName = "SachasPotatoes"
+            ReferencedContainer = "container:SachasPotatoes.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>
