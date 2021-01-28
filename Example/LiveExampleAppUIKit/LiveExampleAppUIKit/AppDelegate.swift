@@ -15,9 +15,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 	func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
 
 		// 2) Setup SDK with your domain & API Key
-		LiveSDK.initialize(
-			withDomain: "api.pbj-live.dev.pbj.engineering",
-			apiKey: "ORG_API_KEY")
+		//		LiveSDK.initialize(apiKey: "ORG_API_KEY")
 
 		window = UIWindow(frame: UIScreen.main.bounds)
 		window?.rootViewController = UINavigationController(rootViewController: ViewController())

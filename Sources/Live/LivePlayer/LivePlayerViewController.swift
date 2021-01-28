@@ -9,14 +9,20 @@ import SwiftUI
 import Combine
 import AVKit
 
+public enum Environment: CaseIterable {
+	case dev
+	case demo
+	case prod
+}
+
 public class LiveSDK {
 
 	static let shared = LiveSDK()
-	var domain: String = ""
+	var environment: Environment = .prod
 	var apiKey: String = ""
 
-	public static func initialize(withDomain: String, apiKey: String) {
-		shared.domain = withDomain
+	public static func initialize(apiKey: String, environment: Environment = .prod) {
+		shared.environment = environment
 		shared.apiKey = apiKey
 	}
 }
@@ -49,7 +55,7 @@ public class LivePlayerViewController: UIViewController, ObservableObject {
 	}
 
 	private func initialize() {
-		let domain = LiveSDK.shared.domain
+		let domain = LiveSDK.shared.environment.domain
 		let apiKey = LiveSDK.shared.apiKey
 		self.api = RestApi(apiUrl: "https://\(domain)/api", webSocketsUrl: "wss://\(domain)/ws", apiKey: apiKey)
 		modalPresentationStyle = .fullScreen
@@ -163,3 +169,17 @@ public class LivePlayerViewController: UIViewController, ObservableObject {
 		}
 	}
 }
+
+extension Environment {
+	var domain: String {
+		switch self {
+		case .dev:
+			return "api.pbj-live.dev.pbj.engineering"
+		case .demo:
+			return "api.pbj-live.demo.pbj.engineering"
+		case .prod:
+			return "api.pbj.live"
+		}
+	}
+}
+

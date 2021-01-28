@@ -3,6 +3,7 @@
 ![Platform: iOS 13+](https://img.shields.io/badge/platform-iOS%20-blue.svg?style=flat)
 [![Language: Swift 5](https://img.shields.io/badge/language-swift%205-f48041.svg?style=flat)](https://developer.apple.com/swift)
 [![Swift Package Manager compatible](https://img.shields.io/badge/SPM-compatible-4BC51D.svg?style=flat)](https://swift.org/package-manager/)
+[![Build status](https://build.appcenter.ms/v0.1/apps/3c45f38a-7b97-4647-9355-e95c6383ce05/branches/main/badge)](https://appcenter.ms)
 [![GitHub tag](https://img.shields.io/github/release/pbj-apps/Live-ios-sdk.svg)]()
 
 Stream your PBJ.live content from your iOS App.
@@ -22,7 +23,7 @@ import Live
 
 // [...]
 
-LiveSDK.initialize(withDomain: "YOUR_DOMAIN", apiKey: "YOUR_API_KEY")
+LiveSDK.initialize(apiKey: "YOUR_API_KEY")
 ```
 
 ## 3. Create a LivePlayerViewController
