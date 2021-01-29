@@ -8,6 +8,7 @@
 import SwiftUI
 import Combine
 import AVKit
+import Networking
 
 public enum Environment: CaseIterable {
 	case dev
@@ -92,6 +93,18 @@ public class LivePlayerViewController: UIViewController, ObservableObject {
 					}))
 					present(alertVC, animated: true, completion: nil)
 				}
+			}.eraseToAnyPublisher()
+			.mapError { [unowned self] (error: Publishers.FlatMap<AnyPublisher<LiveStream?, Error>, AnyPublisher<(), Error>>.Failure) -> Error in
+				let netError = (error as? NetworkingError)
+				let alertVC = UIAlertController(
+					title: "Error",
+					message: "\(netError?.code.description ?? "") \(netError?.jsonPayload ?? "") ",
+					preferredStyle: UIAlertController.Style.alert)
+				alertVC.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: { a in
+					self.dismiss(animated: true, completion: nil)
+				}))
+				self.present(alertVC, animated: true, completion: nil)
+				return error
 			}
 			.sink()
 			.store(in: &cancellables)

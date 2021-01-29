@@ -50,6 +50,7 @@ public struct LivePlayer: View {
 
 	@ObservedObject private var keyboard = sharedKeyboardResponder
 	@ObservedObject private var backgroundImage: FetchImage
+	@State private var isLivePlaying = true
 	@State var showInfo = true
 
 	public init(
@@ -110,7 +111,9 @@ public struct LivePlayer: View {
 					if let broadcastUrl = liveStream.broadcastUrl {
 						Color.black
 						ActivityIndicator(isAnimating: .constant(true), style: .large, color: UIColor.white)
-						LivePlayerView(broadcastUrl: broadcastUrl, finishedPlaying: finishedPlaying)
+						LivePlayerView(broadcastUrl: broadcastUrl,
+													 finishedPlaying: finishedPlaying,
+													 isPlaying: isLivePlaying)
 							.zIndex(2)
 					}
 				case .finished:
@@ -140,8 +143,11 @@ public struct LivePlayer: View {
 							lightFont: lightFont,
 							lightForegroundColor: lightForegroundColor,
 							liveStream: liveStream,
-													 close: close,
-													 proxy: proxy)
+							close: {
+								isLivePlaying = false
+								close?()
+							},
+							proxy: proxy)
 							.transition(.opacity)
 							.padding(.bottom, keyboard.currentHeight)
 							.zIndex(4)
@@ -162,12 +168,31 @@ struct LivePlayerView: UIViewRepresentable {
 
 	let broadcastUrl: String
 	let finishedPlaying: () -> Void
+	let isPlaying: Bool
 
 	func updateUIView(_ uiView: UIView, context: Context) {
+		if isPlaying {
+			context.coordinator.player?.play()
+		} else {
+			context.coordinator.player?.pause()
+		}
 	}
 
 	func makeUIView(context: Context) -> UIView {
-		return LivePlayerAVPlayerView(urlString: broadcastUrl, finishedPlaying: finishedPlaying)
+		let livePlayerView = LivePlayerAVPlayerView(
+			urlString: broadcastUrl,
+			finishedPlaying: finishedPlaying)
+		context.coordinator.player = livePlayerView.player
+		return livePlayerView
+	}
+
+	func makeCoordinator() -> Coordinator {
+		return Coordinator()
+	}
+
+	public class Coordinator {
+		var isPlaying: Bool = true
+		var player: AVPlayer?
 	}
 }
 
@@ -192,7 +217,8 @@ class LivePlayerAVPlayerView: UIView {
 		return AVPlayerLayer.self
 	}
 
-	convenience init(urlString: String, finishedPlaying: @escaping () -> Void) {
+	convenience init(urlString: String,
+									 finishedPlaying: @escaping () -> Void) {
 		self.init(frame: .zero)
 		self.finishedPlaying = finishedPlaying
 		guard let url = URL(string: urlString) else {
@@ -203,7 +229,6 @@ class LivePlayerAVPlayerView: UIView {
 		let player = AVQueuePlayer(playerItem: playerItem)
 		playerLayer?.videoGravity = AVLayerVideoGravity.resizeAspectFill
 		playerLayer?.player = player
-		player.play()
 
 		NotificationCenter.default.addObserver(self, selector: #selector(playerDidFinishPlaying(note:)),
 																					 name: NSNotification.Name.AVPlayerItemDidPlayToEndTime,
