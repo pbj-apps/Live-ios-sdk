@@ -21,7 +21,7 @@ struct JSONLiveStream: Decodable {
 	let previewImageUrlFullSize: String?
 	let previewVideoUrl: String?
 	let startDate: String
-	let endDate: String
+	let endDate: String?
 	let waitingRoomDescription: String
 
 	enum CodingKeys: String, CodingKey {
@@ -58,7 +58,7 @@ struct JSONLiveStream: Decodable {
 		status = try values.decode(String.self, forKey: .status)
 		chatMode = ChatMode(rawValue: try values.decode(String.self, forKey: .chat_mode)) ?? .disabled
 		startDate = try values.decode(String.self, forKey: .starting_at)
-		endDate = try values.decode(String.self, forKey: .ends_at)
+		endDate = try? values.decode(String.self, forKey: .ends_at)
 		let showKeys = try values.nestedContainer(keyedBy: ShowKeys.self, forKey: .show)
 		showId = try showKeys.decode(String.self, forKey: .id)
 
@@ -87,7 +87,7 @@ extension JSONLiveStream {
 											previewImageUrlFullSize: previewImageUrlFullSize,
 											previewVideoUrl: previewVideoUrl,
 											startDate: startDate.toRestApiDate() ?? Date(),
-											endDate: endDate.toRestApiDate() ?? Date(),
+											endDate: endDate?.toRestApiDate() ?? Date(),
 											waitingRomDescription: waitingRoomDescription)
 	}
 }
