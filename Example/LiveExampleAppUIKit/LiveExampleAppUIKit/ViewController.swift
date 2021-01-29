@@ -24,6 +24,11 @@ class ViewController: UIViewController {
 		setUpPicker()
 		let tap = UITapGestureRecognizer(target: self, action: #selector(tapped))
 		view.addGestureRecognizer(tap)
+
+		// Set Org api Key from previous launches.
+		if let orgApiKey = UserDefaults.standard.string(forKey: "org_api_key") {
+			textField.text = orgApiKey
+		}
 	}
 
 	@objc
@@ -78,6 +83,10 @@ class ViewController: UIViewController {
 		let livePlayerVC = LivePlayerViewController() // Optionally pass in a LivestreamId to target a specific show.
 		livePlayerVC.delegate = self
 		present(livePlayerVC, animated: true, completion: nil)
+
+		// Save Org api Key for future app launches.
+		UserDefaults.standard.setValue(apiKey, forKey: "org_api_key")
+		UserDefaults.standard.synchronize()
 	}
 }
 
