@@ -10,7 +10,7 @@ import Live // 1) Import Live.
 
 class ViewController: UIViewController {
 
-	var selectedEnvironment: Environment = .dev
+	var selectedEnvironment: ApiEnvironment = .dev
 
 	private let button = UIButton()
 	private let textField = UITextField()
@@ -109,14 +109,14 @@ extension ViewController: UIPickerViewDataSource {
 	}
 
 	func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
-		return Environment.allCases.count
+		return ApiEnvironment.allCases.count
 	}
 }
 
 extension ViewController: UIPickerViewDelegate {
 
 	func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
-		let env = Environment.allCases[row]
+		let env = ApiEnvironment.allCases[row]
 		switch env {
 		case .dev:
 			return "dev"
@@ -128,6 +128,6 @@ extension ViewController: UIPickerViewDelegate {
 	}
 
 	func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
-		selectedEnvironment = Environment.allCases[row]
+		selectedEnvironment = ApiEnvironment.allCases[row]
 	}
 }

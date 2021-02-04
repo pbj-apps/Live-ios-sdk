@@ -10,7 +10,7 @@ import Combine
 import AVKit
 import Networking
 
-public enum Environment: CaseIterable {
+public enum ApiEnvironment: CaseIterable {
 	case dev
 	case demo
 	case prod
@@ -19,10 +19,10 @@ public enum Environment: CaseIterable {
 public class LiveSDK {
 
 	static let shared = LiveSDK()
-	var environment: Environment = .prod
+	var environment: ApiEnvironment = .prod
 	var apiKey: String = ""
 
-	public static func initialize(apiKey: String, environment: Environment = .prod) {
+	public static func initialize(apiKey: String, environment: ApiEnvironment = .prod) {
 		shared.environment = environment
 		shared.apiKey = apiKey
 	}
@@ -183,7 +183,7 @@ public class LivePlayerViewController: UIViewController, ObservableObject {
 	}
 }
 
-extension Environment {
+extension ApiEnvironment {
 	var domain: String {
 		switch self {
 		case .dev:

@@ -60,10 +60,10 @@ private struct SavableUser: Codable {
 	var id: String
 	var firstname: String
 	var lastname: String
-	var email: Email
+	var email: Email?
 	var username: String
 	var authToken: String?
-	var hasAnsweredSurvey: Bool
+	var hasAnsweredSurvey: Bool?
 }
 
 extension SavableUser {
