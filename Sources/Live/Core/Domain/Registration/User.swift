@@ -12,12 +12,12 @@ public struct User: Hashable {
 	public let id: String
 	public var firstname: String
 	public var lastname: String
-	public let email: Email
+	public let email: Email?
 	public var username: String
-	public var hasAnsweredSurvey: Bool
+	public var hasAnsweredSurvey: Bool?
 	public var avatarUrl: String?
 
-	public init(id: String, firstname: String, lastname: String, email: Email, username: String, hasAnsweredSurvey: Bool, avatarUrl: String? = nil) {
+	public init(id: String, firstname: String, lastname: String, email: Email?, username: String, hasAnsweredSurvey: Bool?, avatarUrl: String? = nil) {
 		self.id = id
 		self.firstname = firstname
 		self.lastname = lastname

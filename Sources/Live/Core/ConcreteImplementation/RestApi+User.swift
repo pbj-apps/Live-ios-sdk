@@ -155,12 +155,10 @@ struct JSONUser: Decodable {
 	let id: ID
 	let firstname: String
 	let lastname: String
-	let email: Email
+	let email: Email?
 	let username: String
-	let isVerified: Bool
-	let isStaff: Bool
 	let authToken: String?
-	let hasAnsweredSurvey: Bool
+	let hasAnsweredSurvey: Bool?
 	let avatarUrl: String?
 
 	enum CodingKeys: String, CodingKey {
@@ -189,12 +187,10 @@ struct JSONUser: Decodable {
 		id = try values.decode(String.self, forKey: .id)
 		firstname = try values.decode(String.self, forKey: .first_name)
 		lastname = try values.decode(String.self, forKey: .last_name)
-		email = try values.decode(String.self, forKey: .email)
+		email = try? values.decode(String.self, forKey: .email)
 		username = try values.decode(String.self, forKey: .username)
-		isVerified = try values.decode(Bool.self, forKey: .is_verified)
-		isStaff = try values.decode(Bool.self, forKey: .is_staff)
 		authToken = try? values.decode(String.self, forKey: .auth_token)
-		hasAnsweredSurvey = try values.decode(Bool.self, forKey: .is_survey_attempted)
+		hasAnsweredSurvey = try? values.decode(Bool.self, forKey: .is_survey_attempted)
 		if let profileImageValues = try? values.nestedContainer(keyedBy: ProfileImageKeys.self, forKey: .profile_image) {
 			let imageValues = try profileImageValues.nestedContainer(keyedBy: ImageKeys.self, forKey: .image)
 			avatarUrl = try imageValues.decode(String.self, forKey: .small)
