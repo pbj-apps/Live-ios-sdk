@@ -28,7 +28,7 @@ LiveSDK.initialize(apiKey: "YOUR_API_KEY")
 
 ## 3. Create a LivePlayerViewController
 ```swift
-let livePlayerVC = LivePlayerViewController() // Optionally pass a liveStreamId.
+let livePlayerVC = LivePlayerViewController() // Optionally pass a showId.
 livePlayerVC.delegate = self
 ```
 
