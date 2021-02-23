@@ -15,7 +15,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		9965AD3C2551EE6300E88127 /* SachasPotatoes.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SachasPotatoes.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		9965AD3C2551EE6300E88127 /* Live SDK.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Live SDK.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		9965AD3F2551EE6300E88127 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		9965AD432551EE6300E88127 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 		9965AD482551EE6400E88127 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -49,7 +49,7 @@
 		9965AD3D2551EE6300E88127 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				9965AD3C2551EE6300E88127 /* SachasPotatoes.app */,
+				9965AD3C2551EE6300E88127 /* Live SDK.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -93,7 +93,7 @@
 				991D78DD255C5911009341F1 /* Live */,
 			);
 			productName = LiveExampleAppUIKit;
-			productReference = 9965AD3C2551EE6300E88127 /* SachasPotatoes.app */;
+			productReference = 9965AD3C2551EE6300E88127 /* Live SDK.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -294,7 +294,7 @@
 					"@executable_path/Frameworks",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.pbj.studio.sachaspotatoes;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = "Live SDK";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -315,7 +315,7 @@
 					"@executable_path/Frameworks",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.pbj.studio.sachaspotatoes;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = "Live SDK";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
