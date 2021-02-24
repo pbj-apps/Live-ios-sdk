@@ -31,7 +31,7 @@ public final class RestApi: NetworkingService {
 	public init(apiUrl: String, webSocketsUrl: String, apiKey: String) {
 		self.baseUrl = apiUrl
 		var client = NetworkingClient(baseURL: apiUrl)
-		client.logLevels = .debug
+		client.logLevels = .off
 		client.headers["Accept"] = "application/vnd.pbj+json; version=1.0"
 		client.headers["X-api-key"] = apiKey
 		client.parameterEncoding = .json
