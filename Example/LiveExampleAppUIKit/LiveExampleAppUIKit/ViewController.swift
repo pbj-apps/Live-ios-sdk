@@ -13,16 +13,6 @@ class ViewController: UIViewController {
 	var selectedEnvironment: ApiEnvironment = .dev
 	static let pbjLivePink = UIColor(red: 232/255.0, green: 56/255.0, blue: 109/255.0, alpha: 1)
 
-	private let button: UIButton = {
-		let button = UIButton()
-		button.setTitle("Watch Live", for: .normal)
-		button.setTitleColor(.white, for: .normal)
-		button.setBackgroundColor(pbjLivePink, for: .normal)
-		button.layer.cornerRadius = 6
-		button.clipsToBounds = true
-		return button
-	}()
-
 	private let apiKeyLabel: UILabel = {
 		let label = UILabel()
 		label.text = "Organization Api Key:"
@@ -53,6 +43,16 @@ class ViewController: UIViewController {
 		textField.backgroundColor = .white
 		textField.layer.cornerRadius = 6
 		return textField
+	}()
+
+	private let button: UIButton = {
+		let button = UIButton()
+		button.setTitle("Watch Live", for: .normal)
+		button.setTitleColor(.white, for: .normal)
+		button.setBackgroundColor(pbjLivePink, for: .normal)
+		button.layer.cornerRadius = 6
+		button.clipsToBounds = true
+		return button
 	}()
 
 	override func viewDidLoad() {
@@ -97,6 +97,7 @@ class ViewController: UIViewController {
 		stackView.isLayoutMarginsRelativeArrangement = true
 		stackView.layoutMargins = UIEdgeInsets(top: 20, left: 20, bottom: 20, right: 20)
 
+		setUpPicker()
 
 		button.addTarget(self, action: #selector(buttonTapped), for: .touchUpInside)
 		textField.delegate = self
@@ -119,8 +120,7 @@ class ViewController: UIViewController {
 		picker.delegate = self
 	}
 
-	@objc
-	func buttonTapped() {
+	private func initializeSDK() {
 		guard let apiKey = textField.text, !apiKey.isEmpty else {
 			return
 		}
@@ -129,9 +129,13 @@ class ViewController: UIViewController {
 		// This is typically done in the AppDelegate but we do it here
 		// Because we want to change org api key at runtime.
 		LiveSDK.initialize(apiKey: apiKey, environment: selectedEnvironment)
+	}
+
+	@objc
+	func buttonTapped() {
+		initializeSDK()
 
 		// 3) Create a LivePlayerViewController
-
 		var livePlayerVC: LivePlayerViewController
 		if let showId = showTextField.text, !showId.isEmpty {
 			livePlayerVC = LivePlayerViewController(showId: showId)
@@ -142,7 +146,13 @@ class ViewController: UIViewController {
 		livePlayerVC.delegate = self
 		present(livePlayerVC, animated: true, completion: nil)
 
-		// Save Org api Key for future app launches.
+		saveOrgApiKeyForFutureLaunches()
+	}
+
+	private func saveOrgApiKeyForFutureLaunches() {
+		guard let apiKey = textField.text, !apiKey.isEmpty else {
+			return
+		}
 		UserDefaults.standard.setValue(apiKey, forKey: "org_api_key")
 		UserDefaults.standard.synchronize()
 	}
@@ -172,6 +182,21 @@ extension ViewController: UIPickerViewDataSource {
 }
 
 extension ViewController: UIPickerViewDelegate {
+
+
+	func pickerView(_ pickerView: UIPickerView, attributedTitleForRow row: Int, forComponent component: Int) -> NSAttributedString? {
+		let env = ApiEnvironment.allCases[row]
+		var name = ""
+		switch env {
+		case .dev:
+			name = "dev"
+		case .demo:
+			name = "demo"
+		case .prod:
+			name = "prod"
+		}
+		return NSAttributedString(string: name, attributes: [NSAttributedString.Key.foregroundColor: UIColor.white])
+	}
 
 	func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
 		let env = ApiEnvironment.allCases[row]
