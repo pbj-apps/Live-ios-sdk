@@ -28,19 +28,33 @@ public class LiveSDK {
 	}
 
 	public static func isEpisodeLive() -> AnyPublisher<Bool, Error> {
-		return shared.isEpisodeLive()
-	}
-
-	func isEpisodeLive() -> AnyPublisher<Bool, Error> {
-		api.authenticateAsGuest().flatMap { [unowned self] in
-			self.api.getCurrentLiveStream()
-		}
-		.map { $0 != nil }
-		.eraseToAnyPublisher()
+		return shared.api.authenticateAsGuest()
+			.flatMap { shared.api.getCurrentLiveStream() }
+			.map { $0 != nil }
+			.eraseToAnyPublisher()
 	}
 
 	public static func isEpisodeLive(completion: @escaping (Bool, Error?) -> Void) {
 		isEpisodeLive().sink { receiveCompletion in
+			switch receiveCompletion {
+			case .finished: ()
+			case .failure(let error):
+				completion(false, error)
+			}
+		} receiveValue: {
+			completion($0, nil)
+		}.store(in: &shared.cancellables)
+	}
+
+	public static func isEpisodeLive(for showId: String) -> AnyPublisher<Bool, Error> {
+		return shared.api.authenticateAsGuest()
+			.flatMap { shared.api.getCurrentLiveStream(from: showId) }
+			.map { $0 != nil }
+			.eraseToAnyPublisher()
+	}
+
+	public static func isEpisodeLive(for showId: String, completion: @escaping (Bool, Error?) -> Void) {
+		isEpisodeLive(for: showId).sink { receiveCompletion in
 			switch receiveCompletion {
 			case .finished: ()
 			case .failure(let error):
