@@ -18,13 +18,37 @@ public enum ApiEnvironment: CaseIterable {
 
 public class LiveSDK {
 
-	static let shared = LiveSDK()
-	var environment: ApiEnvironment = .prod
-	var apiKey: String = ""
+	internal static let shared = LiveSDK()
+	internal var api: RestApi!
+	private var cancellables = Set<AnyCancellable>()
 
 	public static func initialize(apiKey: String, environment: ApiEnvironment = .prod) {
-		shared.environment = environment
-		shared.apiKey = apiKey
+		shared.api = RestApi(apiUrl: "https://\(environment.domain)/api",
+												 webSocketsUrl: "wss://\(environment.domain)/ws", apiKey: apiKey)
+	}
+
+	public static func isEpisodeLive() -> AnyPublisher<Bool, Error> {
+		return shared.isEpisodeLive()
+	}
+
+	func isEpisodeLive() -> AnyPublisher<Bool, Error> {
+		api.authenticateAsGuest().flatMap { [unowned self] in
+			self.api.getCurrentLiveStream()
+		}
+		.map { $0 != nil }
+		.eraseToAnyPublisher()
+	}
+
+	public static func isEpisodeLive(completion: @escaping (Bool, Error?) -> Void) {
+		isEpisodeLive().sink { receiveCompletion in
+			switch receiveCompletion {
+			case .finished: ()
+			case .failure(let error):
+				completion(false, error)
+			}
+		} receiveValue: {
+			completion($0, nil)
+		}.store(in: &shared.cancellables)
 	}
 }
 
@@ -36,7 +60,7 @@ public class LivePlayerViewController: UIViewController, ObservableObject {
 
 	public var delegate: LivePlayerViewControllerDelegate?
 	private var cancellables = Set<AnyCancellable>()
-	private var api: RestApi!
+
 	private var showId: String?
 	private var livePlayerViewModel: LivePlayerViewModel?
 
@@ -46,27 +70,20 @@ public class LivePlayerViewController: UIViewController, ObservableObject {
 
 	public convenience init() {
 		self.init(nibName: nil, bundle: nil)
-		initialize()
+		modalPresentationStyle = .fullScreen
 	}
 
 	public convenience init(showId: String) {
 		self.init(nibName: nil, bundle: nil)
 		self.showId = showId
-		initialize()
-	}
-
-	private func initialize() {
-		let domain = LiveSDK.shared.environment.domain
-		let apiKey = LiveSDK.shared.apiKey
-		self.api = RestApi(apiUrl: "https://\(domain)/api", webSocketsUrl: "wss://\(domain)/ws", apiKey: apiKey)
 		modalPresentationStyle = .fullScreen
 	}
 
 	public override func viewDidLoad() {
 		super.viewDidLoad()
-		api.authenticateAsGuest().flatMap { [unowned self] () -> AnyPublisher<LiveStream?, Error>  in
+		LiveSDK.shared.api.authenticateAsGuest().flatMap { [unowned self] () -> AnyPublisher<LiveStream?, Error>  in
 			self.registerForRealTimeLiveStreamUpdates()
-			return (showId == nil) ? self.api.getCurrentLiveStream() : self.api.getCurrentLiveStream(from: showId!)
+			return (showId == nil) ? LiveSDK.shared.api.getCurrentLiveStream() : LiveSDK.shared.api.getCurrentLiveStream(from: showId!)
 		}.map { [unowned self] currentLiveStream in
 			if let liveStream = currentLiveStream {
 				self.fetchBroadcastURL(liveStream: liveStream)
@@ -100,7 +117,7 @@ public class LivePlayerViewController: UIViewController, ObservableObject {
 	}
 	
 	func registerForRealTimeLiveStreamUpdates() {
-		api.registerForRealTimeLiveStreamUpdates()
+		LiveSDK.shared.api.registerForRealTimeLiveStreamUpdates()
 			.receive(on: RunLoop.main)
 			.sink { [unowned self] update in
 				if let liveStream = self.livePlayerViewModel?.liveStream, update.id == liveStream.id {
@@ -114,7 +131,7 @@ public class LivePlayerViewController: UIViewController, ObservableObject {
 	}
 
 	func fetchBroadcastURL(liveStream: LiveStream) {
-		api.fetchBroadcastUrl(for: liveStream)
+		LiveSDK.shared.api.fetchBroadcastUrl(for: liveStream)
 			.receive(on: RunLoop.main)
 			.then { [unowned self] broadcastURL in
 				self.livePlayerViewModel?.liveStream.broadcastUrl = broadcastURL
@@ -125,7 +142,7 @@ public class LivePlayerViewController: UIViewController, ObservableObject {
 
 	public override func viewDidDisappear(_ animated: Bool) {
 		super.viewDidDisappear(animated)
-		api.leaveRealTimeLiveStreamUpdates()
+		LiveSDK.shared.api.leaveRealTimeLiveStreamUpdates()
 	}
 
 	private func showPlayer() {
