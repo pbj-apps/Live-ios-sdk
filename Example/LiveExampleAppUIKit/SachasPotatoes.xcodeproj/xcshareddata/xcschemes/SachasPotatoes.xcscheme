@@ -15,7 +15,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "9965AD3B2551EE6300E88127"
-               BuildableName = "SachasPotatoes.app"
+               BuildableName = "Live SDK.app"
                BlueprintName = "SachasPotatoes"
                ReferencedContainer = "container:SachasPotatoes.xcodeproj">
             </BuildableReference>
@@ -45,7 +45,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "9965AD3B2551EE6300E88127"
-            BuildableName = "SachasPotatoes.app"
+            BuildableName = "Live SDK.app"
             BlueprintName = "SachasPotatoes"
             ReferencedContainer = "container:SachasPotatoes.xcodeproj">
          </BuildableReference>
@@ -62,7 +62,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "9965AD3B2551EE6300E88127"
-            BuildableName = "SachasPotatoes.app"
+            BuildableName = "Live SDK.app"
             BlueprintName = "SachasPotatoes"
             ReferencedContainer = "container:SachasPotatoes.xcodeproj">
          </BuildableReference>

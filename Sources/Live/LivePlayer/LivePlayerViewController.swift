@@ -37,7 +37,7 @@ public class LivePlayerViewController: UIViewController, ObservableObject {
 	public var delegate: LivePlayerViewControllerDelegate?
 	private var cancellables = Set<AnyCancellable>()
 	private var api: RestApi!
-	private var liveStreamId: String?
+	private var showId: String?
 	private var livePlayerViewModel: LivePlayerViewModel?
 
 	public override func loadView() {
@@ -49,9 +49,9 @@ public class LivePlayerViewController: UIViewController, ObservableObject {
 		initialize()
 	}
 
-	public convenience init(liveStreamId: String) {
+	public convenience init(showId: String) {
 		self.init(nibName: nil, bundle: nil)
-		self.liveStreamId = liveStreamId
+		self.showId = showId
 		initialize()
 	}
 
@@ -64,51 +64,39 @@ public class LivePlayerViewController: UIViewController, ObservableObject {
 
 	public override func viewDidLoad() {
 		super.viewDidLoad()
-		
-		if let liveStreamId = liveStreamId {
-			api.authenticateAsGuest().flatMap { [unowned self] in
-				return self.api.fetchLiveStream(liveStreamId: liveStreamId)
-			} .map { [unowned self] liveStream in
+		api.authenticateAsGuest().flatMap { [unowned self] () -> AnyPublisher<LiveStream?, Error>  in
+			self.registerForRealTimeLiveStreamUpdates()
+			return (showId == nil) ? self.api.getCurrentLiveStream() : self.api.getCurrentLiveStream(from: showId!)
+		}.map { [unowned self] currentLiveStream in
+			if let liveStream = currentLiveStream {
+				self.fetchBroadcastURL(liveStream: liveStream)
 				self.livePlayerViewModel = LivePlayerViewModel(liveStream: liveStream)
 				self.showPlayer()
-			}
-			.sink()
-			.store(in: &cancellables)
-		} else {
-			api.authenticateAsGuest().flatMap { [unowned self] () -> AnyPublisher<LiveStream?, Error>  in
-				self.registerForRealTimeLiveStreamUpdates()
-				return self.api.getCurrentLiveStream()
-			}.map { [unowned self] currentLiveStream in
-				if let liveStream = currentLiveStream {
-					self.fetchBroadcastURL(liveStream: liveStream)
-					self.livePlayerViewModel = LivePlayerViewModel(liveStream: liveStream)
-					self.showPlayer()
-				} else {
-					let alertVC = UIAlertController(
-						title: "No livestream",
-						message: "There is no livestream available at the moment",
-						preferredStyle: UIAlertController.Style.alert)
-					alertVC.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: { a in
-						self.dismiss(animated: true, completion: nil)
-					}))
-					present(alertVC, animated: true, completion: nil)
-				}
-			}.eraseToAnyPublisher()
-			.mapError { [unowned self] (error: Publishers.FlatMap<AnyPublisher<LiveStream?, Error>, AnyPublisher<(), Error>>.Failure) -> Error in
-				let netError = (error as? NetworkingError)
+			} else {
 				let alertVC = UIAlertController(
-					title: "Error",
-					message: "\(netError?.code.description ?? "") \(netError?.jsonPayload ?? "") ",
+					title: "No livestream",
+					message: "There is no livestream available at the moment",
 					preferredStyle: UIAlertController.Style.alert)
 				alertVC.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: { a in
 					self.dismiss(animated: true, completion: nil)
 				}))
-				self.present(alertVC, animated: true, completion: nil)
-				return error
+				present(alertVC, animated: true, completion: nil)
 			}
-			.sink()
-			.store(in: &cancellables)
+		}.eraseToAnyPublisher()
+		.mapError { [unowned self] (error: Publishers.FlatMap<AnyPublisher<LiveStream?, Error>, AnyPublisher<(), Error>>.Failure) -> Error in
+			let netError = (error as? NetworkingError)
+			let alertVC = UIAlertController(
+				title: "Error",
+				message: "\(netError?.code.description ?? "") \(netError?.jsonPayload ?? "") ",
+				preferredStyle: UIAlertController.Style.alert)
+			alertVC.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: { a in
+				self.dismiss(animated: true, completion: nil)
+			}))
+			self.present(alertVC, animated: true, completion: nil)
+			return error
 		}
+		.sink()
+		.store(in: &cancellables)
 	}
 	
 	func registerForRealTimeLiveStreamUpdates() {

@@ -22,21 +22,33 @@ extension RestApi: LiveStreamRepository {
 			return page.results.map { $0.toLiveStream() }
 		}.eraseToAnyPublisher()
 	}
-	
-	public func getCurrentLiveStreams() -> AnyPublisher<[LiveStream], Error> {
-		return get("/episodes/current").map { (page: JSONPage<JSONLiveStream>) in
-			return page.results.map { $0.toLiveStream() }
-		}.eraseToAnyPublisher()
-	}
-	
+
 	public func getCurrentLiveStream() -> AnyPublisher<LiveStream?, Error> {
-		return getCurrentLiveStreams().map { livestreams -> LiveStream? in
-			return livestreams.first
-		}.eraseToAnyPublisher()
+		return get("/episodes/current")
+			.map { (page: JSONPage<JSONLiveStream>) in
+				return page.results.map { $0.toLiveStream() }
+			}
+			.map { $0.first }
+			.eraseToAnyPublisher()
+	}
+
+	public func getCurrentLiveStream(from showId: String) -> AnyPublisher<LiveStream?, Error> {
+		return get("/episodes/current", params: ["show_id" : showId ])
+			.map { (page: JSONPage<JSONLiveStream>) in
+				return page.results.map { $0.toLiveStream() }
+			}
+			.map { $0.first }
+			.eraseToAnyPublisher()
 	}
 
 	public func fetchLiveStream(liveStreamId: String) -> AnyPublisher<LiveStream, Error> {
 		return get("/live-streams/\(liveStreamId)").map { (jsonLiveStream: JSONLiveStream) in
+			return jsonLiveStream.toLiveStream()
+		}.eraseToAnyPublisher()
+	}
+
+	public func fetchShowPublic(showId: String) -> AnyPublisher<LiveStream, Error> {
+		return get("/shows/\(showId)/public").map { (jsonLiveStream: JSONLiveStream) in
 			return jsonLiveStream.toLiveStream()
 		}.eraseToAnyPublisher()
 	}
