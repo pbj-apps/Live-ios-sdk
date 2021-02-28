@@ -46,15 +46,15 @@ public class LiveSDK {
 		}.store(in: &shared.cancellables)
 	}
 
-	public static func isEpisodeLive(for showId: String) -> AnyPublisher<Bool, Error> {
+	public static func isEpisodeLive(forShowId showId: String) -> AnyPublisher<Bool, Error> {
 		return shared.api.authenticateAsGuest()
 			.flatMap { shared.api.getCurrentLiveStream(from: showId) }
 			.map { $0 != nil }
 			.eraseToAnyPublisher()
 	}
 
-	public static func isEpisodeLive(for showId: String, completion: @escaping (Bool, Error?) -> Void) {
-		isEpisodeLive(for: showId).sink { receiveCompletion in
+	public static func isEpisodeLive(forShowId showId: String, completion: @escaping (Bool, Error?) -> Void) {
+		isEpisodeLive(forShowId: showId).sink { receiveCompletion in
 			switch receiveCompletion {
 			case .finished: ()
 			case .failure(let error):
