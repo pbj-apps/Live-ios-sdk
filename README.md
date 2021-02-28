@@ -8,7 +8,7 @@
 
 Stream your PBJ.live content from your iOS App.
 
-# Installation
+# Stream to your iOS app in 5 simple steps
 
 ## 1. Import the Live-ios-sdk package
 `Xcode` > `File` > `Swift packages` > `Add Package Dependency`  
@@ -26,20 +26,35 @@ import Live
 LiveSDK.initialize(apiKey: "YOUR_API_KEY")
 ```
 
-## 3. Create a LivePlayerViewController
+## 3. (Optional) Check if there is a live episode beforehand
+Typical usage is that you have a "Watch live" button that you only want to show if there is an actual episode currently live.
+```swift
+LiveSDK.isEpisodeLive { isLive, error in			
+    // -> isLive is true if there is any episode live.
+    // Show player here. (step 4)
+}
+```
+
+You can also pass your `showID` as a parameter to query live episodes, but this time for a specific show.
+You can find your `showId` in your web dashboard. Select the show you want and grab it's id from the browser's url.
+
+This api exists with both **callbacks** and **Combine publishers** so your are free to choose the version that fits best with your app.
+
+## 4. Create a LivePlayerViewController
 ```swift
 let livePlayerVC = LivePlayerViewController() // Optionally pass a showId.
 livePlayerVC.delegate = self
 ```
+Without a `showId` parameter, the player will display the first live show it finds.
 
-## 4. Present it like you would any `UIViewController
+## 5. Present it like you would any UIViewController
 ```swift
 present(livePlayerVC, animated: true, completion: nil)
 ```
 
-
 ## Example App
 Checkout the example App provided in this repository to see a typical integration.
+With the test app, you can input your Organization api key and battle test your own environment.
 
 ## Got a question? Found an issue? 
 Create a github issue and we'll help you from there ❤️
