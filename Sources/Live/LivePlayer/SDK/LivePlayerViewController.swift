@@ -10,62 +10,6 @@ import Combine
 import AVKit
 import Networking
 
-public enum ApiEnvironment: CaseIterable {
-	case dev
-	case demo
-	case prod
-}
-
-public class LiveSDK {
-
-	internal static let shared = LiveSDK()
-	internal var api: RestApi!
-	private var cancellables = Set<AnyCancellable>()
-
-	public static func initialize(apiKey: String, environment: ApiEnvironment = .prod) {
-		shared.api = RestApi(apiUrl: "https://\(environment.domain)/api",
-												 webSocketsUrl: "wss://\(environment.domain)/ws", apiKey: apiKey)
-	}
-
-	public static func isEpisodeLive() -> AnyPublisher<Bool, Error> {
-		return shared.api.authenticateAsGuest()
-			.flatMap { shared.api.getCurrentLiveStream() }
-			.map { $0 != nil }
-			.eraseToAnyPublisher()
-	}
-
-	public static func isEpisodeLive(completion: @escaping (Bool, Error?) -> Void) {
-		isEpisodeLive().sink { receiveCompletion in
-			switch receiveCompletion {
-			case .finished: ()
-			case .failure(let error):
-				completion(false, error)
-			}
-		} receiveValue: {
-			completion($0, nil)
-		}.store(in: &shared.cancellables)
-	}
-
-	public static func isEpisodeLive(forShowId showId: String) -> AnyPublisher<Bool, Error> {
-		return shared.api.authenticateAsGuest()
-			.flatMap { shared.api.getCurrentLiveStream(from: showId) }
-			.map { $0 != nil }
-			.eraseToAnyPublisher()
-	}
-
-	public static func isEpisodeLive(forShowId showId: String, completion: @escaping (Bool, Error?) -> Void) {
-		isEpisodeLive(forShowId: showId).sink { receiveCompletion in
-			switch receiveCompletion {
-			case .finished: ()
-			case .failure(let error):
-				completion(false, error)
-			}
-		} receiveValue: {
-			completion($0, nil)
-		}.store(in: &shared.cancellables)
-	}
-}
-
 public protocol LivePlayerViewControllerDelegate {
 	func livePlayerViewControllerDidTapClose()
 }
@@ -77,10 +21,7 @@ public class LivePlayerViewController: UIViewController, ObservableObject {
 
 	private var showId: String?
 	private var livePlayerViewModel: LivePlayerViewModel?
-
-	public override func loadView() {
-		view = LivePlayerViewControllerView()
-	}
+	private var sdkPlayerViewModel = SDKPlayerViewModel()
 
 	public convenience init() {
 		self.init(nibName: nil, bundle: nil)
@@ -93,41 +34,103 @@ public class LivePlayerViewController: UIViewController, ObservableObject {
 		modalPresentationStyle = .fullScreen
 	}
 
+	private func setupSwiftUIView() {
+		let hostVC = UIHostingController(rootView: SDKPlayerView(viewModel: sdkPlayerViewModel))
+		addChild(hostVC)
+		hostVC.view.translatesAutoresizingMaskIntoConstraints = false
+		view.addSubview(hostVC.view)
+		hostVC.view.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
+		hostVC.view.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
+		hostVC.view.bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
+		hostVC.view.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
+	}
+
 	public override func viewDidLoad() {
 		super.viewDidLoad()
+
+		setupSwiftUIView()
+
+		if let showId = showId {
+			loadSpecificShow(showId: showId)
+		} else {
+			loadAnyLiveStream()
+		}
+	}
+
+
+	func loadAnyLiveStream() {
+		sdkPlayerViewModel.isLoadingLiveStream = true
 		LiveSDK.shared.api.authenticateAsGuest().flatMap { [unowned self] () -> AnyPublisher<LiveStream?, Error>  in
 			self.registerForRealTimeLiveStreamUpdates()
-			return (showId == nil) ? LiveSDK.shared.api.getCurrentLiveStream() : LiveSDK.shared.api.getCurrentLiveStream(from: showId!)
+			return LiveSDK.shared.api.getCurrentLiveStream()
 		}.map { [unowned self] currentLiveStream in
 			if let liveStream = currentLiveStream {
 				self.fetchBroadcastURL(liveStream: liveStream)
 				self.livePlayerViewModel = LivePlayerViewModel(liveStream: liveStream)
 				self.showPlayer()
 			} else {
-				let alertVC = UIAlertController(
-					title: "No livestream",
-					message: "There is no livestream available at the moment",
-					preferredStyle: UIAlertController.Style.alert)
-				alertVC.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: { a in
-					self.dismiss(animated: true, completion: nil)
-				}))
-				present(alertVC, animated: true, completion: nil)
+				self.showNoLiveStreamAlert()
 			}
 		}.eraseToAnyPublisher()
 		.mapError { [unowned self] (error: Publishers.FlatMap<AnyPublisher<LiveStream?, Error>, AnyPublisher<(), Error>>.Failure) -> Error in
-			let netError = (error as? NetworkingError)
-			let alertVC = UIAlertController(
-				title: "Error",
-				message: "\(netError?.code.description ?? "") \(netError?.jsonPayload ?? "") ",
-				preferredStyle: UIAlertController.Style.alert)
-			alertVC.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: { a in
-				self.dismiss(animated: true, completion: nil)
-			}))
-			self.present(alertVC, animated: true, completion: nil)
+			showAlert(for: error)
 			return error
 		}
 		.sink()
 		.store(in: &cancellables)
+	}
+
+	func loadSpecificShow(showId: String) {
+		sdkPlayerViewModel.isLoadingLiveStream = true
+		LiveSDK.shared.api.authenticateAsGuest().flatMap { [unowned self] () -> AnyPublisher<LiveStream?, Error>  in
+			self.registerForRealTimeLiveStreamUpdates()
+			return LiveSDK.shared.api.getCurrentLiveStream(from: showId)
+		}.map { [unowned self] currentLiveStream in
+			if let liveStream = currentLiveStream {
+				self.fetchBroadcastURL(liveStream: liveStream)
+				self.livePlayerViewModel = LivePlayerViewModel(liveStream: liveStream)
+				self.showPlayer()
+			} else {
+				// Try to Load show
+				LiveSDK.shared.api.fetchShowPublic(showId: "5d71462a-f431-4143-a10f-d73c69ee428d").map { show in
+					print(show)
+				}
+				.sink()
+				.store(in: &cancellables)
+
+				// TODO no show
+//				self.showNoLiveStreamAlert()
+			}
+		}.eraseToAnyPublisher()
+		.mapError { [unowned self] (error: Publishers.FlatMap<AnyPublisher<LiveStream?, Error>, AnyPublisher<(), Error>>.Failure) -> Error in
+			showAlert(for: error)
+			return error
+		}
+		.sink()
+		.store(in: &cancellables)
+	}
+
+	func showNoLiveStreamAlert() {
+		let alertVC = UIAlertController(
+			title: "No livestream",
+			message: "There is no livestream available at the moment",
+			preferredStyle: UIAlertController.Style.alert)
+		alertVC.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: { a in
+			self.dismiss(animated: true, completion: nil)
+		}))
+		present(alertVC, animated: true, completion: nil)
+	}
+
+	func showAlert(for error: Error) {
+		let netError = (error as? NetworkingError)
+		let alertVC = UIAlertController(
+			title: "Error",
+			message: "\(netError?.code.description ?? "") \(netError?.jsonPayload ?? "") ",
+			preferredStyle: UIAlertController.Style.alert)
+		alertVC.addAction(UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler: { a in
+			self.dismiss(animated: true, completion: nil)
+		}))
+		self.present(alertVC, animated: true, completion: nil)
 	}
 	
 	func registerForRealTimeLiveStreamUpdates() {
@@ -214,4 +217,6 @@ extension ApiEnvironment {
 		}
 	}
 }
+
+
 
