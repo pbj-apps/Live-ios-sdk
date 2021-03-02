@@ -10,21 +10,26 @@ import Combine
 
 class SDKPlayerViewModel: ObservableObject {
 
+	enum State {
+		case loading
+		case noLiveStream
+		case liveStream(LiveStream)
+		case show(Show)
+		case error(Error)
+	}
+
 	private var cancellables = Set<AnyCancellable>()
 	var didTapClose: () -> Void = {}
 
-	@Published var noLiveStream = false
-	@Published var error: Error?
-	@Published var isLoading = false
-	@Published var show: Show? = nil
-	@Published var liveStream: LiveStream? = nil {
+	@Published var state = State.loading {
 		didSet {
-			if let liveStream = liveStream {
+			if case let .liveStream(liveStream) = state {
 				livePlayerViewModel = LivePlayerViewModel(liveStream: liveStream)
 				fetchBroadcastURL(liveStream: liveStream)
 			}
 		}
 	}
+
 	var livePlayerViewModel: LivePlayerViewModel? = nil
 
 	func load(showId: String?) {
@@ -36,40 +41,40 @@ class SDKPlayerViewModel: ObservableObject {
 	}
 
 	private func loadAnyLiveStream() {
-		isLoading = true
+		state = .loading
 		LiveSDK.shared.api.authenticateAsGuest().flatMap { [unowned self] () -> AnyPublisher<LiveStream?, Error>  in
 			self.registerForRealTimeLiveStreamUpdates()
 			return LiveSDK.shared.api.getCurrentLiveStream()
 		}.map { [unowned self] currentLiveStream in
-				liveStream = currentLiveStream
+			if let liveStream = currentLiveStream {
+				state = .liveStream(liveStream)
+			} else {
+				state = .noLiveStream
+			}
 		}
 		.mapError { [unowned self] (error: Publishers.FlatMap<AnyPublisher<LiveStream?, Error>, AnyPublisher<(), Error>>.Failure) -> Error in
-			self.error = error
+			state = .error(error)
 			return error
-		}.finally { [unowned self] in
-			self.isLoading = false
 		}
 		.sink()
 		.store(in: &cancellables)
 	}
 
 	private func loadSpecificShow(showId: String) {
-		isLoading = true
+		state = .loading
 		LiveSDK.shared.api.authenticateAsGuest().flatMap { [unowned self] () -> AnyPublisher<LiveStream?, Error>  in
 			self.registerForRealTimeLiveStreamUpdates()
 			return LiveSDK.shared.api.getCurrentLiveStream(from: showId)
 		}.map { [unowned self] currentLiveStream in
 			if let liveStream = currentLiveStream {
-				self.liveStream = liveStream
+				state = .liveStream(liveStream)
 			} else {
 				// Try to Load show
 				LiveSDK.shared.api.fetchShowPublic(showId: showId).map { show in
-					self.show = show
-					self.isLoading = false
+					state = .show(show)
 				}.mapError { e -> Error in
 					print(e)
-					self.error = e
-					self.isLoading = false
+					state = .error(e)
 					return e
 				}
 				.sink()
@@ -77,8 +82,7 @@ class SDKPlayerViewModel: ObservableObject {
 			}
 		}.eraseToAnyPublisher()
 		.mapError { [unowned self] (error: Publishers.FlatMap<AnyPublisher<LiveStream?, Error>, AnyPublisher<(), Error>>.Failure) -> Error in
-			self.error = error
-			self.isLoading = false
+			state = .error(error)
 			return error
 		}
 		.sink()
@@ -89,7 +93,6 @@ class SDKPlayerViewModel: ObservableObject {
 		LiveSDK.shared.api.fetchBroadcastUrl(for: liveStream)
 			.receive(on: RunLoop.main)
 			.then { [unowned self] broadcastURL in
-				self.liveStream?.broadcastUrl = broadcastURL
 				self.livePlayerViewModel?.liveStream.broadcastUrl = broadcastURL
 			}
 			.sink()

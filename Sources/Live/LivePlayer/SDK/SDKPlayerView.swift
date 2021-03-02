@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Networking
 
 struct SDKPlayerView: View {
 
@@ -13,11 +14,19 @@ struct SDKPlayerView: View {
 
 	var body: some View {
 
-		if let show = viewModel.show {
-			ShowPreview(show: show, didTapClose: { viewModel.didTapClose() })
-				.transition(.opacity)
-		} else if let _ = viewModel.liveStream {
-			// TODO Fade in entry
+		switch viewModel.state {
+		case .loading:
+			ZStack {
+				Color.black
+				VStack {
+					Text("Loading Livestream...")
+						.foregroundColor(.white)
+					ActivityIndicator(isAnimating: .constant(true), style: UIActivityIndicatorView.Style.medium, color: .white)
+				}
+			}.edgesIgnoringSafeArea(.all)
+		case .noLiveStream:
+			SDKPlayerNoStreamAvailableView(didTapClose: viewModel.didTapClose)
+		case .liveStream(_):
 			GeometryReader { proxy in
 				LivePlayer(
 					viewModel: viewModel.livePlayerViewModel!,
@@ -39,20 +48,11 @@ struct SDKPlayerView: View {
 					sendMessage: { _ in }
 				)
 			}
-		}
-		else if viewModel.isLoading {
-			ZStack {
-				Color.black
-				VStack {
-					Text("Loading Livestream...")
-						.foregroundColor(.white)
-					ActivityIndicator(isAnimating: .constant(true), style: UIActivityIndicatorView.Style.medium, color: .white)
-				}
-			}.edgesIgnoringSafeArea(.all)
-		} else if let error = viewModel.error {
-			Text("Error: \(error.localizedDescription)")
-		} else {
-			SDKPlayerNoStreamAvailableView(didTapClose: viewModel.didTapClose)
+		case .show(let show):
+			ShowPreview(show: show, didTapClose: viewModel.didTapClose)
+				.transition(.opacity)
+		case .error(let error):
+			SDKPlayerErrorView(error: error, didTapClose: viewModel.didTapClose)
 		}
 	}
 }
@@ -92,6 +92,54 @@ struct SDKPlayerNoStreamAvailableView: View {
 						.foregroundColor(.white)
 						.font(.system(size: 24))
 					Text("Looks like there is no livestream available at the moment, come back later!")
+						.multilineTextAlignment(.center)
+						.foregroundColor(.white)
+					Spacer()
+				}
+				.padding(.top, max(proxy.safeAreaInsets.top, 20))
+				.padding(.horizontal, 20)
+			}.edgesIgnoringSafeArea(.all)
+		}
+	}
+}
+
+struct SDKPlayerErrorView: View {
+
+	let error: Error
+	let didTapClose: () -> Void
+
+	var body: some View {
+
+		var text = error.localizedDescription
+
+		if let netError = error as? NetworkingError {
+			text = "\(netError.code.description)"
+			text += "\n\(netError.jsonPayload ?? "")"
+		}
+
+		return GeometryReader { proxy in
+			ZStack {
+				Color.black
+				VStack {
+					HStack {
+						Spacer()
+						Button(action: {
+							withAnimation {
+								didTapClose()
+							}
+						}) {
+							Image(systemName: "xmark")
+								.resizable()
+								.scaledToFit()
+								.foregroundColor(Color.white)
+								.frame(height: 13)
+						}
+					}
+					Spacer()
+					Text("Error")
+						.foregroundColor(.white)
+						.font(.system(size: 24))
+					Text(text)
 						.multilineTextAlignment(.center)
 						.foregroundColor(.white)
 					Spacer()
