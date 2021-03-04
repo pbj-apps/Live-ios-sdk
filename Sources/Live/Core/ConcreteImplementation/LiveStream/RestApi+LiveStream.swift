@@ -47,9 +47,9 @@ extension RestApi: LiveStreamRepository {
 		}.eraseToAnyPublisher()
 	}
 
-	public func fetchShowPublic(showId: String) -> AnyPublisher<LiveStream, Error> {
-		return get("/shows/\(showId)/public").map { (jsonLiveStream: JSONLiveStream) in
-			return jsonLiveStream.toLiveStream()
+	public func fetchShowPublic(showId: String) -> AnyPublisher<Show, Error> {
+		return get("/shows/\(showId)/public").map { (jsonShow: JSONShow) in
+			return jsonShow.toShow()
 		}.eraseToAnyPublisher()
 	}
 
@@ -112,3 +112,4 @@ struct WatchJSONResponse: Decodable, NetworkingJSONDecodable {
 }
 
 extension JSONLiveStream: NetworkingJSONDecodable {}
+extension JSONShow: NetworkingJSONDecodable {}
