@@ -8,7 +8,7 @@
 import Foundation
 import Combine
 
-class SDKPlayerViewModel: ObservableObject {
+final class SDKPlayerViewModel: ObservableObject {
 
 	enum State {
 		case loading
