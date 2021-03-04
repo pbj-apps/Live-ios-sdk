@@ -24,7 +24,7 @@ final class SDKPlayerViewModel: ObservableObject {
 	@Published var state = State.loading {
 		didSet {
 			if case let .liveStream(liveStream) = state {
-				livePlayerViewModel = LivePlayerViewModel(liveStream: liveStream)
+				livePlayerViewModel = LivePlayerViewModel(liveStream: liveStream, productRepository: LiveSDK.shared.api)
 				fetchBroadcastURL(liveStream: liveStream)
 			}
 		}
