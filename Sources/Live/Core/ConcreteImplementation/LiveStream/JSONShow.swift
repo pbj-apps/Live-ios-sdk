@@ -10,17 +10,17 @@ import Foundation
 struct JSONShow: Decodable {
 	let title: String
 	let description: String
-	let preview_image_url: String?
-	let preview_video_url: String?
+	let preview_asset: JSONPreviewAsset?
 }
 
 extension JSONShow {
 	func toShow() -> Show {
+
 		return Show(
 			title: title,
 			description: description,
-			previewImageUrl: preview_image_url,
-			previewVideoUrl: preview_video_url
+			previewImageUrl: preview_asset?.image.medium,
+			previewVideoUrl: preview_asset?.asset_type == "video" ? preview_asset?.asset_url : nil
 		)
 	}
 }
