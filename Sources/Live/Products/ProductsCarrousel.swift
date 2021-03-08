@@ -10,16 +10,16 @@ import SwiftUI
 struct ProductsCarrousel: View {
 	
 	let products: [Product]
+	let fontName: String
+	let onClickProduct: (Product) -> Void
 	
 	var body: some View {
-		ScrollView(.horizontal) {
-			HStack {
+		ScrollView(.horizontal, showsIndicators: false) {
+			HStack(spacing: 10) {
 				ForEach(products, id:\.title) { product in
-					ProductCard(
-						title: product.title,
-						price: product.price,
-						detail: product.detail,
-						image: product.image)
+					ProductComponent(product: product, fontName: fontName, onClick: {
+						onClickProduct(product)
+					})
 				}
 			}
 		}
@@ -46,6 +46,6 @@ struct ProductsCarrousel_Previews: PreviewProvider {
 			detail: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.`",
 			image: nil,
 			link: nil)
-		ProductsCarrousel(products: [product1, product2, product3])
+		ProductsCarrousel(products: [product1, product2, product3], fontName: "", onClickProduct: { _ in })
 	}
 }

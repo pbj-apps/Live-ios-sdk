@@ -154,6 +154,7 @@ public struct LivePlayer: View {
 							chatMessages: chatMessages,
 							fetchMessages: fetchMessages,
 							sendMessage: sendMessage,
+							featuredProducts: viewModel.products,
 							isAllCaps: isAllCaps,
 							regularFont: regularFont,
 							lightFont: lightFont,

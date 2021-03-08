@@ -10,13 +10,17 @@ import SwiftUI
 struct ProductComponent: View {
 	
 	let product: Product
+	let fontName: String
+	let onClick: () -> Void
 	
 	var body: some View {
 		ProductCard(
 			title: product.title,
 			price: product.price,
 			detail: product.detail,
-			image: product.image)
+			image: product.image,
+			fontName: fontName,
+			onClick: onClick)
 	}
 }
 
@@ -28,7 +32,7 @@ struct ProductComponent_Previews: PreviewProvider {
 			detail: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.`",
 			image: nil,
 			link: nil)
-		ProductComponent(product: product)
+		ProductComponent(product: product, fontName: "", onClick: {})
 			.previewLayout(.sizeThatFits)
 	}
 }

@@ -15,6 +15,8 @@ struct LivePlayerInfo: View {
 	let fetchMessages: () -> Void
 	let sendMessage: (String) -> Void
 
+	let featuredProducts: [Product]
+
 	let isAllCaps: Bool
 	let regularFont: String
 	let lightFont: String
@@ -84,6 +86,18 @@ struct LivePlayerInfo: View {
 
 							.transition(.opacity)
 							.padding(.bottom, 50)
+					}
+
+					if !featuredProducts.isEmpty {
+						ProductsCarrousel(
+							products: featuredProducts,
+							fontName: regularFont,
+							onClickProduct: { product in
+								print(product)
+								if let productLink = product.link {
+									UIApplication.shared.open(productLink, options: [:], completionHandler: nil)
+								}
+						})
 					}
 
 					if canShowChat && isChatShown {
@@ -223,6 +237,7 @@ struct LivePlayerInfo_Previews: PreviewProvider {
 			chatMessages: [],
 			fetchMessages: {},
 			sendMessage: { _ in },
+			featuredProducts: [],
 			isAllCaps: false,
 			regularFont: "HelveticaNeue",
 			lightFont: "Helvetica-Light",
