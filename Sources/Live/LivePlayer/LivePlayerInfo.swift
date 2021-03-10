@@ -68,12 +68,14 @@ struct LivePlayerInfo: View {
 			Spacer()
 			if canShowChat && isChatShown {
 				chatInput
+				.padding(.trailing, trailingSpace)
 			} else if canShowFeaturedProducts {
 				productsButton
+				.padding(.trailing, 16)
 			}
 		}
 		.padding(.leading, leadingSpace)
-		.padding(.trailing, trailingSpace)
+		.frame(height: 42)
 	}
 
 	var chat: some View {
@@ -102,8 +104,10 @@ struct LivePlayerInfo: View {
 			}
 		}
 		.buttonStyle(PlainButtonStyle())
+		.padding(.top, 2)
 		.padding(.vertical, 9)
 		.padding(.trailing, 9)
+		.padding(.leading, 3)
 		.opacity(isProductsShown ? 0.4 : 1)
 	}
 
@@ -177,7 +181,7 @@ struct LivePlayerInfo: View {
 		}
 		.buttonStyle(PlainButtonStyle())
 		.padding(.vertical, 9)
-		.padding(.trailing, 9)
+		.transition(.opacity)
 	}
 
 	var topGradient: some View {
@@ -224,10 +228,11 @@ struct LivePlayerInfo: View {
 			}
 		}) {
 			Image(systemName: "xmark")
-				.resizable()
-				.scaledToFit()
+				.font(Font.system(size: 17, weight: .semibold))
 				.foregroundColor(Color.white)
 				.frame(height: 13)
+				.padding(.horizontal, 7)
+				.padding(.bottom, 2)
 		}
 	}
 
@@ -241,14 +246,17 @@ struct LivePlayerInfo: View {
 					UIApplication.shared.open(productLink, options: [:], completionHandler: nil)
 				}
 			})
-			.padding(.bottom, 20)
+			.padding(.bottom, 6)
 	}
 
 	
 	// When rotating landscape, safeAreaInsets.top == 0.
 	// that's why we have to check.
 	var topSpace: CGFloat {
-		max(proxy?.safeAreaInsets.top ?? 0, 20)
+		if let topSafeArea = proxy?.safeAreaInsets.top, topSafeArea > 0 {
+			return topSafeArea
+		}
+		return 20
 	}
 	
 	var leadingSpace: CGFloat {

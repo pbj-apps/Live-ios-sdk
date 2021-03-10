@@ -40,24 +40,15 @@ struct ProductCard: View {
 	
 	var body: some View {
 		Button(action: onClick) {
-			HStack {
+			HStack(alignment: .top) {
 				VStack(alignment: .leading) {
-					Spacer()
-					Text(title)
-						.font(.custom(fontName, size: 16)) // GT Walsheim 400
-						.foregroundColor(.black)
-					Text("$\(price)")
-						.font(.custom(fontName, size: 14))
-						.foregroundColor(.black)
-					Divider()
-						.background(Color.init(red: 202/255.0, green: 202/255.0, blue: 202/255.0, opacity: 1))
-					Text(detail)
-						.multilineTextAlignment(/*@START_MENU_TOKEN@*/.leading/*@END_MENU_TOKEN@*/)
-						.font(.custom(fontName, size: 10))
-						.foregroundColor(.black)
-						.opacity(0.5)
-						.fixedSize(horizontal: false, vertical: true)
-
+					titleView
+						.padding(.top, 11)
+					priceView
+						.padding(.top, 1)
+					divider
+						.padding(.top, -2)
+					detailView
 				}
 				Spacer()
 					.frame(width: 20)
@@ -70,17 +61,44 @@ struct ProductCard: View {
 							.frame(width: proxy.size.width, height: proxy.size.height)
 					}
 				}
-				.frame(maxWidth: .infinity, maxHeight: .infinity)
-				.aspectRatio(1, contentMode: .fill)
-				.fixedSize(horizontal: true, vertical: false)
-				.background(Color.gray)
-				.cornerRadius(8)
+				.frame(width: 100, height: 100)
+				.background(Color(red: 239.0/255, green: 239.0/255, blue: 239.0/255))
+				.cornerRadius(6)
 			}
 			.padding(16)
 			.frame(width: 310, height: 132)
 			.background(Color.white)
 			.cornerRadius(16)
 		}.buttonStyle(PlainButtonStyle())
+	}
+
+	var titleView: some View {
+		Text(title)
+			.font(.custom(fontName, size: 16))
+			.foregroundColor(.black)
+	}
+
+	var priceView: some View {
+		Text("$\(price)")
+			.font(.custom(fontName, size: 14))
+			.foregroundColor(.black)
+	}
+
+	var detailView: some View {
+		Text(detail)
+			.multilineTextAlignment(.leading)
+			.lineLimit(2)
+			.font(.custom(fontName, size: 10))
+			.foregroundColor(.black)
+			.opacity(0.5)
+			.fixedSize(horizontal: false, vertical: true)
+	}
+
+	var divider: some View {
+		Rectangle()
+			.foregroundColor(Color.init(red: 202/255.0, green: 202/255.0, blue: 202/255.0, opacity: 1))
+			.frame(height: 1)
+			.frame(maxWidth: .infinity)
 	}
 }
 
