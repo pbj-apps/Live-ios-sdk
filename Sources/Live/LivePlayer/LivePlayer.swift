@@ -30,7 +30,9 @@ public class LivePlayerViewModel: ObservableObject {
 	public func fetchProducts() {
 		productRepository.fetchProducts(for: liveStream)
 			.then { [unowned self] fetchedProducts in
-				self.products = fetchedProducts
+				withAnimation {
+					self.products = fetchedProducts
+				}
 			}
 			.sink()
 			.store(in: &cancellables)
