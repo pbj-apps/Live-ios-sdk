@@ -59,7 +59,7 @@ final class UserTests: XCTestCase {
 	func testCanGetCurrentUser() {
 		let currentUserRepository: CurrentUserRepository = MockedCurrentUserRepository()
 		XCTAssertNil(currentUserRepository.getCurrentUser())
-		MockedCurrentUserRepository.savedUser = User(firstname: "user1", lastname: "flix", email: "test@user.com", username: "", hasAnsweredSurvey: false)
+		MockedCurrentUserRepository.savedUser = User(id: "id", firstname: "user1", lastname: "flix", email: "test@user.com", username: "", hasAnsweredSurvey: false)
 		XCTAssertNotNil(currentUserRepository.getCurrentUser())
 	}
 
@@ -67,7 +67,7 @@ final class UserTests: XCTestCase {
 		MockedCurrentUserRepository.savedUser = nil
 		let currentUserRepository: CurrentUserRepository = MockedCurrentUserRepository()
 		XCTAssertNil(currentUserRepository.getCurrentUser())
-		let testUser = User(firstname: "user1", lastname: "flix", email: "test@user.com", username: "", hasAnsweredSurvey: false)
+		let testUser = User(id: "id", firstname: "user1", lastname: "flix", email: "test@user.com", username: "", hasAnsweredSurvey: false)
 		currentUserRepository.setCurrentUser(user: testUser)
 		let user = currentUserRepository.getCurrentUser()
 		XCTAssertNotNil(user)
@@ -96,7 +96,7 @@ struct MockedUserRepository: UserRepository {
 
 	func login(email: String, password: String) -> AnyPublisher<User, LoginError> {
 		if password == "1234" {
-			return Just(User(firstname: "John", lastname: "Doe", email: "johndoe@gmail.com", username: "", hasAnsweredSurvey: false))
+			return Just(User(id: "id", firstname: "John", lastname: "Doe", email: "johndoe@gmail.com", username: "", hasAnsweredSurvey: false))
 				.setFailureType(to: LoginError.self)
 				.eraseToAnyPublisher()
 		} else {
@@ -107,7 +107,7 @@ struct MockedUserRepository: UserRepository {
 
 	func signup(email: Email, password: Password, firstname: String, lastname: String) -> AnyPublisher<User, SignupError> {
 		if email != "" {
-			return Just(User(firstname: "John", lastname: "Doe", email: "johndoe@gmail.com", username: "", hasAnsweredSurvey: false))
+			return Just(User(id: "id", firstname: "John", lastname: "Doe", email: "johndoe@gmail.com", username: "", hasAnsweredSurvey: false))
 				.setFailureType(to: SignupError.self)
 				.eraseToAnyPublisher()
 		} else {
@@ -117,7 +117,7 @@ struct MockedUserRepository: UserRepository {
 	}
 
 	func fetch(user: User) -> AnyPublisher<User, Error> {
-		return Just(User(firstname: "John", lastname: "Doe", email: "johndoe@gmail.com", username: "", hasAnsweredSurvey: false))
+		return Just(User(id: "id", firstname: "John", lastname: "Doe", email: "johndoe@gmail.com", username: "", hasAnsweredSurvey: false))
 			.setFailureType(to: Error.self)
 			.eraseToAnyPublisher()
 	}
@@ -127,6 +127,13 @@ struct MockedUserRepository: UserRepository {
 			.setFailureType(to: EditUserError.self)
 			.eraseToAnyPublisher()
 	}
+
+	func uploadProfilePicture(image: UIImage) -> AnyPublisher<Void, Error> {
+		Just(())
+			.setFailureType(to: Error.self)
+			.eraseToAnyPublisher()
+	}
+
 }
 
 struct MockedCurrentUserRepository: CurrentUserRepository {

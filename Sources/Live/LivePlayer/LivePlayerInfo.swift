@@ -15,160 +15,248 @@ struct LivePlayerInfo: View {
 	let fetchMessages: () -> Void
 	let sendMessage: (String) -> Void
 
+	let featuredProducts: [Product]
+
 	let isAllCaps: Bool
 	let regularFont: String
 	let lightFont: String
 	let lightForegroundColor: Color
 
 	@State private var isChatShown = false
+	@State private var isProductsShown = false
 	@State private var chatText: String = ""
 
 	let liveStream: LiveStream
 	let close: (() -> Void)?
 	let proxy: GeometryProxy?
 
+	let isFeaturedProductsEnabled = true
+	var canShowFeaturedProducts: Bool {
+		return isFeaturedProductsEnabled && liveStream.status == .broadcasting && !featuredProducts.isEmpty
+	}
+
 	var body: some View {
 		ZStack(alignment: .top) {
-			Rectangle()
-				.fill(LinearGradient(gradient: Gradient(colors: [.black, .clear]), startPoint: .top, endPoint: .bottom))
-				.opacity(0.7)
-				.frame(height: 150)
-				.drawingGroup()
-			Rectangle()
-				.fill(LinearGradient(gradient: Gradient(colors: [.clear, .black]), startPoint: .top, endPoint: .bottom))
-				.padding(.top, 90)
-				.opacity(0.7)
-				.drawingGroup()
-			HStack {
+			topGradient
+			bottomGradient
 				VStack(alignment: .leading, spacing: 0) {
-					HStack {
-						LiveIndicatorView(isLive: liveStream.status == .broadcasting)
-						Spacer()
-						UppercasedText(liveStream.title, uppercased: isAllCaps)
-							.foregroundColor(Color.white)
-							.font(.custom(regularFont, size: 18))
-						Spacer()
-						Button(action: {
-							withAnimation {
-								close?()
-							}
-						}) {
-							Image(systemName: "xmark")
-								.resizable()
-								.scaledToFit()
-								.foregroundColor(Color.white)
-								.frame(height: 13)
-						}
-					}
-					.padding(.top, topSpace)
+					topBar
 					Spacer()
-
 					if liveStream.status == .idle || (liveStream.status == .waitingRoom && !isChatShown) {
-						UppercasedText(liveStream.messageToDisplay(), uppercased: isAllCaps)
-							.lineLimit(5)
-							.foregroundColor(Color.white)
-							.font(.custom(regularFont, size: 50))
-							.transition(.opacity)
-							.lineSpacing(0.1)
-							.padding(.bottom, 55)
-
-						UppercasedText("Live in", uppercased: isAllCaps)
-							.foregroundColor(Color.white)
-							.font(.custom(regularFont, size: 14))
-							.transition(.opacity)
-						LiveCountDown(
-							date: liveStream.startDate,
-							isAllCaps: isAllCaps,
-							lightForegroundColor: lightForegroundColor,
-							regularFont: regularFont)
-
-							.transition(.opacity)
-							.padding(.bottom, 50)
+						showDetails
 					}
-
+					if canShowFeaturedProducts && isProductsShown {
+						products
+					}
 					if canShowChat && isChatShown {
-						Chat(
-							chatMessages: chatMessages,
-							regularFont: regularFont,
-							lightFont: lightFont)
-							.padding(.bottom, 15)
-							.transition(.opacity)
+						chat
 					}
-					HStack {
-						if canShowChat {
-							Button(action: {
-								withAnimation {
-									isChatShown.toggle()
-								}
-							}) {
-								Image("ChatMessageBubble", bundle: .module)
-								if !isChatShown {
-									UppercasedText("\(chatMessages.count)", uppercased: isAllCaps)
-										.foregroundColor(.white)
-										.font(.custom(regularFont, size: 14))
-								}
-							}
-							.buttonStyle(PlainButtonStyle())
-							.padding(.vertical, 9)
-							.padding(.trailing, 9)
-						}
-						Spacer()
-						if canShowChat && isChatShown {
-							HStack {
-								ZStack(alignment: .leading) {
-									if chatText.isEmpty {
-										Text("Type a message")
-											.foregroundColor(lightForegroundColor)
-											.opacity(0.75)
-											.font(.custom(lightFont, size: 14))
-									}
-									TextField("", text: $chatText, onCommit: {
-										sendMessage(chatText)
-										chatText = ""
-									})
-									.font(.custom(lightFont, size: 14))
-									.foregroundColor(lightForegroundColor)
-									.simultaneousGesture(TapGesture())
-								}
-								Button(action: {
-									if !chatText.isEmpty {
-										sendMessage(chatText)
-										chatText = ""
-									}
-								}) {
-									Image("Send", bundle: .module)
-										.opacity(chatText.isEmpty ? 0.5 : 1)
-								}
-							}
-							.padding(9)
-							.overlay(
-								RoundedRectangle(cornerRadius: 8)
-									.stroke(lightForegroundColor.opacity(0.5), lineWidth: 1)
-							)
-						} else {
-							// Hide for now as we don't have this data yet.
-//							Image("Person", bundle: .module)
-//							UppercasedText("518k", uppercased: isAllCaps)
-//								.transition(.opacity)
-//								.foregroundColor(.white)
-//								.font(.custom(regularFont, size: 14))
-						}
-					}
+					bottomBar
 				}
-				.padding(.leading, leadingSpace)
-				.padding(.trailing, trailingSpace)
 				.padding(.bottom, bottomSpace)
-			}
 		}
 		.onAppear {
 			fetchMessages()
 		}
 	}
+
+	var bottomBar: some View {
+		HStack {
+			if canShowChat {
+				chatButton
+			}
+			Spacer()
+			if canShowChat && isChatShown {
+				chatInput
+				.padding(.trailing, trailingSpace)
+			} else if canShowFeaturedProducts {
+				productsButton
+				.padding(.trailing, 16)
+			}
+		}
+		.padding(.leading, leadingSpace)
+		.frame(height: 42)
+	}
+
+	var chat: some View {
+		Chat(
+			chatMessages: chatMessages,
+			regularFont: regularFont,
+			lightFont: lightFont)
+			.padding(.bottom, 15)
+			.transition(.opacity)
+			.padding(.leading, leadingSpace)
+			.padding(.trailing, trailingSpace)
+	}
+
+	var chatButton: some View {
+		Button(action: {
+			withAnimation {
+				isChatShown.toggle()
+				isProductsShown = false
+			}
+		}) {
+			Image("ChatMessageBubble", bundle: .module)
+			if !isChatShown {
+				UppercasedText("\(chatMessages.count)", uppercased: isAllCaps)
+					.foregroundColor(.white)
+					.font(.custom(regularFont, size: 14))
+			}
+		}
+		.buttonStyle(PlainButtonStyle())
+		.padding(.top, 2)
+		.padding(.vertical, 9)
+		.padding(.trailing, 9)
+		.padding(.leading, 3)
+		.opacity(isProductsShown ? 0.4 : 1)
+	}
+
+	var chatInput: some View {
+		HStack {
+			ZStack(alignment: .leading) {
+				if chatText.isEmpty {
+					Text("Type a message")
+						.foregroundColor(lightForegroundColor)
+						.opacity(0.75)
+						.font(.custom(lightFont, size: 14))
+				}
+				TextField("", text: $chatText, onCommit: {
+					sendMessage(chatText)
+					chatText = ""
+				})
+				.font(.custom(lightFont, size: 14))
+				.foregroundColor(lightForegroundColor)
+				.simultaneousGesture(TapGesture())
+			}
+			Button(action: {
+				if !chatText.isEmpty {
+					sendMessage(chatText)
+					chatText = ""
+				}
+			}) {
+				Image("Send", bundle: .module)
+					.opacity(chatText.isEmpty ? 0.5 : 1)
+			}
+		}
+		.padding(9)
+		.overlay(
+			RoundedRectangle(cornerRadius: 8)
+				.stroke(lightForegroundColor.opacity(0.5), lineWidth: 1)
+		)
+	}
+
+	var showDetails: some View {
+		VStack(alignment: .leading) {
+			UppercasedText(liveStream.messageToDisplay(), uppercased: isAllCaps)
+				.lineLimit(5)
+				.foregroundColor(Color.white)
+				.font(.custom(regularFont, size: 50))
+				.lineSpacing(0.1)
+				.padding(.bottom, 55)
+			UppercasedText("Live in", uppercased: isAllCaps)
+				.foregroundColor(Color.white)
+				.font(.custom(regularFont, size: 14))
+			LiveCountDown(
+				date: liveStream.startDate,
+				isAllCaps: isAllCaps,
+				lightForegroundColor: lightForegroundColor,
+				regularFont: regularFont)
+				.padding(.bottom, 50)
+		}
+		.transition(.opacity)
+		.padding(.leading, leadingSpace)
+		.padding(.trailing, trailingSpace)
+	}
+
+	var productsButton: some View {
+		Button(action: {
+			withAnimation {
+				isProductsShown.toggle()
+			}
+		}) {
+			Image("ProductsIcon", bundle: .module)
+			UppercasedText("\(featuredProducts.count)", uppercased: isAllCaps)
+				.foregroundColor(.white)
+				.font(.custom(regularFont, size: 14))
+		}
+		.buttonStyle(PlainButtonStyle())
+		.padding(.vertical, 9)
+		.transition(.opacity)
+	}
+
+	var topGradient: some View {
+		Rectangle()
+			.fill(LinearGradient(gradient: Gradient(colors: [.black, .clear]), startPoint: .top, endPoint: .bottom))
+			.opacity(0.7)
+			.frame(height: 150)
+			.drawingGroup()
+	}
+
+	var bottomGradient: some View {
+		Rectangle()
+			.fill(LinearGradient(gradient: Gradient(colors: [.clear, .black]), startPoint: .top, endPoint: .bottom))
+			.padding(.top, 90)
+			.opacity(0.7)
+			.drawingGroup()
+	}
+
+	var topBar: some View {
+		ZStack {
+			HStack {
+				LiveIndicatorView(isLive: liveStream.status == .broadcasting)
+				Spacer()
+				closeButton
+			}
+			HStack {
+				Spacer()
+				UppercasedText(liveStream.title, uppercased: isAllCaps)
+					.foregroundColor(Color.white)
+					.font(.custom(regularFont, size: 18))
+					.multilineTextAlignment(TextAlignment.center)
+				Spacer()
+			}.padding(.horizontal, 40)
+		}
+		.padding(.leading, leadingSpace)
+		.padding(.trailing, trailingSpace)
+		.padding(.top, topSpace)
+	}
+
+	var closeButton: some View {
+		Button(action: {
+			withAnimation {
+				close?()
+			}
+		}) {
+			Image(systemName: "xmark")
+				.font(Font.system(size: 17, weight: .semibold))
+				.foregroundColor(Color.white)
+				.frame(height: 13)
+				.padding(.horizontal, 7)
+				.padding(.bottom, 2)
+		}
+	}
+
+	var products: some View {
+		ProductsCarrousel(
+			products: featuredProducts,
+			fontName: regularFont,
+			leadingSpace: max(proxy?.safeAreaInsets.leading ?? 11, 11),
+			onTapProduct: { product in
+				if let productLink = product.link {
+					UIApplication.shared.open(productLink, options: [:], completionHandler: nil)
+				}
+			})
+			.padding(.bottom, 6)
+	}
+
 	
 	// When rotating landscape, safeAreaInsets.top == 0.
 	// that's why we have to check.
 	var topSpace: CGFloat {
-		max(proxy?.safeAreaInsets.top ?? 0, 20)
+		if let topSafeArea = proxy?.safeAreaInsets.top, topSafeArea > 0 {
+			return topSafeArea
+		}
+		return 20
 	}
 	
 	var leadingSpace: CGFloat {
@@ -223,6 +311,7 @@ struct LivePlayerInfo_Previews: PreviewProvider {
 			chatMessages: [],
 			fetchMessages: {},
 			sendMessage: { _ in },
+			featuredProducts: [],
 			isAllCaps: false,
 			regularFont: "HelveticaNeue",
 			lightFont: "Helvetica-Light",

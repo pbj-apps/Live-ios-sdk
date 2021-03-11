@@ -9,15 +9,33 @@
 import SwiftUI
 import FetchImage
 import AVFoundation
+import Combine
 
 let sharedKeyboardResponder = KeyboardResponder()
 
 public class LivePlayerViewModel: ObservableObject {
 
 	@Published public var liveStream: LiveStream
+	let productRepository: ProductRepository
+	@Published public var products: [Product]
+	private var cancellables = Set<AnyCancellable>()
 
-	public init(liveStream: LiveStream) {
+	public init(liveStream: LiveStream, productRepository: ProductRepository) {
 		self.liveStream = liveStream
+		self.products = []
+		self.productRepository = productRepository
+		fetchProducts()
+	}
+
+	public func fetchProducts() {
+		productRepository.fetchProducts(for: liveStream)
+			.then { [unowned self] fetchedProducts in
+				withAnimation {
+					self.products = fetchedProducts
+				}
+			}
+			.sink()
+			.store(in: &cancellables)
 	}
 }
 
@@ -138,6 +156,7 @@ public struct LivePlayer: View {
 							chatMessages: chatMessages,
 							fetchMessages: fetchMessages,
 							sendMessage: sendMessage,
+							featuredProducts: viewModel.products,
 							isAllCaps: isAllCaps,
 							regularFont: regularFont,
 							lightFont: lightFont,
