@@ -241,7 +241,7 @@ struct LivePlayerInfo: View {
 			products: featuredProducts,
 			fontName: regularFont,
 			leadingSpace: max(proxy?.safeAreaInsets.leading ?? 11, 11),
-			onClickProduct: { product in
+			onTapProduct: { product in
 				if let productLink = product.link {
 					UIApplication.shared.open(productLink, options: [:], completionHandler: nil)
 				}

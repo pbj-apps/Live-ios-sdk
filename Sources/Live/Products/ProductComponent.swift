@@ -11,7 +11,7 @@ struct ProductComponent: View {
 	
 	let product: Product
 	let fontName: String
-	let onClick: () -> Void
+	let onTap: () -> Void
 	
 	var body: some View {
 		ProductCard(
@@ -20,7 +20,7 @@ struct ProductComponent: View {
 			detail: product.detail,
 			image: product.image,
 			fontName: fontName,
-			onClick: onClick)
+			onTap: onTap)
 	}
 }
 
@@ -32,7 +32,7 @@ struct ProductComponent_Previews: PreviewProvider {
 			detail: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.`",
 			image: nil,
 			link: nil)
-		ProductComponent(product: product, fontName: "", onClick: {})
+		ProductComponent(product: product, fontName: "", onTap: {})
 			.previewLayout(.sizeThatFits)
 	}
 }

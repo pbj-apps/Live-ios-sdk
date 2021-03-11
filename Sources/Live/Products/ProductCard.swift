@@ -15,22 +15,22 @@ struct ProductCard: View {
 	let detail: String
 	let image: URL?
 	let fontName: String
-	let onClick: () -> Void
+	let onTap: () -> Void
 	@ObservedObject var imageView: FetchImage
 
 	init(
 		title: String,
-	price: String,
-	detail: String,
-	image: URL?,
-	fontName: String,
-		onClick: @escaping () -> Void) {
+		price: String,
+		detail: String,
+		image: URL?,
+		fontName: String,
+		onTap: @escaping () -> Void) {
 		self.title = title
 		self.price = price
 		self.detail = detail
 		self.image = image
 		self.fontName = fontName
-		self.onClick = onClick
+		self.onTap = onTap
 		if let image = image {
 			imageView = FetchImage(url: image)
 		} else {
@@ -39,7 +39,7 @@ struct ProductCard: View {
 	}
 	
 	var body: some View {
-		Button(action: onClick) {
+		Button(action: onTap) {
 			HStack(alignment: .top) {
 				VStack(alignment: .leading) {
 					titleView
@@ -54,7 +54,7 @@ struct ProductCard: View {
 					.frame(width: 20)
 				ZStack {
 					GeometryReader { proxy in
-					imageView
+						imageView
 							.view?
 							.resizable()
 							.aspectRatio(contentMode: .fill)
@@ -107,11 +107,11 @@ struct ProductCard_Previews: PreviewProvider {
 	static var previews: some View {
 		ProductCard(
 			title: "Apple Airpods",
-			price: "$29.99",
+			price: "29.99",
 			detail: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.`",
 			image: nil,
 			fontName: "",
-			onClick: {})
+			onTap: {})
 			.previewLayout(.sizeThatFits)
 	}
 }
