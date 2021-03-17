@@ -18,6 +18,7 @@ class Websocket: NSObject, URLSessionWebSocketDelegate {
 	private var webSocketTask: URLSessionWebSocketTask?
 	private var pingTimer: Timer?
 	private var statusUpdatePublisher = PassthroughSubject<LiveStreamStatusUpdate, Never>()
+	private var productUpdatePublisher = PassthroughSubject<ProductUpdate, Never>()
 	private var wasReceivingUpdates = false
 	private var cancellables = Set<AnyCancellable>()
 
@@ -51,6 +52,18 @@ class Websocket: NSObject, URLSessionWebSocketDelegate {
 
 	func leaveEpisodeUpdates() {
 		sendMessage(json: "{ \"command\": \"leave-episode-updates\" }")
+		closeConnection()
+	}
+
+	func registerForProductHighlights(for episode: LiveStream) -> AnyPublisher<ProductUpdate, Never> {
+//		sendMessage(json: "{ \"command\": \"join-product-updates\" }")
+		return productUpdatePublisher
+			.eraseToAnyPublisher()
+	}
+
+	func unRegisterForProductHighlights() {
+		// TODO Plug Websocket
+		//		sendMessage(json: "{ \"command\": \"leave-product-updates\" }")
 		closeConnection()
 	}
 
@@ -134,6 +147,12 @@ class Websocket: NSObject, URLSessionWebSocketDelegate {
 																											waitingRoomDescription: response.episode.waiting_room_description,
 																											status: response.extra.playback_cutoff ? .broadcasting : LiveStreamStatus.fromString(response.episode.status))
 									self.statusUpdatePublisher.send(update)
+								}
+
+								// TODO parse product update payload
+								if response.command == "episode-status-update" {
+									let update = ProductUpdate()
+									self.productUpdatePublisher.send(update)
 								}
 								print(response)
 							}

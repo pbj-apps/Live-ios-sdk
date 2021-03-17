@@ -10,6 +10,7 @@ import SwiftUI
 struct LivePlayerInfo: View {
 
 	// Chat
+	@Binding var showProducts: Bool
 	let isChatEnabled: Bool
 	let chatMessages: [ChatMessage]
 	let fetchMessages: () -> Void
@@ -23,16 +24,14 @@ struct LivePlayerInfo: View {
 	let lightForegroundColor: Color
 
 	@State private var isChatShown = false
-	@State private var isProductsShown = false
 	@State private var chatText: String = ""
 
 	let liveStream: LiveStream
 	let close: (() -> Void)?
 	let proxy: GeometryProxy?
 
-	let isFeaturedProductsEnabled = true
 	var canShowFeaturedProducts: Bool {
-		return isFeaturedProductsEnabled && liveStream.status == .broadcasting && !featuredProducts.isEmpty
+		return liveStream.status == .broadcasting && !featuredProducts.isEmpty
 	}
 
 	var body: some View {
@@ -45,7 +44,7 @@ struct LivePlayerInfo: View {
 					if liveStream.status == .idle || (liveStream.status == .waitingRoom && !isChatShown) {
 						showDetails
 					}
-					if canShowFeaturedProducts && isProductsShown {
+					if canShowFeaturedProducts && showProducts {
 						products
 					}
 					if canShowChat && isChatShown {
@@ -93,7 +92,7 @@ struct LivePlayerInfo: View {
 		Button(action: {
 			withAnimation {
 				isChatShown.toggle()
-				isProductsShown = false
+				showProducts = false
 			}
 		}) {
 			Image("ChatMessageBubble", bundle: .module)
@@ -108,7 +107,7 @@ struct LivePlayerInfo: View {
 		.padding(.vertical, 9)
 		.padding(.trailing, 9)
 		.padding(.leading, 3)
-		.opacity(isProductsShown ? 0.4 : 1)
+		.opacity(showProducts ? 0.4 : 1)
 	}
 
 	var chatInput: some View {
@@ -171,7 +170,7 @@ struct LivePlayerInfo: View {
 	var productsButton: some View {
 		Button(action: {
 			withAnimation {
-				isProductsShown.toggle()
+				showProducts.toggle()
 			}
 		}) {
 			Image("ProductsIcon", bundle: .module)
@@ -307,6 +306,7 @@ struct LivePlayerInfo_Previews: PreviewProvider {
 
 	static func info(with status: LiveStreamStatus, proxy: GeometryProxy) -> LivePlayerInfo {
 		LivePlayerInfo(
+			showProducts: .constant(true),
 			isChatEnabled: true,
 			chatMessages: [],
 			fetchMessages: {},

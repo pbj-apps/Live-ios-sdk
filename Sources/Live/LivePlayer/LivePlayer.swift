@@ -18,13 +18,17 @@ public class LivePlayerViewModel: ObservableObject {
 	@Published public var liveStream: LiveStream
 	let productRepository: ProductRepository
 	@Published public var products: [Product]
+	@Published var showProducts = false
 	private var cancellables = Set<AnyCancellable>()
 
 	public init(liveStream: LiveStream, productRepository: ProductRepository) {
 		self.liveStream = liveStream
 		self.products = []
 		self.productRepository = productRepository
-		fetchProducts()
+		Timer.scheduledTimer(withTimeInterval: 5, repeats: true, block: { _ in
+			self.fetchProducts()
+		})
+//		fetchProducts()
 	}
 
 	public func fetchProducts() {
@@ -32,10 +36,19 @@ public class LivePlayerViewModel: ObservableObject {
 			.then { [unowned self] fetchedProducts in
 				withAnimation {
 					self.products = fetchedProducts
+					self.showProducts  = true
 				}
 			}
 			.sink()
 			.store(in: &cancellables)
+	}
+
+	public func registerForProductHighlights() {
+		productRepository.registerForProductHighlights(for: liveStream)
+	}
+
+	public func unRegisterForProductHighlights() {
+		productRepository.unRegisterForProductHighlights()
 	}
 }
 
@@ -152,6 +165,7 @@ public struct LivePlayer: View {
 				if liveStream.status != .finished { //} && liveStream.status != .idle {
 					if showInfo {
 						LivePlayerInfo(
+							showProducts: $viewModel.showProducts,
 							isChatEnabled: isChatEnabled,
 							chatMessages: chatMessages,
 							fetchMessages: fetchMessages,
@@ -179,6 +193,13 @@ public struct LivePlayer: View {
 			withAnimation {
 				showInfo.toggle()
 			}
+		}.onAppear {
+			print("On appear")
+			viewModel.registerForProductHighlights()
+		}
+		.onDisappear {
+			print("onDisappear")
+			viewModel.unRegisterForProductHighlights()
 		}
 	}
 }
