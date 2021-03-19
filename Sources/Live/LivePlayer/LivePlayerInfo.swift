@@ -316,7 +316,7 @@ public func fakeLivestream(with state: LiveStreamStatus) -> LiveStream {
 }
 
 struct LivePlayerInfo_Previews: PreviewProvider {
-	
+
 	static func info(with status: LiveStreamStatus, proxy: GeometryProxy) -> LivePlayerInfo {
 		LivePlayerInfo(
 			showProducts: .constant(true),
@@ -332,7 +332,7 @@ struct LivePlayerInfo_Previews: PreviewProvider {
 			lightForegroundColor: .white,
 			liveStream: fakeLivestream(with: status), close: { }, proxy: proxy)
 	}
-	
+
 	static var previews: some View {
 		GeometryReader { proxy in
 			Group {
