@@ -15,7 +15,6 @@ public protocol ProductRepository {
 	func unRegisterProductHighlights(for episode: LiveStream)
 }
 
-
 public struct ProductUpdate {
-    public let products: [Product]
+	public let products: [Product]
 }
