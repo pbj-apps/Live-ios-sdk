@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct LivePlayerInfo: View {
-	
+
 	// Chat
 	@Binding var showProducts: Bool
 	let isChatEnabled: Bool
@@ -21,18 +21,18 @@ struct LivePlayerInfo: View {
 	let regularFont: String
 	let lightFont: String
 	let lightForegroundColor: Color
-	
+
 	@State private var isChatShown = false
 	@State private var chatText: String = ""
-	
+
 	let liveStream: LiveStream
 	let close: (() -> Void)?
 	let proxy: GeometryProxy?
-	
+
 	var canShowFeaturedProducts: Bool {
 		return liveStream.status == .broadcasting && !products.isEmpty
 	}
-	
+
 	var body: some View {
 		ZStack(alignment: .top) {
 			topGradient
@@ -60,7 +60,7 @@ struct LivePlayerInfo: View {
 			fetchMessages()
 		}
 	}
-	
+
 	var bottomBar: some View {
 		HStack {
 			if canShowChat {
@@ -78,7 +78,7 @@ struct LivePlayerInfo: View {
 		.padding(.leading, leadingSpace)
 		.frame(height: 42)
 	}
-	
+
 	var chat: some View {
 		Chat(
 			chatMessages: chatMessages,
@@ -89,7 +89,7 @@ struct LivePlayerInfo: View {
 			.padding(.leading, leadingSpace)
 			.padding(.trailing, trailingSpace)
 	}
-	
+
 	var chatButton: some View {
 		Button(action: {
 			withAnimation {
@@ -111,7 +111,7 @@ struct LivePlayerInfo: View {
 		.padding(.leading, 3)
 		.opacity(showProducts ? 0.4 : 1)
 	}
-	
+
 	var chatInput: some View {
 		HStack {
 			ZStack(alignment: .leading) {
@@ -145,7 +145,7 @@ struct LivePlayerInfo: View {
 				.stroke(lightForegroundColor.opacity(0.5), lineWidth: 1)
 		)
 	}
-	
+
 	var showDetails: some View {
 		VStack(alignment: .leading) {
 			UppercasedText(liveStream.messageToDisplay(), uppercased: isAllCaps)
@@ -168,7 +168,7 @@ struct LivePlayerInfo: View {
 		.padding(.leading, leadingSpace)
 		.padding(.trailing, trailingSpace)
 	}
-	
+
 	var productsButton: some View {
 		Button(action: {
 			withAnimation {
@@ -184,7 +184,7 @@ struct LivePlayerInfo: View {
 		.padding(.vertical, 9)
 		.transition(.opacity)
 	}
-	
+
 	var topGradient: some View {
 		Rectangle()
 			.fill(LinearGradient(gradient: Gradient(colors: [.black, .clear]), startPoint: .top, endPoint: .bottom))
@@ -192,7 +192,7 @@ struct LivePlayerInfo: View {
 			.frame(height: 150)
 			.drawingGroup()
 	}
-	
+
 	var bottomGradient: some View {
 		Rectangle()
 			.fill(LinearGradient(gradient: Gradient(colors: [.clear, .black]), startPoint: .top, endPoint: .bottom))
@@ -200,7 +200,7 @@ struct LivePlayerInfo: View {
 			.opacity(0.7)
 			.drawingGroup()
 	}
-	
+
 	var topBar: some View {
 		ZStack {
 			HStack {
@@ -221,7 +221,7 @@ struct LivePlayerInfo: View {
 		.padding(.trailing, trailingSpace)
 		.padding(.top, topSpace)
 	}
-	
+
 	var closeButton: some View {
 		Button(action: {
 			withAnimation {
@@ -236,7 +236,7 @@ struct LivePlayerInfo: View {
 				.padding(.bottom, 2)
 		}
 	}
-	
+
 	var currentlyFeaturedProductsView: some View {
 		ProductsCarrousel(
 			products: currentlyFeaturedProducts,
@@ -249,7 +249,7 @@ struct LivePlayerInfo: View {
 			})
 			.padding(.bottom, 6)
 	}
-	
+
 	var productsView: some View {
 		ProductsCarrousel(
 			products: products,
@@ -262,8 +262,7 @@ struct LivePlayerInfo: View {
 			})
 			.padding(.bottom, 6)
 	}
-	
-	
+
 	// When rotating landscape, safeAreaInsets.top == 0.
 	// that's why we have to check.
 	var topSpace: CGFloat {
@@ -272,20 +271,19 @@ struct LivePlayerInfo: View {
 		}
 		return 20
 	}
-	
+
 	var leadingSpace: CGFloat {
 		max(proxy?.safeAreaInsets.leading ?? 0, 20)
 	}
-	
+
 	var bottomSpace: CGFloat {
 		max(proxy?.safeAreaInsets.bottom ?? 0, 20)
 	}
-	
-	
+
 	var trailingSpace: CGFloat {
 		max(proxy?.safeAreaInsets.trailing ?? 0, 20)
 	}
-	
+
 	var canShowChat: Bool {
 		isChatEnabled && (liveStream.status == .waitingRoom || liveStream.status == .broadcasting)
 	}
