@@ -77,7 +77,6 @@ class Websocket: NSObject, URLSessionWebSocketDelegate {
         }
         """
         sendMessage(json: command)
-        closeConnection()
     }
     
     private func sendMessage(json: String) {
@@ -100,7 +99,7 @@ class Websocket: NSObject, URLSessionWebSocketDelegate {
         sendMessage(json: json)
     }
     
-    private func closeConnection() {
+		private func closeConnection() {
         pingTimer?.invalidate()
         pingTimer = nil
         webSocketTask?.cancel(with: URLSessionWebSocketTask.CloseCode.goingAway, reason: nil)

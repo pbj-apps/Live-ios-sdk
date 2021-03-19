@@ -43,13 +43,9 @@ struct LivePlayerInfo: View {
 				if liveStream.status == .idle || (liveStream.status == .waitingRoom && !isChatShown) {
 					showDetails
 				}
-				
-				//
-				if  !showProducts && liveStream.status == .broadcasting && !currentlyFeaturedProducts.isEmpty {
+				if !showProducts && liveStream.status == .broadcasting && !currentlyFeaturedProducts.isEmpty {
 					currentlyFeaturedProductsView
-						.padding(.top, 20)
 				}
-				//
 				if canShowFeaturedProducts && showProducts {
 					productsView
 				}
