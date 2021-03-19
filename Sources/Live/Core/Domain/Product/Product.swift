@@ -8,6 +8,7 @@
 import Foundation
 
 public struct Product: Equatable {
+	public let id: String
 	public let title: String
 	public let price: String
 	public let detail: String

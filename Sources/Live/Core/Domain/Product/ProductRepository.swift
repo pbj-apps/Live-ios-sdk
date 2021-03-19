@@ -10,11 +10,12 @@ import Combine
 
 public protocol ProductRepository {
 	func fetchProducts(for episode: LiveStream) -> AnyPublisher<[Product], Error>
+    func fetchCurrentlyFeaturedProducts(for episode: LiveStream) -> AnyPublisher<[Product], Error>
 	func registerForProductHighlights(for episode: LiveStream) -> AnyPublisher<ProductUpdate, Never>
-	func unRegisterForProductHighlights()
+	func unRegisterProductHighlights(for episode: LiveStream)
 }
 
 
 public struct ProductUpdate {
-	public let products = [Product]()
+    public let products: [Product]
 }

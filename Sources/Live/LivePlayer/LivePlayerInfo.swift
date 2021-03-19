@@ -8,57 +8,63 @@
 import SwiftUI
 
 struct LivePlayerInfo: View {
-
+	
 	// Chat
 	@Binding var showProducts: Bool
 	let isChatEnabled: Bool
 	let chatMessages: [ChatMessage]
 	let fetchMessages: () -> Void
 	let sendMessage: (String) -> Void
-
-	let featuredProducts: [Product]
-
+	let products: [Product]
+	let currentlyFeaturedProducts: [Product]
 	let isAllCaps: Bool
 	let regularFont: String
 	let lightFont: String
 	let lightForegroundColor: Color
-
+	
 	@State private var isChatShown = false
 	@State private var chatText: String = ""
-
+	
 	let liveStream: LiveStream
 	let close: (() -> Void)?
 	let proxy: GeometryProxy?
-
+	
 	var canShowFeaturedProducts: Bool {
-		return liveStream.status == .broadcasting && !featuredProducts.isEmpty
+		return liveStream.status == .broadcasting && !products.isEmpty
 	}
-
+	
 	var body: some View {
 		ZStack(alignment: .top) {
 			topGradient
 			bottomGradient
-				VStack(alignment: .leading, spacing: 0) {
-					topBar
-					Spacer()
-					if liveStream.status == .idle || (liveStream.status == .waitingRoom && !isChatShown) {
-						showDetails
-					}
-					if canShowFeaturedProducts && showProducts {
-						products
-					}
-					if canShowChat && isChatShown {
-						chat
-					}
-					bottomBar
+			VStack(alignment: .leading, spacing: 0) {
+				topBar
+				Spacer()
+				if liveStream.status == .idle || (liveStream.status == .waitingRoom && !isChatShown) {
+					showDetails
 				}
-				.padding(.bottom, bottomSpace)
+				
+				//
+				if  !showProducts && liveStream.status == .broadcasting && !currentlyFeaturedProducts.isEmpty {
+					currentlyFeaturedProductsView
+						.padding(.top, 20)
+				}
+				//
+				if canShowFeaturedProducts && showProducts {
+					productsView
+				}
+				if canShowChat && isChatShown {
+					chat
+				}
+				bottomBar
+			}
+			.padding(.bottom, bottomSpace)
 		}
 		.onAppear {
 			fetchMessages()
 		}
 	}
-
+	
 	var bottomBar: some View {
 		HStack {
 			if canShowChat {
@@ -67,16 +73,16 @@ struct LivePlayerInfo: View {
 			Spacer()
 			if canShowChat && isChatShown {
 				chatInput
-				.padding(.trailing, trailingSpace)
+					.padding(.trailing, trailingSpace)
 			} else if canShowFeaturedProducts {
 				productsButton
-				.padding(.trailing, 16)
+					.padding(.trailing, 16)
 			}
 		}
 		.padding(.leading, leadingSpace)
 		.frame(height: 42)
 	}
-
+	
 	var chat: some View {
 		Chat(
 			chatMessages: chatMessages,
@@ -87,7 +93,7 @@ struct LivePlayerInfo: View {
 			.padding(.leading, leadingSpace)
 			.padding(.trailing, trailingSpace)
 	}
-
+	
 	var chatButton: some View {
 		Button(action: {
 			withAnimation {
@@ -109,7 +115,7 @@ struct LivePlayerInfo: View {
 		.padding(.leading, 3)
 		.opacity(showProducts ? 0.4 : 1)
 	}
-
+	
 	var chatInput: some View {
 		HStack {
 			ZStack(alignment: .leading) {
@@ -143,7 +149,7 @@ struct LivePlayerInfo: View {
 				.stroke(lightForegroundColor.opacity(0.5), lineWidth: 1)
 		)
 	}
-
+	
 	var showDetails: some View {
 		VStack(alignment: .leading) {
 			UppercasedText(liveStream.messageToDisplay(), uppercased: isAllCaps)
@@ -166,7 +172,7 @@ struct LivePlayerInfo: View {
 		.padding(.leading, leadingSpace)
 		.padding(.trailing, trailingSpace)
 	}
-
+	
 	var productsButton: some View {
 		Button(action: {
 			withAnimation {
@@ -174,7 +180,7 @@ struct LivePlayerInfo: View {
 			}
 		}) {
 			Image("ProductsIcon", bundle: .module)
-			UppercasedText("\(featuredProducts.count)", uppercased: isAllCaps)
+			UppercasedText("\(products.count)", uppercased: isAllCaps)
 				.foregroundColor(.white)
 				.font(.custom(regularFont, size: 14))
 		}
@@ -182,7 +188,7 @@ struct LivePlayerInfo: View {
 		.padding(.vertical, 9)
 		.transition(.opacity)
 	}
-
+	
 	var topGradient: some View {
 		Rectangle()
 			.fill(LinearGradient(gradient: Gradient(colors: [.black, .clear]), startPoint: .top, endPoint: .bottom))
@@ -190,7 +196,7 @@ struct LivePlayerInfo: View {
 			.frame(height: 150)
 			.drawingGroup()
 	}
-
+	
 	var bottomGradient: some View {
 		Rectangle()
 			.fill(LinearGradient(gradient: Gradient(colors: [.clear, .black]), startPoint: .top, endPoint: .bottom))
@@ -198,7 +204,7 @@ struct LivePlayerInfo: View {
 			.opacity(0.7)
 			.drawingGroup()
 	}
-
+	
 	var topBar: some View {
 		ZStack {
 			HStack {
@@ -219,7 +225,7 @@ struct LivePlayerInfo: View {
 		.padding(.trailing, trailingSpace)
 		.padding(.top, topSpace)
 	}
-
+	
 	var closeButton: some View {
 		Button(action: {
 			withAnimation {
@@ -234,10 +240,10 @@ struct LivePlayerInfo: View {
 				.padding(.bottom, 2)
 		}
 	}
-
-	var products: some View {
+	
+	var currentlyFeaturedProductsView: some View {
 		ProductsCarrousel(
-			products: featuredProducts,
+			products: currentlyFeaturedProducts,
 			fontName: regularFont,
 			leadingSpace: max(proxy?.safeAreaInsets.leading ?? 11, 11),
 			onTapProduct: { product in
@@ -247,7 +253,20 @@ struct LivePlayerInfo: View {
 			})
 			.padding(.bottom, 6)
 	}
-
+	
+	var productsView: some View {
+		ProductsCarrousel(
+			products: products,
+			fontName: regularFont,
+			leadingSpace: max(proxy?.safeAreaInsets.leading ?? 11, 11),
+			onTapProduct: { product in
+				if let productLink = product.link {
+					UIApplication.shared.open(productLink, options: [:], completionHandler: nil)
+				}
+			})
+			.padding(.bottom, 6)
+	}
+	
 	
 	// When rotating landscape, safeAreaInsets.top == 0.
 	// that's why we have to check.
@@ -265,12 +284,12 @@ struct LivePlayerInfo: View {
 	var bottomSpace: CGFloat {
 		max(proxy?.safeAreaInsets.bottom ?? 0, 20)
 	}
-
+	
 	
 	var trailingSpace: CGFloat {
 		max(proxy?.safeAreaInsets.trailing ?? 0, 20)
 	}
-
+	
 	var canShowChat: Bool {
 		isChatEnabled && (liveStream.status == .waitingRoom || liveStream.status == .broadcasting)
 	}
@@ -303,7 +322,7 @@ public func fakeLivestream(with state: LiveStreamStatus) -> LiveStream {
 }
 
 struct LivePlayerInfo_Previews: PreviewProvider {
-
+	
 	static func info(with status: LiveStreamStatus, proxy: GeometryProxy) -> LivePlayerInfo {
 		LivePlayerInfo(
 			showProducts: .constant(true),
@@ -311,14 +330,15 @@ struct LivePlayerInfo_Previews: PreviewProvider {
 			chatMessages: [],
 			fetchMessages: {},
 			sendMessage: { _ in },
-			featuredProducts: [],
+			products: [],
+			currentlyFeaturedProducts: [],
 			isAllCaps: false,
 			regularFont: "HelveticaNeue",
 			lightFont: "Helvetica-Light",
 			lightForegroundColor: .white,
 			liveStream: fakeLivestream(with: status), close: { }, proxy: proxy)
 	}
-
+	
 	static var previews: some View {
 		GeometryReader { proxy in
 			Group {
