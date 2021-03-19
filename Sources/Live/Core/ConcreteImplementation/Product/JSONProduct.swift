@@ -9,6 +9,7 @@ import Foundation
 
 
 struct JSONProductResult: Decodable {
+	let id: String
 	let product: JSONProduct
 }
 
@@ -27,6 +28,7 @@ struct JSONProductImage: Decodable {
 extension JSONProductResult {
 	func toProduct() -> Product {
 		return Product(
+			id: id,
 			title: product.title,
 			price: product.price,
 			detail: product.description,
