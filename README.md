@@ -40,9 +40,9 @@ You can find your `showId` in your web dashboard. Select the show you want and g
 
 This api exists with both **callbacks** and **Combine publishers** so your are free to choose the version that fits best with your app.
 
-## 4. Create a LivePlayerViewController
+## 4. Create a Player
 ```swift
-let livePlayerVC = LivePlayerViewController() // Optionally pass a showId.
+let livePlayerVC = LiveSDK.player() // Optionally pass a showId.
 livePlayerVC.delegate = self
 ```
 Without a `showId` parameter, the player will display the first live show it finds.
