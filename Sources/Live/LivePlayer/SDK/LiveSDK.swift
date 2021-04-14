@@ -19,6 +19,13 @@ public class LiveSDK {
 												 webSocketsUrl: "wss://\(environment.domain)/ws", apiKey: apiKey)
 	}
 
+	public static func player(showId: String? = nil) -> LivePlayerViewController {
+		if let showId = showId {
+			return LivePlayerViewController(showId: showId)
+		}
+		return LivePlayerViewController()
+	}
+
 	public static func isEpisodeLive() -> AnyPublisher<Bool, Error> {
 		return shared.api.authenticateAsGuest()
 			.flatMap { shared.api.getCurrentLiveStream() }

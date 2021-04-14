@@ -135,15 +135,16 @@ class ViewController: UIViewController {
 	func buttonTapped() {
 		initializeSDK()
 
-		// 3) Create a LivePlayerViewController
+		// 3) Create a Player
 		var livePlayerVC: LivePlayerViewController
 		if let showId = showTextField.text, !showId.isEmpty {
-			livePlayerVC = LivePlayerViewController(showId: showId)
+			livePlayerVC = LiveSDK.player(showId: showId)
 		} else {
-			livePlayerVC = LivePlayerViewController() // Optionally pass in a LivestreamId to target a specific show.
+			livePlayerVC = LiveSDK.player()// Optionally pass in a LivestreamId to target a specific show.
 		}
 
 		livePlayerVC.delegate = self
+
 		present(livePlayerVC, animated: true, completion: nil)
 
 		saveOrgApiKeyForFutureLaunches()
