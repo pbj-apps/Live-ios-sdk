@@ -17,12 +17,12 @@ extension RestApi {
 		}.eraseToAnyPublisher()
 	}
 	
-	func fetchGuestToken() -> AnyPublisher<JSONGuestAuthResponse, Error> {
+	public func fetchGuestToken() -> AnyPublisher<JSONGuestAuthResponse, Error> {
 		post("/auth/guest/session")
 	}
 }
 
 
-struct JSONGuestAuthResponse: Decodable, NetworkingJSONDecodable {
-	let auth_token: String
+public struct JSONGuestAuthResponse: Decodable, NetworkingJSONDecodable {
+	public let auth_token: String
 }
