@@ -45,7 +45,8 @@ struct SDKPlayerView: View {
 					isChatEnabled: false,
 					chatMessages: [],
 					fetchMessages: {},
-					sendMessage: { _ in }
+					sendMessage: { _, _ in },
+					isInGuestMode: false
 				)
 			}
 		case .show(let show):

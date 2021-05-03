@@ -10,5 +10,5 @@ import Combine
 
 public protocol ChatRepository {
 	func getChatMessages(for livestream: LiveStream) -> AnyPublisher<[ChatMessage], Error>
-	func postChatMessage(message: String, on livestream: LiveStream) -> AnyPublisher<Void, Error>
+	func postChatMessage(message: String, as username: String, on livestream: LiveStream) -> AnyPublisher<Void, Error>
 }

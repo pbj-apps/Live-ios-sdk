@@ -14,16 +14,19 @@ struct LivePlayerInfo: View {
 	let isChatEnabled: Bool
 	let chatMessages: [ChatMessage]
 	let fetchMessages: () -> Void
-	let sendMessage: (String) -> Void
+	let sendMessage: (String, String?) -> Void
 	let products: [Product]
 	let currentlyFeaturedProducts: [Product]
 	let isAllCaps: Bool
 	let regularFont: String
 	let lightFont: String
 	let lightForegroundColor: Color
+	let isInGuestMode: Bool
+	@Binding var chatUsername: String?
 
 	@State private var isChatShown = false
 	@State private var chatText: String = ""
+	@State private var showsUsernameAlert = false
 
 	let liveStream: LiveStream
 	let close: (() -> Void)?
@@ -55,7 +58,9 @@ struct LivePlayerInfo: View {
 				bottomBar
 			}
 			.padding(.bottom, bottomSpace)
-		}
+		}.textFieldAlert(isPresented: $showsUsernameAlert, content: {
+			TextFieldAlert(title: "Username", message: "Pick a username for your chat messages", text: self.$chatUsername)
+		})
 		.onAppear {
 			fetchMessages()
 		}
@@ -122,8 +127,7 @@ struct LivePlayerInfo: View {
 						.font(.custom(lightFont, size: 14))
 				}
 				TextField("", text: $chatText, onCommit: {
-					sendMessage(chatText)
-					chatText = ""
+					trySendChatMessage()
 				})
 				.font(.custom(lightFont, size: 14))
 				.foregroundColor(lightForegroundColor)
@@ -131,8 +135,7 @@ struct LivePlayerInfo: View {
 			}
 			Button(action: {
 				if !chatText.isEmpty {
-					sendMessage(chatText)
-					chatText = ""
+					trySendChatMessage()
 				}
 			}) {
 				Image("Send", bundle: .module)
@@ -144,6 +147,15 @@ struct LivePlayerInfo: View {
 			RoundedRectangle(cornerRadius: 8)
 				.stroke(lightForegroundColor.opacity(0.5), lineWidth: 1)
 		)
+	}
+
+	private func trySendChatMessage() {
+		if isInGuestMode && (chatUsername == nil || chatUsername?.isEmpty == true) {
+			showsUsernameAlert = true
+		} else {
+			sendMessage(chatText, chatUsername)
+			chatText = ""
+		}
 	}
 
 	var showDetails: some View {
@@ -323,13 +335,15 @@ struct LivePlayerInfo_Previews: PreviewProvider {
 			isChatEnabled: true,
 			chatMessages: [],
 			fetchMessages: {},
-			sendMessage: { _ in },
+			sendMessage: { _, _ in },
 			products: [],
 			currentlyFeaturedProducts: [],
 			isAllCaps: false,
 			regularFont: "HelveticaNeue",
 			lightFont: "Helvetica-Light",
 			lightForegroundColor: .white,
+			isInGuestMode: false,
+			chatUsername: .constant("John"),
 			liveStream: fakeLivestream(with: status), close: { }, proxy: proxy)
 	}
 
