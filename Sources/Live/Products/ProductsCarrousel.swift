@@ -15,22 +15,12 @@ struct ProductsCarrousel: View {
 	let onTapProduct: (Product) -> Void
 	
 	var body: some View {
-		if products.count == 1, let product = products.first {
-			HStack {
-				Spacer()
-				ProductComponent(product: product, fontName: fontName, onTap: {
-					onTapProduct(product)
-				})
-				Spacer()
-			}
-		} else {
-			ScrollView(.horizontal, showsIndicators: false) {
-				HStack(spacing: 10) {
-					ForEach(products, id:\.title) { product in
-						ProductComponent(product: product, fontName: fontName, onTap: {
-							onTapProduct(product)
-						}).padding(.leading, product == products.first ? leadingSpace : 0)
-					}
+		ScrollView(.horizontal, showsIndicators: false) {
+			HStack(spacing: 10) {
+				ForEach(products, id:\.title) { product in
+					ProductComponent(product: product, fontName: fontName, onTap: {
+						onTapProduct(product)
+					}).padding(.leading, product == products.first ? leadingSpace : 0)
 				}
 			}
 		}
