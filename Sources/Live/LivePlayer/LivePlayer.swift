@@ -10,6 +10,7 @@ import SwiftUI
 import FetchImage
 import AVFoundation
 import Combine
+import AVKit
 
 let sharedKeyboardResponder = KeyboardResponder()
 
@@ -264,9 +265,11 @@ struct LivePlayerView: UIViewRepresentable {
 	}
 }
 
-class LivePlayerAVPlayerView: UIView {
+class LivePlayerAVPlayerView: UIView, AVPictureInPictureControllerDelegate {
 	
 	var finishedPlaying: () -> Void = {}
+
+	var pictureInPictureController: AVPictureInPictureController?
 	
 	var player: AVPlayer? {
 		get {
@@ -301,8 +304,13 @@ class LivePlayerAVPlayerView: UIView {
 		NotificationCenter.default.addObserver(self, selector: #selector(playerDidFinishPlaying(note:)),
 																					 name: NSNotification.Name.AVPlayerItemDidPlayToEndTime,
 																					 object: player.currentItem)
+
+		// Enable Picture in picture (PiP) if available
+		if AVPictureInPictureController.isPictureInPictureSupported() {
+			pictureInPictureController = AVPictureInPictureController(playerLayer: playerLayer!)
+		}
 	}
-	
+
 	@objc
 	func playerDidFinishPlaying(note: NSNotification) {
 		print("Finished Playing")

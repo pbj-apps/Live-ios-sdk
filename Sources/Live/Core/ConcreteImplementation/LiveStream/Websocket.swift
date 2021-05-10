@@ -12,7 +12,7 @@ import UIKit
 class Websocket: NSObject, URLSessionWebSocketDelegate {
     
     public var token: () -> String = { "" }
-    private let logsEnabled = true
+    private let logsEnabled = false
     private let url: String
     private let apiKey: String
     private var webSocketTask: URLSessionWebSocketTask?
