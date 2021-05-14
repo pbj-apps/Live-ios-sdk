@@ -165,14 +165,19 @@ public struct LivePlayer: View {
 						.zIndex(2)
 				}
 			case .broadcasting:
-				if let broadcastUrl = liveStream.broadcastUrl {
+				ZStack {
 					Color.black
-					ActivityIndicator(isAnimating: .constant(true), style: .large, color: UIColor.white)
-					LivePlayerView(broadcastUrl: broadcastUrl,
-												 finishedPlaying: finishedPlaying,
-												 isPlaying: isLivePlaying)
-						.zIndex(2)
-				}
+					VStack {
+						ActivityIndicator(isAnimating: .constant(true), style: .medium, color: UIColor.white)
+						Text("Connecting to Livestream...")
+							.foregroundColor(Color.white)
+					}
+					if let broadcastUrl = liveStream.broadcastUrl {
+						LivePlayerView(broadcastUrl: broadcastUrl,
+													 finishedPlaying: finishedPlaying,
+													 isPlaying: isLivePlaying)
+					}
+				}.zIndex(2)
 			case .finished:
 				LivePlayerFinishedStateOverlay(
 					nextLiveStream: nextLiveStream,
@@ -241,6 +246,8 @@ struct LivePlayerView: UIViewRepresentable {
 	
 	func updateUIView(_ uiView: UIView, context: Context) {
 		if isPlaying {
+			// Keep close to direct as much as possible.
+			context.coordinator.player?.seek(to: CMTime.positiveInfinity)
 			context.coordinator.player?.play()
 		} else {
 			context.coordinator.player?.pause()
@@ -297,6 +304,10 @@ class LivePlayerAVPlayerView: UIView, AVPictureInPictureControllerDelegate {
 		}
 		let asset = AVAsset(url: url)
 		let playerItem = AVPlayerItem(asset: asset)
+
+		playerItem.automaticallyPreservesTimeOffsetFromLive = true
+		playerItem.canUseNetworkResourcesForLiveStreamingWhilePaused = true
+
 		let player = AVQueuePlayer(playerItem: playerItem)
 		playerLayer?.videoGravity = AVLayerVideoGravity.resizeAspectFill
 		playerLayer?.player = player
