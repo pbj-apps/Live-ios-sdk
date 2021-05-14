@@ -15,12 +15,14 @@ public struct VideoPlayer: UIViewRepresentable {
 	let url: String
 	let looping: Bool
 	let isPlaying: Bool
+	let isLive: Bool
 	let isMuted: Bool
 
-	public init(url: String, looping: Bool, isPlaying: Bool, isMuted: Bool = false) {
+	public init(url: String, looping: Bool, isPlaying: Bool, isLive: Bool = true, isMuted: Bool = false) {
 		self.url = url
 		self.looping = looping
 		self.isPlaying = isPlaying
+		self.isLive = isLive
 		self.isMuted = isMuted
 	}
 
@@ -30,6 +32,12 @@ public struct VideoPlayer: UIViewRepresentable {
 		if let assetURL = URL(string: url) {
 			let asset = AVAsset(url: assetURL)
 			let playerItem = AVPlayerItem(asset: asset)
+
+			if isLive {
+				playerItem.automaticallyPreservesTimeOffsetFromLive = true
+				playerItem.canUseNetworkResourcesForLiveStreamingWhilePaused = true
+			}
+
 			let player = AVQueuePlayer(playerItem: playerItem)
 			if looping {
 				context.coordinator.looper = AVPlayerLooper(player: player, templateItem: playerItem)
@@ -42,6 +50,12 @@ public struct VideoPlayer: UIViewRepresentable {
 
 	public func updateUIView(_ uiView: UIView, context: Context) {
 		if isPlaying {
+
+			if isLive {
+				// Keep close to direct as much as possible.
+				context.coordinator.player?.seek(to: CMTime.positiveInfinity)
+			}
+
 			context.coordinator.player?.play()
 		} else {
 			context.coordinator.player?.pause()
