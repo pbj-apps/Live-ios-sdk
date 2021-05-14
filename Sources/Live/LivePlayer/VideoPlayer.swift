@@ -15,11 +15,13 @@ public struct VideoPlayer: UIViewRepresentable {
 	let url: String
 	let looping: Bool
 	let isPlaying: Bool
+	let isMuted: Bool
 
-	public init(url: String, looping: Bool, isPlaying: Bool) {
+	public init(url: String, looping: Bool, isPlaying: Bool, isMuted: Bool = false) {
 		self.url = url
 		self.looping = looping
 		self.isPlaying = isPlaying
+		self.isMuted = isMuted
 	}
 
 	public func makeUIView(context: Context) -> UIView {
@@ -44,6 +46,7 @@ public struct VideoPlayer: UIViewRepresentable {
 		} else {
 			context.coordinator.player?.pause()
 		}
+		context.coordinator.player?.isMuted = isMuted
 	}
 
 	public func makeCoordinator() -> VideoPlayer.Coordinator {
