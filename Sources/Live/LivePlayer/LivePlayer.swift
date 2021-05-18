@@ -161,7 +161,7 @@ public struct LivePlayer: View {
 			switch liveStream.status {
 			case .idle, .waitingRoom:
 				if let previewVideoUrl = liveStream.previewVideoUrl {
-					VideoPlayer(url: previewVideoUrl, looping: true, isPlaying: true)
+					VideoPlayer(url: previewVideoUrl, looping: true, isPlaying: true, isLive: true, isMuted: false, allowsPictureInPicture: false)
 						.zIndex(2)
 				}
 			case .broadcasting:
@@ -173,9 +173,7 @@ public struct LivePlayer: View {
 							.foregroundColor(Color.white)
 					}
 					if let broadcastUrl = liveStream.broadcastUrl {
-						LivePlayerView(broadcastUrl: broadcastUrl,
-													 finishedPlaying: finishedPlaying,
-													 isPlaying: isLivePlaying)
+						VideoPlayer(url: broadcastUrl, looping: false, isPlaying: isLivePlaying, isLive: true, isMuted: false, allowsPictureInPicture: true, finishedPlaying: finishedPlaying)
 					}
 				}.zIndex(2)
 			case .finished:
@@ -235,101 +233,6 @@ public struct LivePlayer: View {
 			print("onDisappear")
 			viewModel.unRegisterForProductHighlights()
 		}
-	}
-}
-
-struct LivePlayerView: UIViewRepresentable {
-	
-	let broadcastUrl: String
-	let finishedPlaying: () -> Void
-	let isPlaying: Bool
-	
-	func updateUIView(_ uiView: UIView, context: Context) {
-		if isPlaying {
-			// Keep close to direct as much as possible.
-			context.coordinator.player?.seek(to: CMTime.positiveInfinity)
-			context.coordinator.player?.play()
-		} else {
-			context.coordinator.player?.pause()
-		}
-	}
-	
-	func makeUIView(context: Context) -> UIView {
-		let livePlayerView = LivePlayerAVPlayerView(
-			urlString: broadcastUrl,
-			finishedPlaying: finishedPlaying)
-		context.coordinator.player = livePlayerView.player
-		return livePlayerView
-	}
-	
-	func makeCoordinator() -> Coordinator {
-		return Coordinator()
-	}
-	
-	public class Coordinator {
-		var isPlaying: Bool = true
-		var player: AVPlayer?
-	}
-}
-
-class LivePlayerAVPlayerView: UIView, AVPictureInPictureControllerDelegate {
-	
-	var finishedPlaying: () -> Void = {}
-
-	var pictureInPictureController: AVPictureInPictureController?
-	
-	var player: AVPlayer? {
-		get {
-			return playerLayer?.player
-		}
-		set {
-			playerLayer?.player = newValue
-		}
-	}
-	
-	var playerLayer: AVPlayerLayer? {
-		return layer as? AVPlayerLayer
-	}
-	
-	override static var layerClass: AnyClass {
-		return AVPlayerLayer.self
-	}
-	
-	convenience init(urlString: String,
-									 finishedPlaying: @escaping () -> Void) {
-		self.init(frame: .zero)
-		self.finishedPlaying = finishedPlaying
-		guard let url = URL(string: urlString) else {
-			return
-		}
-		let asset = AVAsset(url: url)
-		let playerItem = AVPlayerItem(asset: asset)
-
-		playerItem.automaticallyPreservesTimeOffsetFromLive = true
-		playerItem.canUseNetworkResourcesForLiveStreamingWhilePaused = true
-
-		let player = AVQueuePlayer(playerItem: playerItem)
-		playerLayer?.videoGravity = AVLayerVideoGravity.resizeAspectFill
-		playerLayer?.player = player
-		
-		NotificationCenter.default.addObserver(self, selector: #selector(playerDidFinishPlaying(note:)),
-																					 name: NSNotification.Name.AVPlayerItemDidPlayToEndTime,
-																					 object: player.currentItem)
-
-		// Enable Picture in picture (PiP) if available
-		if AVPictureInPictureController.isPictureInPictureSupported() {
-			pictureInPictureController = AVPictureInPictureController(playerLayer: playerLayer!)
-		}
-	}
-
-	@objc
-	func playerDidFinishPlaying(note: NSNotification) {
-		print("Finished Playing")
-		finishedPlaying()
-	}
-	
-	deinit {
-		NotificationCenter.default.removeObserver(self)
 	}
 }
 
