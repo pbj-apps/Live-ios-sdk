@@ -19,22 +19,22 @@ public struct VideoPlayer: UIViewRepresentable {
 	let isLive: Bool
 	let isMuted: Bool
 	let allowsPictureInPicture: Bool
-	let finishedPlaying: (() -> Void)?
+	let liveStream: LiveStream
 
-	public init(url: String, looping: Bool, isPlaying: Bool, isLive: Bool, isMuted: Bool, allowsPictureInPicture: Bool, finishedPlaying: (() -> Void)? = nil) {
+	public init(liveStream: LiveStream, url: String, looping: Bool, isPlaying: Bool, isLive: Bool, isMuted: Bool, allowsPictureInPicture: Bool) {
+		self.liveStream = liveStream
 		self.url = url
 		self.looping = looping
 		self.isPlaying = isPlaying
 		self.isLive = isLive
 		self.isMuted = isMuted
 		self.allowsPictureInPicture = allowsPictureInPicture
-		self.finishedPlaying = finishedPlaying
 	}
 
 	public func makeUIView(context: Context) -> UIView {
 		let playerView = VideoAVPlayerView()
 		playerView.playerLayer?.videoGravity = .resizeAspectFill
-		context.coordinator.loadPlayer(url: url, in: playerView, isLooping: looping, isLive: isLive, allowsPictureInPicture: allowsPictureInPicture, finishedPlaying: finishedPlaying)
+		context.coordinator.loadPlayer(url: url, in: playerView, isLooping: looping, isLive: isLive, allowsPictureInPicture: allowsPictureInPicture)
 		return playerView
 	}
 
@@ -50,6 +50,7 @@ public struct VideoPlayer: UIViewRepresentable {
 		}
 		context.coordinator.player?.isMuted = isMuted
 		context.coordinator.isPlaying = isPlaying
+		context.coordinator.liveStream = liveStream
 	}
 
 	public func makeCoordinator() -> VideoPlayer.Coordinator {
@@ -65,17 +66,16 @@ public struct VideoPlayer: UIViewRepresentable {
 		var isLooping: Bool = false
 		var isLive: Bool = false
 		var playerItemContext = 0
-		var finishedPlaying: (() -> Void)?
 		var pictureInPictureController: AVPictureInPictureController?
 		var playerItem: AVPlayerItem?
 		var isPlaying: Bool = false
+		var liveStream: LiveStream?
 
-		func loadPlayer(url: String, in playerView: VideoAVPlayerView, isLooping: Bool, isLive: Bool, allowsPictureInPicture: Bool, finishedPlaying:(() -> Void)?) {
+		func loadPlayer(url: String, in playerView: VideoAVPlayerView, isLooping: Bool, isLive: Bool, allowsPictureInPicture: Bool) {
 			self.url = url
 			self.playerView = playerView
 			self.isLooping = isLooping
 			self.isLive = isLive
-			self.finishedPlaying = finishedPlaying
 			self.reloadPlayer()
 
 			// Enable Picture in picture (PiP) if available
@@ -157,7 +157,8 @@ public struct VideoPlayer: UIViewRepresentable {
 
 		@objc
 		func playerDidFinishPlaying(note: NSNotification) {
-			finishedPlaying?()
+			liveStream?.status = .finished
+			NotificationCenter.default.post(name: NSNotification.Name("PBJLiveStreamDidEndStreaming"), object: liveStream)
 		}
 
 		deinit {

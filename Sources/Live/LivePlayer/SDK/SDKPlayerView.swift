@@ -30,7 +30,6 @@ struct SDKPlayerView: View {
 			GeometryReader { proxy in
 				LivePlayer(
 					viewModel: viewModel.livePlayerViewModel!,
-					finishedPlaying: { print("Finished playing") },
 					close: {
 						viewModel.didTapClose()
 					},

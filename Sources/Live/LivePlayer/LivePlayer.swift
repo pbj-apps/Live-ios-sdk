@@ -97,7 +97,6 @@ public struct LivePlayer: View {
 	}
 	
 	let nextLiveStream: LiveStream?
-	let finishedPlaying: () -> Void
 	let close: (() -> Void)?
 	let proxy: GeometryProxy?
 	
@@ -110,7 +109,6 @@ public struct LivePlayer: View {
 	public init(
 		viewModel: LivePlayerViewModel,
 		nextLiveStream: LiveStream? = nil,
-		finishedPlaying: @escaping () -> Void,
 		close: (() -> Void)? = nil,
 		proxy: GeometryProxy? = nil,
 		isAllCaps: Bool,
@@ -125,12 +123,10 @@ public struct LivePlayer: View {
 		chatMessages: [ChatMessage],
 		fetchMessages: @escaping () -> Void,
 		sendMessage: @escaping (String, String?) -> Void,
-		
 		isInGuestMode: Bool
 	) {
 		self.viewModel = viewModel
 		self.nextLiveStream = nextLiveStream
-		self.finishedPlaying = finishedPlaying
 		self.close = close
 		self.proxy = proxy
 		
@@ -161,7 +157,7 @@ public struct LivePlayer: View {
 			switch liveStream.status {
 			case .idle, .waitingRoom:
 				if let previewVideoUrl = liveStream.previewVideoUrl {
-					VideoPlayer(url: previewVideoUrl, looping: true, isPlaying: true, isLive: true, isMuted: false, allowsPictureInPicture: false)
+					VideoPlayer(liveStream: liveStream, url: previewVideoUrl, looping: true, isPlaying: true, isLive: true, isMuted: false, allowsPictureInPicture: false)
 						.zIndex(2)
 				}
 			case .broadcasting:
@@ -173,7 +169,7 @@ public struct LivePlayer: View {
 							.foregroundColor(Color.white)
 					}
 					if let broadcastUrl = liveStream.broadcastUrl {
-						VideoPlayer(url: broadcastUrl, looping: false, isPlaying: isLivePlaying, isLive: true, isMuted: false, allowsPictureInPicture: true, finishedPlaying: finishedPlaying)
+						VideoPlayer(liveStream: liveStream, url: broadcastUrl, looping: false, isPlaying: isLivePlaying, isLive: true, isMuted: false, allowsPictureInPicture: true)
 					}
 				}.zIndex(2)
 			case .finished:
