@@ -97,7 +97,6 @@ public struct LivePlayer: View {
 	}
 	
 	let nextLiveStream: LiveStream?
-	let finishedPlaying: () -> Void
 	let close: (() -> Void)?
 	let proxy: GeometryProxy?
 	
@@ -110,7 +109,6 @@ public struct LivePlayer: View {
 	public init(
 		viewModel: LivePlayerViewModel,
 		nextLiveStream: LiveStream? = nil,
-		finishedPlaying: @escaping () -> Void,
 		close: (() -> Void)? = nil,
 		proxy: GeometryProxy? = nil,
 		isAllCaps: Bool,
@@ -125,12 +123,10 @@ public struct LivePlayer: View {
 		chatMessages: [ChatMessage],
 		fetchMessages: @escaping () -> Void,
 		sendMessage: @escaping (String, String?) -> Void,
-		
 		isInGuestMode: Bool
 	) {
 		self.viewModel = viewModel
 		self.nextLiveStream = nextLiveStream
-		self.finishedPlaying = finishedPlaying
 		self.close = close
 		self.proxy = proxy
 		
@@ -161,18 +157,21 @@ public struct LivePlayer: View {
 			switch liveStream.status {
 			case .idle, .waitingRoom:
 				if let previewVideoUrl = liveStream.previewVideoUrl {
-					VideoPlayer(url: previewVideoUrl, looping: true, isPlaying: true)
+					VideoPlayer(liveStream: liveStream, url: previewVideoUrl, looping: true, isPlaying: true, isLive: true, isMuted: false, allowsPictureInPicture: false)
 						.zIndex(2)
 				}
 			case .broadcasting:
-				if let broadcastUrl = liveStream.broadcastUrl {
+				ZStack {
 					Color.black
-					ActivityIndicator(isAnimating: .constant(true), style: .large, color: UIColor.white)
-					LivePlayerView(broadcastUrl: broadcastUrl,
-												 finishedPlaying: finishedPlaying,
-												 isPlaying: isLivePlaying)
-						.zIndex(2)
-				}
+					VStack {
+						ActivityIndicator(isAnimating: .constant(true), style: .medium, color: UIColor.white)
+						Text("Connecting to Livestream...")
+							.foregroundColor(Color.white)
+					}
+					if let broadcastUrl = liveStream.broadcastUrl {
+						VideoPlayer(liveStream: liveStream, url: broadcastUrl, looping: false, isPlaying: isLivePlaying, isLive: true, isMuted: false, allowsPictureInPicture: true)
+					}
+				}.zIndex(2)
 			case .finished:
 				LivePlayerFinishedStateOverlay(
 					nextLiveStream: nextLiveStream,
@@ -230,95 +229,6 @@ public struct LivePlayer: View {
 			print("onDisappear")
 			viewModel.unRegisterForProductHighlights()
 		}
-	}
-}
-
-struct LivePlayerView: UIViewRepresentable {
-	
-	let broadcastUrl: String
-	let finishedPlaying: () -> Void
-	let isPlaying: Bool
-	
-	func updateUIView(_ uiView: UIView, context: Context) {
-		if isPlaying {
-			context.coordinator.player?.play()
-		} else {
-			context.coordinator.player?.pause()
-		}
-	}
-	
-	func makeUIView(context: Context) -> UIView {
-		let livePlayerView = LivePlayerAVPlayerView(
-			urlString: broadcastUrl,
-			finishedPlaying: finishedPlaying)
-		context.coordinator.player = livePlayerView.player
-		return livePlayerView
-	}
-	
-	func makeCoordinator() -> Coordinator {
-		return Coordinator()
-	}
-	
-	public class Coordinator {
-		var isPlaying: Bool = true
-		var player: AVPlayer?
-	}
-}
-
-class LivePlayerAVPlayerView: UIView, AVPictureInPictureControllerDelegate {
-	
-	var finishedPlaying: () -> Void = {}
-
-	var pictureInPictureController: AVPictureInPictureController?
-	
-	var player: AVPlayer? {
-		get {
-			return playerLayer?.player
-		}
-		set {
-			playerLayer?.player = newValue
-		}
-	}
-	
-	var playerLayer: AVPlayerLayer? {
-		return layer as? AVPlayerLayer
-	}
-	
-	override static var layerClass: AnyClass {
-		return AVPlayerLayer.self
-	}
-	
-	convenience init(urlString: String,
-									 finishedPlaying: @escaping () -> Void) {
-		self.init(frame: .zero)
-		self.finishedPlaying = finishedPlaying
-		guard let url = URL(string: urlString) else {
-			return
-		}
-		let asset = AVAsset(url: url)
-		let playerItem = AVPlayerItem(asset: asset)
-		let player = AVQueuePlayer(playerItem: playerItem)
-		playerLayer?.videoGravity = AVLayerVideoGravity.resizeAspectFill
-		playerLayer?.player = player
-		
-		NotificationCenter.default.addObserver(self, selector: #selector(playerDidFinishPlaying(note:)),
-																					 name: NSNotification.Name.AVPlayerItemDidPlayToEndTime,
-																					 object: player.currentItem)
-
-		// Enable Picture in picture (PiP) if available
-		if AVPictureInPictureController.isPictureInPictureSupported() {
-			pictureInPictureController = AVPictureInPictureController(playerLayer: playerLayer!)
-		}
-	}
-
-	@objc
-	func playerDidFinishPlaying(note: NSNotification) {
-		print("Finished Playing")
-		finishedPlaying()
-	}
-	
-	deinit {
-		NotificationCenter.default.removeObserver(self)
 	}
 }
 

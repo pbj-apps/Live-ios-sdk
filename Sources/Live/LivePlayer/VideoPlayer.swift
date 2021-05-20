@@ -9,50 +9,164 @@ import SwiftUI
 import AVFoundation
 import UIKit
 import Combine
+import AVKit
 
 public struct VideoPlayer: UIViewRepresentable {
 
 	let url: String
 	let looping: Bool
 	let isPlaying: Bool
+	let isLive: Bool
+	let isMuted: Bool
+	let allowsPictureInPicture: Bool
+	let liveStream: LiveStream
 
-	public init(url: String, looping: Bool, isPlaying: Bool) {
+	public init(liveStream: LiveStream, url: String, looping: Bool, isPlaying: Bool, isLive: Bool, isMuted: Bool, allowsPictureInPicture: Bool) {
+		self.liveStream = liveStream
 		self.url = url
 		self.looping = looping
 		self.isPlaying = isPlaying
+		self.isLive = isLive
+		self.isMuted = isMuted
+		self.allowsPictureInPicture = allowsPictureInPicture
 	}
 
 	public func makeUIView(context: Context) -> UIView {
 		let playerView = VideoAVPlayerView()
 		playerView.playerLayer?.videoGravity = .resizeAspectFill
-		if let assetURL = URL(string: url) {
-			let asset = AVAsset(url: assetURL)
-			let playerItem = AVPlayerItem(asset: asset)
-			let player = AVQueuePlayer(playerItem: playerItem)
-			if looping {
-				context.coordinator.looper = AVPlayerLooper(player: player, templateItem: playerItem)
-			}
-			playerView.player = player
-			context.coordinator.player = player
-		}
+		context.coordinator.loadPlayer(url: url, in: playerView, isLooping: looping, isLive: isLive, allowsPictureInPicture: allowsPictureInPicture)
 		return playerView
 	}
 
 	public func updateUIView(_ uiView: UIView, context: Context) {
 		if isPlaying {
+			if isLive {
+				// Keep close to direct as much as possible.
+				context.coordinator.player?.seek(to: CMTime.positiveInfinity)
+			}
 			context.coordinator.player?.play()
 		} else {
 			context.coordinator.player?.pause()
 		}
+		context.coordinator.player?.isMuted = isMuted
+		context.coordinator.isPlaying = isPlaying
+		context.coordinator.liveStream = liveStream
 	}
 
 	public func makeCoordinator() -> VideoPlayer.Coordinator {
 		return Coordinator()
 	}
 
-	public class Coordinator {
+	public class Coordinator: NSObject, AVPictureInPictureControllerDelegate {
+
+		var url: String = ""
 		var looper: AVPlayerLooper?
 		var player: AVPlayer?
+		var playerView: VideoAVPlayerView?
+		var isLooping: Bool = false
+		var isLive: Bool = false
+		var playerItemContext = 0
+		var pictureInPictureController: AVPictureInPictureController?
+		var playerItem: AVPlayerItem?
+		var isPlaying: Bool = false
+		var liveStream: LiveStream?
+
+		func loadPlayer(url: String, in playerView: VideoAVPlayerView, isLooping: Bool, isLive: Bool, allowsPictureInPicture: Bool) {
+			self.url = url
+			self.playerView = playerView
+			self.isLooping = isLooping
+			self.isLive = isLive
+			self.reloadPlayer()
+
+			// Enable Picture in picture (PiP) if available
+			if allowsPictureInPicture && AVPictureInPictureController.isPictureInPictureSupported() {
+				pictureInPictureController = AVPictureInPictureController(playerLayer: playerView.playerLayer!)
+			}
+		}
+
+		func reloadPlayer() {
+			if let assetURL = URL(string: url) {
+				let asset = AVAsset(url: assetURL)
+				playerItem = AVPlayerItem(asset: asset)
+
+				if isLive {
+					playerItem?.automaticallyPreservesTimeOffsetFromLive = true
+					playerItem?.canUseNetworkResourcesForLiveStreamingWhilePaused = true
+
+					// Register as an observer of the player item's status property
+					playerItem?.addObserver(self,
+																		 forKeyPath: #keyPath(AVPlayerItem.status),
+																		 options: [.old, .new],
+																		 context: &playerItemContext)
+				}
+
+				if isLooping {
+					let queuePlayer = AVQueuePlayer(playerItem: playerItem)
+					looper = AVPlayerLooper(player: queuePlayer, templateItem: playerItem!)
+					player = queuePlayer
+				} else {
+					player = AVPlayer(playerItem: playerItem)
+					player?.automaticallyWaitsToMinimizeStalling = true
+				}
+				playerView?.player = player
+			}
+
+
+			NotificationCenter.default.addObserver(self, selector: #selector(playerDidFinishPlaying(note:)),
+																						 name: NSNotification.Name.AVPlayerItemDidPlayToEndTime,
+																						 object: player!.currentItem)
+		}
+
+		public override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
+
+			//Only handle observations for the playerItemContext
+			guard context == &playerItemContext else {
+				super.observeValue(forKeyPath: keyPath,
+													 of: object,
+													 change: change,
+													 context: context)
+				return
+			}
+
+			if keyPath == #keyPath(AVPlayerItem.status) {
+				let status: AVPlayerItem.Status
+
+				// Get the status change from the change dictionary
+				if let statusNumber = change?[.newKey] as? NSNumber {
+					status = AVPlayerItem.Status(rawValue: statusNumber.intValue)!
+				} else {
+					status = .unknown
+				}
+
+				// Switch over the status
+				switch status {
+				case .readyToPlay:
+					if isPlaying {
+						player?.play()
+					}
+				case .failed:
+					// Typical case is that Livestream just started and not ready to play yet.
+					// Retry 5s later.
+					Timer.scheduledTimer(withTimeInterval: 3, repeats: false) { _ in
+						self.reloadPlayer()
+					}
+				case .unknown:()
+				}
+			}
+		}
+
+		@objc
+		func playerDidFinishPlaying(note: NSNotification) {
+			liveStream?.status = .finished
+			NotificationCenter.default.post(name: NSNotification.Name("PBJLiveStreamDidEndStreaming"), object: liveStream)
+		}
+
+		deinit {
+			if isLive {
+				playerItem?.removeObserver(self, forKeyPath: #keyPath(AVPlayerItem.status))
+			}
+			NotificationCenter.default.removeObserver(self)
+		}
 	}
 }
 
