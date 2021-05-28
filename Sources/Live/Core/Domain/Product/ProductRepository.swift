@@ -10,6 +10,7 @@ import Combine
 
 public protocol ProductRepository {
 	func fetchProducts(for episode: LiveStream) -> AnyPublisher<[Product], Error>
+	func fetchProducts(for video: VodVideo) -> AnyPublisher<[Product], Error>
 	func fetchCurrentlyFeaturedProducts(for episode: LiveStream) -> AnyPublisher<[Product], Error>
 	func registerForProductHighlights(for episode: LiveStream) -> AnyPublisher<ProductUpdate, Never>
 	func unRegisterProductHighlights(for episode: LiveStream)
