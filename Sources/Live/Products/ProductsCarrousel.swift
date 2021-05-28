@@ -7,14 +7,26 @@
 
 import SwiftUI
 
-struct ProductsCarrousel: View {
+public struct ProductsCarrousel: View {
 	
 	let products: [Product]
 	let fontName: String
 	let leadingSpace: CGFloat
 	let onTapProduct: (Product) -> Void
 	
-	var body: some View {
+	public init(
+		products: [Product],
+		fontName: String,
+		leadingSpace: CGFloat,
+		onTapProduct: @escaping (Product) -> Void
+	) {
+		self.products = products
+		self.fontName = fontName
+		self.leadingSpace = leadingSpace
+		self.onTapProduct = onTapProduct
+	}
+	
+	public var body: some View {
 		ScrollView(.horizontal, showsIndicators: false) {
 			HStack(spacing: 10) {
 				ForEach(products, id:\.title) { product in
