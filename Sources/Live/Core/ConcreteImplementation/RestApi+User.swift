@@ -12,16 +12,16 @@ import UIKit
 
 extension RestApi: UserRepository {
 
-	public func signup(email: Email, password: Password, firstname: String, lastname: String) -> AnyPublisher<User, SignupError> {
+	public func signup(email: Email, password: Password, firstname: String, lastname: String, username: String) -> AnyPublisher<User, SignupError> {
 		post("/auth/register",
 				 params: [
 					"email": email,
 					"password": password,
 					"first_name": firstname,
 					"last_name": lastname,
-					"username": firstname])
 			.map { (user: JSONUser) -> User in
 				return user.toUser()
+					"username": username])
 			}
 			.mapError { $0.toSignupError() }
 			.eraseToAnyPublisher()
