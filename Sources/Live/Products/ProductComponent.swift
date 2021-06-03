@@ -32,7 +32,8 @@ struct ProductComponent_Previews: PreviewProvider {
 			price: "$29.99",
 			detail: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.`",
 			image: nil,
-			link: nil)
+			link: nil,
+			highlightTimings: nil)
 		ProductComponent(product: product, fontName: "", onTap: {})
 			.previewLayout(.sizeThatFits)
 	}

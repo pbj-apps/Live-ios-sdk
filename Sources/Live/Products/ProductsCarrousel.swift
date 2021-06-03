@@ -47,21 +47,24 @@ struct ProductsCarrousel_Previews: PreviewProvider {
 			price: "$29.99",
 			detail: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.`",
 			image: nil,
-			link: nil)
+			link: nil,
+			highlightTimings: nil)
 		let product2 = Product(
 			id: "123",
 			title: "Apple Airpods",
 			price: "$29.99",
 			detail: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.`",
 			image: nil,
-			link: nil)
+			link: nil,
+			highlightTimings: nil)
 		let product3 = Product(
 			id: "123",
 			title: "Apple Airpods",
 			price: "$29.99",
 			detail: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.`",
 			image: nil,
-			link: nil)
+			link: nil,
+			highlightTimings: nil)
 		ProductsCarrousel(products: [product1, product2, product3], fontName: "", leadingSpace: 10, onTapProduct: { _ in })
 	}
 }
