@@ -32,7 +32,7 @@ public enum ChangePasswordError: Error {
 }
 
 public protocol UserRepository {
-	func signup(email: Email, password: Password, firstname: String, lastname: String) -> AnyPublisher<User, SignupError>
+	func signup(email: Email, password: Password, firstname: String, lastname: String, username: String) -> AnyPublisher<User, SignupError>
 	func login(email: Email, password: Password) -> AnyPublisher<User, LoginError>
 	func fetch(user: User) -> AnyPublisher<User, Error>
 	func editUser(firstname: String?, lastname: String?) -> AnyPublisher<Void, EditUserError>

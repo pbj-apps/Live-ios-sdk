@@ -14,4 +14,10 @@ public struct Product: Equatable {
 	public let detail: String
 	public let image: URL?
 	public let link: URL?
+	public let highlightTimings: [ProductHighlightedTiming]?
+}
+
+public struct ProductHighlightedTiming: Equatable {
+	public let startTime: Int
+	public let endTime: Int
 }

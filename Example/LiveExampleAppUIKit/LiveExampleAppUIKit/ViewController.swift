@@ -140,7 +140,7 @@ class ViewController: UIViewController {
 		if let showId = showTextField.text, !showId.isEmpty {
 			livePlayerVC = LiveSDK.player(showId: showId)
 		} else {
-			livePlayerVC = LiveSDK.player()// Optionally pass in a LivestreamId to target a specific show.
+			livePlayerVC = LiveSDK.player(showId: nil, defaultsToAspectRatioFit: true)// Optionally pass in a LivestreamId to target a specific show.
 		}
 
 		livePlayerVC.delegate = self

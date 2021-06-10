@@ -21,20 +21,17 @@ public class LivePlayerViewController: UIViewController, ObservableObject {
 
 	private var showId: String?
 	private var sdkPlayerViewModel = SDKPlayerViewModel()
+	private var defaultsToAspectRatioFit = false
 
-	public convenience init() {
-		self.init(nibName: nil, bundle: nil)
-		modalPresentationStyle = .fullScreen
-	}
-
-	public convenience init(showId: String) {
+	public convenience init(showId: String? = nil, defaultsToAspectRatioFit: Bool = false) {
 		self.init(nibName: nil, bundle: nil)
 		self.showId = showId
+		self.defaultsToAspectRatioFit = defaultsToAspectRatioFit
 		modalPresentationStyle = .fullScreen
 	}
 
 	private func setupSwiftUIView() {
-		let hostVC = UIHostingController(rootView: SDKPlayerView(viewModel: sdkPlayerViewModel))
+		let hostVC = UIHostingController(rootView: SDKPlayerView(viewModel: sdkPlayerViewModel, defaultsToAspectRatioFit: defaultsToAspectRatioFit))
 		addChild(hostVC)
 		hostVC.view.translatesAutoresizingMaskIntoConstraints = false
 		view.addSubview(hostVC.view)

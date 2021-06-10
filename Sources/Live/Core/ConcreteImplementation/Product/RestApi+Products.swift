@@ -18,6 +18,13 @@ extension RestApi: ProductRepository {
 			}.eraseToAnyPublisher()
 	}
 	
+	public func fetchProducts(for video: VodVideo) -> AnyPublisher<[Product], Error> {
+		return get("/shopping/videos/featured-products", params: ["video" : video.id])
+			.map { (page: JSONPage<JSONProductResult>) in
+				return page.results.map { $0.toProduct() }
+			}.eraseToAnyPublisher()
+	}
+	
 	public func fetchCurrentlyFeaturedProducts(for episode: LiveStream) -> AnyPublisher<[Product], Error> {
 		return get("/integrations/shopify/episodes/featured-products/highlighted", params: ["episode" : episode.id])
 			.map { (page: JSONPage<JSONProductResult>) in

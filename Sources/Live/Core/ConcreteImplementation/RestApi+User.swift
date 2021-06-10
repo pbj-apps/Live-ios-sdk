@@ -12,29 +12,34 @@ import UIKit
 
 extension RestApi: UserRepository {
 
-	public func signup(email: Email, password: Password, firstname: String, lastname: String) -> AnyPublisher<User, SignupError> {
+	public func signup(email: Email, password: Password, firstname: String, lastname: String, username: String) -> AnyPublisher<User, SignupError> {
 		post("/auth/register",
 				 params: [
 					"email": email,
 					"password": password,
 					"first_name": firstname,
 					"last_name": lastname,
-					"username": firstname])
-			.map { (user: JSONUser) -> User in
-				return user.toUser()
+					"username": username])
+			.map { (jsonUser: JSONUser) -> User in
+				self.authenticationToken = jsonUser.authToken
+				return jsonUser.toUser()
 			}
 			.mapError { $0.toSignupError() }
 			.eraseToAnyPublisher()
 	}
 
 	public func login(email: String, password: String) -> AnyPublisher<User, LoginError> {
+		let previousAuthenticationToken = authenticationToken
 		authenticationToken = nil
 		return post("/auth/login", params: ["email": email, "password": password])
 			.map { [unowned self] (jsonUser: JSONUser) -> User in
 				self.authenticationToken = jsonUser.authToken
 				return jsonUser.toUser()
 			}
-			.mapError { $0.toLoginError() }
+			.mapError { [unowned self] error -> LoginError in
+				self.authenticationToken = previousAuthenticationToken
+				return error.toLoginError()
+			}
 			.eraseToAnyPublisher()
 	}
 

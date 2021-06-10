@@ -91,6 +91,7 @@ public struct LivePlayer: View {
 	let imagePlaceholderColor: Color
 	let accentColor: Color
 	let remindMeButtonBackgroundColor: Color
+	let defaultsToAspectRatioFit: Bool
 	
 	var liveStream: LiveStream {
 		return viewModel.liveStream
@@ -118,6 +119,7 @@ public struct LivePlayer: View {
 		imagePlaceholderColor: Color,
 		accentColor: Color,
 		remindMeButtonBackgroundColor: Color,
+		defaultsToAspectRatioFit: Bool,
 		// Chat
 		isChatEnabled: Bool,
 		chatMessages: [ChatMessage],
@@ -137,6 +139,7 @@ public struct LivePlayer: View {
 		self.imagePlaceholderColor = imagePlaceholderColor
 		self.accentColor = accentColor
 		self.remindMeButtonBackgroundColor = remindMeButtonBackgroundColor
+		self.defaultsToAspectRatioFit = defaultsToAspectRatioFit
 		
 		self.isChatEnabled = isChatEnabled
 		self.chatMessages = chatMessages
@@ -157,7 +160,15 @@ public struct LivePlayer: View {
 			switch liveStream.status {
 			case .idle, .waitingRoom:
 				if let previewVideoUrl = liveStream.previewVideoUrl {
-					VideoPlayer(liveStream: liveStream, url: previewVideoUrl, looping: true, isPlaying: true, isLive: true, isMuted: false, allowsPictureInPicture: false)
+					VideoPlayer(
+						liveStream: liveStream,
+						url: previewVideoUrl,
+						looping: true,
+						isPlaying: true,
+						isLive: true,
+						isMuted: false,
+						allowsPictureInPicture: false,
+						aspectRatioFit: false)
 						.zIndex(2)
 				}
 			case .broadcasting:
@@ -169,7 +180,14 @@ public struct LivePlayer: View {
 							.foregroundColor(Color.white)
 					}
 					if let broadcastUrl = liveStream.broadcastUrl {
-						VideoPlayer(liveStream: liveStream, url: broadcastUrl, looping: false, isPlaying: isLivePlaying, isLive: true, isMuted: false, allowsPictureInPicture: true)
+						VideoPlayer(liveStream: liveStream,
+												url: broadcastUrl,
+												looping: false,
+												isPlaying: isLivePlaying,
+												isLive: true,
+												isMuted: false,
+												allowsPictureInPicture: true,
+												aspectRatioFit: defaultsToAspectRatioFit)
 					}
 				}.zIndex(2)
 			case .finished:
