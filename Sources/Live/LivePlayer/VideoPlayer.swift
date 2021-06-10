@@ -20,8 +20,17 @@ public struct VideoPlayer: UIViewRepresentable {
 	let isMuted: Bool
 	let allowsPictureInPicture: Bool
 	let liveStream: LiveStream
+	let aspectRatioFit: Bool
 
-	public init(liveStream: LiveStream, url: String, looping: Bool, isPlaying: Bool, isLive: Bool, isMuted: Bool, allowsPictureInPicture: Bool) {
+	public init(
+		liveStream: LiveStream,
+		url: String,
+		looping: Bool,
+		isPlaying: Bool,
+		isLive: Bool,
+		isMuted: Bool,
+		allowsPictureInPicture: Bool,
+		aspectRatioFit: Bool) {
 		self.liveStream = liveStream
 		self.url = url
 		self.looping = looping
@@ -29,11 +38,12 @@ public struct VideoPlayer: UIViewRepresentable {
 		self.isLive = isLive
 		self.isMuted = isMuted
 		self.allowsPictureInPicture = allowsPictureInPicture
+		self.aspectRatioFit = aspectRatioFit
 	}
 
 	public func makeUIView(context: Context) -> UIView {
 		let playerView = VideoAVPlayerView()
-		playerView.playerLayer?.videoGravity = .resizeAspectFill
+		playerView.playerLayer?.videoGravity = aspectRatioFit ? .resizeAspect : .resizeAspectFill
 		context.coordinator.loadPlayer(url: url, in: playerView, isLooping: looping, isLive: isLive, allowsPictureInPicture: allowsPictureInPicture)
 		return playerView
 	}

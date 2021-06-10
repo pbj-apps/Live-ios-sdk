@@ -11,6 +11,7 @@ import Networking
 struct SDKPlayerView: View {
 
 	@ObservedObject var viewModel: SDKPlayerViewModel
+	let defaultsToAspectRatioFit: Bool
 
 	var body: some View {
 
@@ -41,6 +42,7 @@ struct SDKPlayerView: View {
 					imagePlaceholderColor: Color(red: 239.0/255, green: 239.0/255, blue: 239.0/255),
 					accentColor: .black,
 					remindMeButtonBackgroundColor: .white,
+					defaultsToAspectRatioFit: defaultsToAspectRatioFit,
 					isChatEnabled: false,
 					chatMessages: [],
 					fetchMessages: {},
@@ -59,7 +61,7 @@ struct SDKPlayerView: View {
 
 struct SDKPlayerView_Previews: PreviewProvider {
 	static var previews: some View {
-		SDKPlayerView(viewModel: SDKPlayerViewModel())
+		SDKPlayerView(viewModel: SDKPlayerViewModel(), defaultsToAspectRatioFit: false)
 	}
 }
 

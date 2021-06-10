@@ -19,11 +19,11 @@ public class LiveSDK {
 												 webSocketsUrl: "wss://\(environment.domain)/ws", apiKey: apiKey)
 	}
 
-	public static func player(showId: String? = nil) -> LivePlayerViewController {
+	public static func player(showId: String? = nil, defaultsToAspectRatioFit: Bool = false) -> LivePlayerViewController {
 		if let showId = showId {
-			return LivePlayerViewController(showId: showId)
+			return LivePlayerViewController(showId: showId, defaultsToAspectRatioFit: defaultsToAspectRatioFit)
 		}
-		return LivePlayerViewController()
+		return LivePlayerViewController(showId: nil, defaultsToAspectRatioFit: defaultsToAspectRatioFit)
 	}
 
 	public static func isEpisodeLive() -> AnyPublisher<Bool, Error> {
