@@ -168,7 +168,8 @@ public struct LivePlayer: View {
 						isLive: true,
 						isMuted: false,
 						allowsPictureInPicture: false,
-						aspectRatioFit: false)
+						aspectRatioFit: false,
+						elapsedTime: nil)
 						.zIndex(2)
 				}
 			case .broadcasting:
@@ -187,7 +188,8 @@ public struct LivePlayer: View {
 												isLive: true,
 												isMuted: false,
 												allowsPictureInPicture: true,
-												aspectRatioFit: defaultsToAspectRatioFit)
+												aspectRatioFit: defaultsToAspectRatioFit,
+												elapsedTime: liveStream.timeElapsed())
 					}
 				}.zIndex(2)
 			case .finished:

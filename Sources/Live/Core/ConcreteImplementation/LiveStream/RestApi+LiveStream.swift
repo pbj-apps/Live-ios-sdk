@@ -66,9 +66,19 @@ extension RestApi: LiveStreamRepository {
 		webSocket.leaveEpisodeUpdates()
 	}
 
-	public func fetchBroadcastUrl(for liveStream: LiveStream) -> AnyPublisher<String, Error> {
-		get("/live-streams/\(liveStream.id)/watch").map { (response: WatchJSONResponse) in response.broadcast_url }
-			.eraseToAnyPublisher()
+	public func fetchBroadcastUrl(for liveStream: LiveStream) -> AnyPublisher<LiveStream, Error> {
+		get("/live-streams/\(liveStream.id)/watch").map { (response: WatchJSONResponse) in
+			var newLiveStream = liveStream
+			newLiveStream.broadcastUrl = response.broadcast_url
+			if let elapsed_time = response.elapsed_time,
+				 let time = elapsed_time.split(separator: ".").first,
+				 let timeInt = String(time).toSeconds() {
+				newLiveStream.elapsedTime = TimeInterval(Float(timeInt))
+				newLiveStream.elapsedTimeDate = Date()
+			}
+			return newLiveStream
+		}
+		.eraseToAnyPublisher()
 	}
 
 	public func subscriptions() -> AnyPublisher<[String], Error> {
@@ -109,6 +119,7 @@ extension RestApi: LiveStreamRepository {
 
 struct WatchJSONResponse: Decodable, NetworkingJSONDecodable {
 	let broadcast_url: String
+    let elapsed_time: String?
 }
 
 extension JSONLiveStream: NetworkingJSONDecodable {}

@@ -92,8 +92,9 @@ final class SDKPlayerViewModel: ObservableObject {
 	private func fetchBroadcastURL(liveStream: LiveStream) {
 		LiveSDK.shared.api.fetchBroadcastUrl(for: liveStream)
 			.receive(on: RunLoop.main)
-			.then { [unowned self] broadcastURL in
-				self.livePlayerViewModel?.liveStream.broadcastUrl = broadcastURL
+			.then { [unowned self] fetchedLiveStream in
+//				self.livePlayerViewModel?.liveStream.broadcastUrl = fetchedLiveStream.broadcastUrl
+				self.livePlayerViewModel?.liveStream = fetchedLiveStream
 			}
 			.sink()
 			.store(in: &cancellables)
