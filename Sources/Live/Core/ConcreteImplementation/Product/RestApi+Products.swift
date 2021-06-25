@@ -12,6 +12,10 @@ import Networking
 extension RestApi: ProductRepository {
 	
 	public func fetchProducts(for episode: LiveStream) -> AnyPublisher<[Product], Error> {
+		if let vodId = episode.vodId {
+			let video = VodVideo(id: vodId, title: "", description: "", isFeatured: false, thumbnailImageUrl: nil, videoURL: nil, duration: nil)
+			return fetchProducts(for: video)
+		}
 		return get("/integrations/shopify/episodes/featured-products", params: ["episode" : episode.id])
 			.map { (page: JSONPage<JSONProductResult>) in
 				return page.results.map { $0.toProduct() }
