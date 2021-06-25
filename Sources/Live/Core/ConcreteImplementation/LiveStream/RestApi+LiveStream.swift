@@ -69,7 +69,10 @@ extension RestApi: LiveStreamRepository {
 	public func fetchBroadcastUrl(for liveStream: LiveStream) -> AnyPublisher<LiveStream, Error> {
 		get("/live-streams/\(liveStream.id)/watch").map { (response: WatchJSONResponse) in
 			var newLiveStream = liveStream
-			newLiveStream.broadcastUrl = response.broadcast_url
+
+			if !response.broadcast_url.isEmpty {
+				newLiveStream.broadcastUrl = response.broadcast_url
+			}
 			if let elapsed_time = response.elapsed_time,
 				 let time = elapsed_time.split(separator: ".").first,
 				 let timeInt = String(time).toSeconds() {

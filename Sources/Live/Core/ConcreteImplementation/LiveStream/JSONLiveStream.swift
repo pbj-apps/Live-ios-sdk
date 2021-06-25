@@ -14,7 +14,7 @@ struct JSONLiveStream: Decodable {
 	let duration: Int
 	let status: String
 	let showId: String
-	let broadcastUrlString: String?
+	var broadcastUrlString: String?
 	let chatMode: ChatMode
 	let instructor: JSONUser?
 	let previewImageUrl: String?
@@ -23,6 +23,8 @@ struct JSONLiveStream: Decodable {
 	let startDate: String
 	let endDate: String?
 	let waitingRoomDescription: String
+
+	let vodId: String?
 
 	enum CodingKeys: String, CodingKey {
 		case id
@@ -36,6 +38,7 @@ struct JSONLiveStream: Decodable {
 		case ends_at
 		case show
 		case streaming_info
+		case pre_recorded_video
 	}
 
 	enum ShowKeys: String, CodingKey {
@@ -46,6 +49,11 @@ struct JSONLiveStream: Decodable {
 
 	enum StreamingInfoKeys: String, CodingKey {
 		case broadcast_url
+	}
+
+	enum PreRecordedVideoKeys: String, CodingKey {
+		case id
+		case asset
 	}
 
 	init(from decoder: Decoder) throws {
@@ -69,12 +77,18 @@ struct JSONLiveStream: Decodable {
 		let streamingInfoKeys = try? values.nestedContainer(keyedBy: StreamingInfoKeys.self, forKey: .streaming_info)
 		broadcastUrlString = try? streamingInfoKeys?.decode(String.self, forKey: .broadcast_url)
 		waitingRoomDescription = try showKeys.decode(String.self, forKey: .waiting_room_description)
+
+		let preRecordedVideoNode = try? values.nestedContainer(keyedBy: PreRecordedVideoKeys.self, forKey: .pre_recorded_video)
+		vodId = try? preRecordedVideoNode?.decode(String.self, forKey: .id)
+		if let asset = try? preRecordedVideoNode?.decode(JSONPreviewAsset.self, forKey: .asset) {
+			broadcastUrlString = asset.asset_url
+		}
 	}
 }
 
 extension JSONLiveStream {
 	func toLiveStream() -> LiveStream {
-		return LiveStream(id: id,
+		var liveStream =  LiveStream(id: id,
 											title: title,
 											description: description,
 											duration: duration,
@@ -89,6 +103,8 @@ extension JSONLiveStream {
 											startDate: startDate.toRestApiDate() ?? Date(),
 											endDate: endDate?.toRestApiDate() ?? Date(),
 											waitingRomDescription: waitingRoomDescription)
+		liveStream.vodId = vodId
+		return liveStream
 	}
 }
 

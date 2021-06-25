@@ -26,6 +26,7 @@ public struct LiveStream: Identifiable, Hashable {
 	public var waitingRomDescription: String
 	public var elapsedTime: TimeInterval?
 	public var elapsedTimeDate: Date?
+	public var vodId: String?
 
 	public func timeElapsed() -> TimeInterval? {
 		guard let elapsedTime = elapsedTime else {
