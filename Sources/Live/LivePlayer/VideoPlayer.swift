@@ -55,10 +55,16 @@ public struct VideoPlayer: UIViewRepresentable {
 		if isPlaying {
 			if isLive {
 				if let elapsedTime = elapsedTime {
-					context.coordinator.player?.seek(to: CMTime(seconds: elapsedTime, preferredTimescale: 1))
+					if !context.coordinator.hasAlreadySeeked {
+						context.coordinator.player?.seek(to: CMTime(seconds: elapsedTime, preferredTimescale: 1))
+						context.coordinator.hasAlreadySeeked = true
+					}
 				} else {
-					// Keep close to direct as much as possible.
-					context.coordinator.player?.seek(to: CMTime.positiveInfinity)
+					if !context.coordinator.hasAlreadySeeked {
+						// Keep close to direct as much as possible.
+						context.coordinator.player?.seek(to: CMTime.positiveInfinity)
+						context.coordinator.hasAlreadySeeked = true
+					}
 				}
 			}
 			context.coordinator.player?.play()
@@ -87,6 +93,7 @@ public struct VideoPlayer: UIViewRepresentable {
 		var playerItem: AVPlayerItem?
 		var isPlaying: Bool = false
 		var liveStream: LiveStream?
+		var hasAlreadySeeked = false
 
 		func loadPlayer(url: String, in playerView: VideoAVPlayerView, isLooping: Bool, isLive: Bool, allowsPictureInPicture: Bool) {
 			self.url = url
