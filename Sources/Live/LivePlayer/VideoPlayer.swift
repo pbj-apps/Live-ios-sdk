@@ -185,6 +185,7 @@ public struct VideoPlayer: UIViewRepresentable {
 		}
 
 		deinit {
+			player?.pause()
 			if isLive {
 				playerItem?.removeObserver(self, forKeyPath: #keyPath(AVPlayerItem.status))
 			}
