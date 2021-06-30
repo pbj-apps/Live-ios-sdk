@@ -21,7 +21,7 @@ public struct VideoPlayer: UIViewRepresentable {
 	let allowsPictureInPicture: Bool
 	let liveStream: LiveStream
 	let aspectRatioFit: Bool
-    let elapsedTime: TimeInterval?
+	let elapsedTime: TimeInterval?
 
 	public init(
 		liveStream: LiveStream,
@@ -54,12 +54,16 @@ public struct VideoPlayer: UIViewRepresentable {
 	public func updateUIView(_ uiView: UIView, context: Context) {
 		if isPlaying {
 			if isLive {
-				if let elapsedTime = elapsedTime {
-					if !context.coordinator.hasAlreadySeeked {
-						context.coordinator.player?.seek(to: CMTime(seconds: elapsedTime, preferredTimescale: 1))
-						context.coordinator.hasAlreadySeeked = true
+				// Vod Live
+				if liveStream.vodId != nil {
+					// Seek vod to correct timing whenever we are too far off. (1 sec)
+					if let elapsedTime = elapsedTime, let currentPlayerTime = context.coordinator.player?.currentTime().seconds {
+						let timeDifference = abs(currentPlayerTime - elapsedTime)
+						if timeDifference > 1 {
+							context.coordinator.player?.seek(to: CMTime(seconds: elapsedTime, preferredTimescale: 1))
+						}
 					}
-				} else {
+				} else { // Live
 					if !context.coordinator.hasAlreadySeeked {
 						// Keep close to direct as much as possible.
 						context.coordinator.player?.seek(to: CMTime.positiveInfinity)
@@ -70,6 +74,7 @@ public struct VideoPlayer: UIViewRepresentable {
 			context.coordinator.player?.play()
 		} else {
 			context.coordinator.player?.pause()
+			context.coordinator.hasAlreadySeeked = false
 		}
 		context.coordinator.player?.isMuted = isMuted
 		context.coordinator.isPlaying = isPlaying

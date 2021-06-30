@@ -122,7 +122,7 @@ extension RestApi: LiveStreamRepository {
 
 struct WatchJSONResponse: Decodable, NetworkingJSONDecodable {
 	let broadcast_url: String
-    let elapsed_time: String?
+	let elapsed_time: String?
 }
 
 extension JSONLiveStream: NetworkingJSONDecodable {}
