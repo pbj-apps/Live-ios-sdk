@@ -14,7 +14,7 @@ public protocol LiveStreamRepository {
 	func getLiveStreamsSchedule() -> AnyPublisher<[LiveStream], Error>
 	func registerForRealTimeLiveStreamUpdates() -> AnyPublisher<LiveStreamStatusUpdate, Never>
 	func leaveRealTimeLiveStreamUpdates()
-	func fetchBroadcastUrl(for liveStream: LiveStream) -> AnyPublisher<String, Error>
+	func fetchBroadcastUrl(for liveStream: LiveStream) -> AnyPublisher<LiveStream, Error>
 
 	// Subscriptions
 	func subscriptions() -> AnyPublisher<[String], Error>

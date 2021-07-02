@@ -24,6 +24,19 @@ public struct LiveStream: Identifiable, Hashable {
 	public let startDate: Date
 	public let endDate: Date
 	public var waitingRomDescription: String
+	public var elapsedTime: TimeInterval?
+	public var elapsedTimeDate: Date?
+	public var vodId: String?
+
+	public func timeElapsed() -> TimeInterval? {
+		guard let elapsedTime = elapsedTime else {
+			return nil
+		}
+		if let elapsedTimeDate = elapsedTimeDate {
+			return Date().timeIntervalSince(elapsedTimeDate) + elapsedTime
+		}
+		return elapsedTime
+	}
 
 	public init(
 		id: String,

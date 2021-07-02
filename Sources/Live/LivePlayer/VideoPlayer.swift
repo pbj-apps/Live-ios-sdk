@@ -21,6 +21,7 @@ public struct VideoPlayer: UIViewRepresentable {
 	let allowsPictureInPicture: Bool
 	let liveStream: LiveStream
 	let aspectRatioFit: Bool
+	let elapsedTime: TimeInterval?
 
 	public init(
 		liveStream: LiveStream,
@@ -30,7 +31,8 @@ public struct VideoPlayer: UIViewRepresentable {
 		isLive: Bool,
 		isMuted: Bool,
 		allowsPictureInPicture: Bool,
-		aspectRatioFit: Bool) {
+		aspectRatioFit: Bool,
+		elapsedTime: TimeInterval?) {
 		self.liveStream = liveStream
 		self.url = url
 		self.looping = looping
@@ -39,6 +41,7 @@ public struct VideoPlayer: UIViewRepresentable {
 		self.isMuted = isMuted
 		self.allowsPictureInPicture = allowsPictureInPicture
 		self.aspectRatioFit = aspectRatioFit
+		self.elapsedTime = elapsedTime
 	}
 
 	public func makeUIView(context: Context) -> UIView {
@@ -51,12 +54,27 @@ public struct VideoPlayer: UIViewRepresentable {
 	public func updateUIView(_ uiView: UIView, context: Context) {
 		if isPlaying {
 			if isLive {
-				// Keep close to direct as much as possible.
-				context.coordinator.player?.seek(to: CMTime.positiveInfinity)
+				// Vod Live
+				if liveStream.vodId != nil {
+					// Seek vod to correct timing whenever we are too far off. (1 sec)
+					if let elapsedTime = elapsedTime, let currentPlayerTime = context.coordinator.player?.currentTime().seconds {
+						let timeDifference = abs(currentPlayerTime - elapsedTime)
+						if timeDifference > 1 {
+							context.coordinator.player?.seek(to: CMTime(seconds: elapsedTime, preferredTimescale: 1))
+						}
+					}
+				} else { // Live
+					if !context.coordinator.hasAlreadySeeked {
+						// Keep close to direct as much as possible.
+						context.coordinator.player?.seek(to: CMTime.positiveInfinity)
+						context.coordinator.hasAlreadySeeked = true
+					}
+				}
 			}
 			context.coordinator.player?.play()
 		} else {
 			context.coordinator.player?.pause()
+			context.coordinator.hasAlreadySeeked = false
 		}
 		context.coordinator.player?.isMuted = isMuted
 		context.coordinator.isPlaying = isPlaying
@@ -80,6 +98,7 @@ public struct VideoPlayer: UIViewRepresentable {
 		var playerItem: AVPlayerItem?
 		var isPlaying: Bool = false
 		var liveStream: LiveStream?
+		var hasAlreadySeeked = false
 
 		func loadPlayer(url: String, in playerView: VideoAVPlayerView, isLooping: Bool, isLive: Bool, allowsPictureInPicture: Bool) {
 			self.url = url
@@ -119,12 +138,11 @@ public struct VideoPlayer: UIViewRepresentable {
 					player?.automaticallyWaitsToMinimizeStalling = true
 				}
 				playerView?.player = player
+				
+				NotificationCenter.default.addObserver(self, selector: #selector(playerDidFinishPlaying(note:)),
+																							 name: NSNotification.Name.AVPlayerItemDidPlayToEndTime,
+																							 object: player!.currentItem)
 			}
-
-
-			NotificationCenter.default.addObserver(self, selector: #selector(playerDidFinishPlaying(note:)),
-																						 name: NSNotification.Name.AVPlayerItemDidPlayToEndTime,
-																						 object: player!.currentItem)
 		}
 
 		public override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
@@ -172,6 +190,7 @@ public struct VideoPlayer: UIViewRepresentable {
 		}
 
 		deinit {
+			player?.pause()
 			if isLive {
 				playerItem?.removeObserver(self, forKeyPath: #keyPath(AVPlayerItem.status))
 			}
