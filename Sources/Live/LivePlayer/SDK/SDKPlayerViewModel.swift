@@ -93,7 +93,6 @@ final class SDKPlayerViewModel: ObservableObject {
 		LiveSDK.shared.api.fetchBroadcastUrl(for: liveStream)
 			.receive(on: RunLoop.main)
 			.then { [unowned self] fetchedLiveStream in
-//				self.livePlayerViewModel?.liveStream.broadcastUrl = fetchedLiveStream.broadcastUrl
 				self.livePlayerViewModel?.liveStream = fetchedLiveStream
 			}
 			.sink()
