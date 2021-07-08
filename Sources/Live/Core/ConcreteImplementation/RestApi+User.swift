@@ -115,8 +115,47 @@ extension JSONUploadAssetResponse: NetworkingJSONDecodable {}
 
 private extension Error {
 	func toSignupError() -> SignupError {
+		if let networkingError = self as? NetworkingError {
+			if networkingError.code == 400 {
+				let decoder = JSONDecoder()
+				if let jsonError = networkingError.jsonPayload,
+					 let errorJSON = try? JSONSerialization.data(withJSONObject: jsonError, options: JSONSerialization.WritingOptions.prettyPrinted),
+					 let signupJSONError = try? decoder.decode(SignupJSONError.self, from: errorJSON) {
+					if signupJSONError.error_type == "ValidationError" {
+						var signupValidation = SignupValidation(firstNameValidation: nil)
+						signupJSONError.errors.forEach { entry in
+							if entry.field == "first_name" {
+								signupValidation.firstNameValidation = entry.message
+							}
+							if entry.field == "last_name" {
+								signupValidation.lastNameValidation = entry.message
+							}
+							if entry.field == "username" {
+								signupValidation.usernameValidation = entry.message
+							}
+							if entry.field == "email" {
+								signupValidation.emailValidation = entry.message
+							}
+							if entry.field == "password" {
+								signupValidation.passwordValidation = entry.message
+							}
+						}
+						return .validation(validation: signupValidation)
+					}
+				}
+			}
+		}
 		return SignupError.unknown
 	}
+}
+
+struct SignupJSONError: Decodable {
+    let error_type: String
+    let errors: [SignupJSONErrorEntry]
+}
+struct SignupJSONErrorEntry: Decodable {
+    let field: String
+    let message: String
 }
 
 private extension Error {
