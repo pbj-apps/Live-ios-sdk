@@ -123,22 +123,26 @@ private extension Error {
 					 let signupJSONError = try? decoder.decode(SignupJSONError.self, from: errorJSON) {
 					if signupJSONError.error_type == "ValidationError" {
 						var signupValidation = SignupValidation(firstNameValidation: nil)
+                        func keyPathForField(_ string: String) -> WritableKeyPath<SignupValidation, String?>? {
+                            switch string {
+                            case "first_name":
+                                return \.firstNameValidation
+                            case "last_name":
+                                return \.lastNameValidation
+                            case "username":
+                                return \.usernameValidation
+                            case "email":
+                                return \.emailValidation
+                            case "password":
+                                return \.passwordValidation
+                            default:
+                                return nil
+                            }
+                        }
 						signupJSONError.errors.forEach { entry in
-							if entry.field == "first_name" {
-								signupValidation.firstNameValidation = entry.message
-							}
-							if entry.field == "last_name" {
-								signupValidation.lastNameValidation = entry.message
-							}
-							if entry.field == "username" {
-								signupValidation.usernameValidation = entry.message
-							}
-							if entry.field == "email" {
-								signupValidation.emailValidation = entry.message
-							}
-							if entry.field == "password" {
-								signupValidation.passwordValidation = entry.message
-							}
+                            if let kp = keyPathForField(entry.field) {
+                                signupValidation[keyPath: kp] = entry.message
+                            }
 						}
 						return .validation(validation: signupValidation)
 					}
