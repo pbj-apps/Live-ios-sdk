@@ -23,11 +23,11 @@ public struct AnyPaginator<Model>: Paginator {
 		_hasNextPage = { paginator.hasNextPage }
 	}
 
-	func resetPage() {
+	public func resetPage() {
 		_resetPage()
 	}
 
-	var hasNextPage: Bool {
+	public var hasNextPage: Bool {
 		_hasNextPage()
 	}
 
