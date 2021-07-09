@@ -12,8 +12,16 @@ import UIKit
 public typealias Email = String
 public typealias Password = String
 
+public struct SignupValidation {
+	public var firstNameValidation: String?
+	public var lastNameValidation: String?
+	public var usernameValidation: String?
+	public var emailValidation: String?
+	public var passwordValidation: String?
+}
+
 public enum SignupError: Error {
-	case emailAlreadyTaken
+	case validation(validation: SignupValidation)
 	case unknown
 }
 

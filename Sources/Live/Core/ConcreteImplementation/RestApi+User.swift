@@ -115,8 +115,51 @@ extension JSONUploadAssetResponse: NetworkingJSONDecodable {}
 
 private extension Error {
 	func toSignupError() -> SignupError {
+		if let networkingError = self as? NetworkingError {
+			if networkingError.code == 400 {
+				let decoder = JSONDecoder()
+				if let jsonError = networkingError.jsonPayload,
+					 let errorJSON = try? JSONSerialization.data(withJSONObject: jsonError, options: JSONSerialization.WritingOptions.prettyPrinted),
+					 let signupJSONError = try? decoder.decode(SignupJSONError.self, from: errorJSON) {
+					if signupJSONError.error_type == "ValidationError" {
+						var signupValidation = SignupValidation(firstNameValidation: nil)
+						func keyPathForField(_ string: String) -> WritableKeyPath<SignupValidation, String?>? {
+							switch string {
+							case "first_name":
+								return \.firstNameValidation
+							case "last_name":
+								return \.lastNameValidation
+							case "username":
+								return \.usernameValidation
+							case "email":
+								return \.emailValidation
+							case "password":
+								return \.passwordValidation
+							default:
+								return nil
+							}
+						}
+						signupJSONError.errors.forEach { entry in
+							if let kp = keyPathForField(entry.field) {
+								signupValidation[keyPath: kp] = entry.message
+							}
+						}
+						return .validation(validation: signupValidation)
+					}
+				}
+			}
+		}
 		return SignupError.unknown
 	}
+}
+
+struct SignupJSONError: Decodable {
+    let error_type: String
+    let errors: [SignupJSONErrorEntry]
+}
+struct SignupJSONErrorEntry: Decodable {
+    let field: String
+    let message: String
 }
 
 private extension Error {
