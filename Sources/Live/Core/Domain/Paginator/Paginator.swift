@@ -8,7 +8,7 @@
 import Foundation
 import Combine
 
-protocol Paginator {
+public protocol Paginator {
 	associatedtype Model
 	var objects: CurrentValueSubject<[Model], Never> { get }
 	func resetPage()

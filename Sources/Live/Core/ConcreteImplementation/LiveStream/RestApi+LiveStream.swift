@@ -53,9 +53,9 @@ extension RestApi: LiveStreamRepository {
 		}.eraseToAnyPublisher()
 	}
 
-	public func getLiveStreamsSchedule() -> AnyPublisher<[LiveStream], Error> {
+	public func getLiveStreamsSchedule() -> AnyPaginator<LiveStream> {
 		let paginator = RestApiPaginator<JSONLiveStream, LiveStream>(baseUrl: baseUrl, "/live-streams/schedule?days_ahead=7", client: network, mapping: { $0.toLiveStream() })
-		return paginator.fetchAllPages()
+		return AnyPaginator(paginator)
 	}
 
 	public func registerForRealTimeLiveStreamUpdates() -> AnyPublisher<LiveStreamStatusUpdate, Never> {

@@ -8,7 +8,7 @@
 import Foundation
 import Combine
 
-extension Paginator {
+public extension Paginator {
 	func fetchAllPages() -> AnyPublisher<[Model], Error> {
 		var cancellables = Set<AnyCancellable>()
 		return Future { promise in
