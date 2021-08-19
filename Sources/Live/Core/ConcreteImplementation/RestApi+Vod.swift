@@ -11,8 +11,16 @@ import Networking
 
 extension RestApi: VodRepository {
 
-	public func getVodCategories() -> AnyPaginator<VodCategory> {
-		return AnyPaginator(RestApiPaginator<JSONVodCategory, VodCategory>(baseUrl: baseUrl, "/vod/categories?items_per_category=10", client: network, mapping: { $0.toVodCategory() }))
+	public func getVodCategories() -> AnyPublisher<[VodCategory], Error> {
+		return get("/vod/categories").map { (jsonVodCategoryPage: JSONPage<JSONVodCategory>) in
+			jsonVodCategoryPage.results.map { $0.toVodCategory() }
+		}.eraseToAnyPublisher()
+	}
+
+	public func fetch(category: VodCategory) -> AnyPublisher<VodCategory, Error> {
+		return get("/vod/categories/\(category.id)").map { (jsonVodCategory: JSONVodCategory) in
+			jsonVodCategory.toVodCategory()
+		}.eraseToAnyPublisher()
 	}
 
 	public func getPlaylist(playlist: VodPlaylist) -> AnyPublisher<VodPlaylist, Error> {
@@ -40,6 +48,7 @@ struct JSONVodVideo: Decodable, NetworkingJSONDecodable {
 		case description
 		case video_count
 		case asset
+		case preview_asset
 		case duration
 		case instructors
 		case categories
@@ -48,6 +57,7 @@ struct JSONVodVideo: Decodable, NetworkingJSONDecodable {
 
 	init(from decoder: Decoder) throws {
 		let values = try decoder.container(keyedBy: CodingKeys.self)
+		let previewAsset = try values.decode(JSONPreviewAsset.self, forKey: .preview_asset)
 		let asset = try values.decode(JSONPreviewAsset.self, forKey: .asset)
 		let instructors = try? values.decode([JSONUser].self, forKey: .instructors)
 		let categories = try? values.decode([JSONVodVideoCategory].self, forKey: .categories)
@@ -56,7 +66,7 @@ struct JSONVodVideo: Decodable, NetworkingJSONDecodable {
 										 title: try values.decode(String.self, forKey: .title),
 										 description: try values.decode(String.self, forKey: .description),
 										 isFeatured: false,
-										 thumbnailImageUrl: URL(string: asset.image.medium),
+										 thumbnailImageUrl: URL(string: previewAsset.image.medium),
 										 videoURL: URL(string: asset.asset_url),
 										 duration: try? values.decode(Int.self, forKey: .duration),
 										 instructors: instructors?.map { $0.toUser() } ?? [],
@@ -112,7 +122,7 @@ struct JSONPage<T: Decodable>: Decodable, NetworkingJSONDecodable {
 	let results: [T]
 }
 
-struct JSONVodCategory: Decodable {
+struct JSONVodCategory: Decodable, NetworkingJSONDecodable {
 	let id: String
 	let title: String
 	var items: [JSONVodItem]
@@ -169,8 +179,8 @@ struct JSONVodItem: Decodable {
 		duration = try? itemValues.decode(Int.self, forKey: .duration)
 
 		if itemType == .playlist {
-			let asset = try itemValues.decode(JSONPreviewAsset.self, forKey: .preview_asset)
-			thumbnailImageUrl = asset.image.medium
+			let previewAsset = try itemValues.decode(JSONPreviewAsset.self, forKey: .preview_asset)
+			thumbnailImageUrl = previewAsset.image.medium
 			videoUrl = nil
 			videoCount = try itemValues.decode(Int.self, forKey: .video_count)
 		} else {
