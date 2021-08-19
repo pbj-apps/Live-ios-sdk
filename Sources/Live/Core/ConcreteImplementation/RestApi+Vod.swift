@@ -175,7 +175,8 @@ struct JSONVodItem: Decodable {
 			videoCount = try itemValues.decode(Int.self, forKey: .video_count)
 		} else {
 			let asset = try itemValues.decode(JSONPreviewAsset.self, forKey: .asset)
-			thumbnailImageUrl = asset.image.medium
+			let previewAsset = try itemValues.decode(JSONPreviewAsset.self, forKey: .preview_asset)
+			thumbnailImageUrl = previewAsset.image.medium
 			videoUrl = asset.asset_url
 			videoCount = nil
 		}
