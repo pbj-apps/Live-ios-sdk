@@ -9,7 +9,8 @@ import Foundation
 import Combine
 
 public protocol VodRepository {
-	func getVodCategories() -> AnyPaginator<VodCategory>
+	func getVodCategories() -> AnyPublisher<[VodCategory], Error>
+	func fetch(category: VodCategory) -> AnyPublisher<VodCategory, Error>
 	func getPlaylist(playlist: VodPlaylist) -> AnyPublisher<VodPlaylist, Error>
 	func fetch(video: VodVideo) -> AnyPublisher<VodVideo, Error>
 }

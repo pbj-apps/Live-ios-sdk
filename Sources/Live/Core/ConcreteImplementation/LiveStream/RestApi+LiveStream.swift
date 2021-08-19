@@ -68,17 +68,26 @@ extension RestApi: LiveStreamRepository {
 
 	public func fetchBroadcastUrl(for liveStream: LiveStream) -> AnyPublisher<LiveStream, Error> {
 		get("/live-streams/\(liveStream.id)/watch").map { (response: WatchJSONResponse) in
+			let streamType = response.stream_type
 			var newLiveStream = liveStream
 
-			if !response.broadcast_url.isEmpty {
-				newLiveStream.broadcastUrl = response.broadcast_url
+			// BroadcastUrl
+			if streamType == nil || streamType == "live_stream" {
+				if liveStream.vodId == nil && !response.broadcast_url.isEmpty {
+					newLiveStream.broadcastUrl = response.broadcast_url
+				}
 			}
-			if let elapsed_time = response.elapsed_time,
-				 let time = elapsed_time.split(separator: ".").first,
-				 let timeInt = String(time).toSeconds() {
-				newLiveStream.elapsedTime = TimeInterval(Float(timeInt))
-				newLiveStream.elapsedTimeDate = Date()
+
+			// Elapsed time
+			if streamType == nil || streamType == "pre_recorded_live_stream" {
+				if let elapsed_time = response.elapsed_time,
+					 let time = elapsed_time.split(separator: ".").first,
+					 let timeInt = String(time).toSeconds() {
+					newLiveStream.elapsedTime = TimeInterval(Float(timeInt))
+					newLiveStream.elapsedTimeDate = Date()
+				}
 			}
+
 			return newLiveStream
 		}
 		.eraseToAnyPublisher()
@@ -121,6 +130,7 @@ extension RestApi: LiveStreamRepository {
 }
 
 struct WatchJSONResponse: Decodable, NetworkingJSONDecodable {
+	let stream_type: String?
 	let broadcast_url: String
 	let elapsed_time: String?
 }
