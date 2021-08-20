@@ -53,8 +53,26 @@ extension RestApi: LiveStreamRepository {
 		}.eraseToAnyPublisher()
 	}
 
-	public func getLiveStreamsSchedule() -> AnyPaginator<LiveStream> {
-		let paginator = RestApiPaginator<JSONLiveStream, LiveStream>(baseUrl: baseUrl, "/v1/episodes?days_ahead=7", client: network, mapping: { $0.toLiveStream() })
+
+
+	public func fetchEpisodes(for date: Date) -> AnyPaginator<LiveStream> {
+		/// For today's episodes, use the time of day to get the latest episode as fast as possible (and we don't need previous episodes.
+		/// For next days, use a 00:00:00 time so as to get all the episode availables.
+		var dateString = ""
+		if date.isSameDay(as: Date()) {
+			let secondsFromGMT = TimeZone.current.secondsFromGMT(for: date)
+			let timeZoneOffsetDate = date.addingTimeInterval(-TimeInterval(secondsFromGMT))
+			let formatter = DateFormatter()
+			formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
+			dateString = formatter.string(from: timeZoneOffsetDate)
+		} else {
+			let formatter = DateFormatter()
+			formatter.dateFormat = "yyyy-MM-dd"
+			dateString = formatter.string(from: date) + "T00:00:00"
+		}
+		let paginator = RestApiPaginator<JSONLiveStream, LiveStream>(baseUrl: baseUrl,
+																																 "/v1/episodes?starting_at=\(dateString)",
+																																 client: network, mapping: { $0.toLiveStream() })
 		return AnyPaginator(paginator)
 	}
 
@@ -137,3 +155,12 @@ struct WatchJSONResponse: Decodable, NetworkingJSONDecodable {
 
 extension JSONLiveStream: NetworkingJSONDecodable {}
 extension JSONShow: NetworkingJSONDecodable {}
+
+private extension Date {
+	func isSameDay(as date: Date) -> Bool {
+		var calender = Calendar.current
+		calender.timeZone = TimeZone.current
+		let result = calender.compare(self, to: date, toGranularity: .day)
+		return result == .orderedSame
+	}
+}
