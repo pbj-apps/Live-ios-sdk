@@ -16,7 +16,6 @@ public struct LiveStream: Identifiable, Hashable {
 	public var status: LiveStreamStatus
 	public let showId: String
 	public var broadcastUrl: String?
-	public let chatMode: ChatMode
 	public let instructor: User
 	public let previewImageUrl: String?
 	public let previewImageUrlFullSize: String?
@@ -46,7 +45,6 @@ public struct LiveStream: Identifiable, Hashable {
 		status: LiveStreamStatus,
 		showId: String,
 		broadcastUrl: String?,
-		chatMode: ChatMode,
 		instructor: User,
 		previewImageUrl: String?,
 		previewImageUrlFullSize: String?,
@@ -61,7 +59,6 @@ public struct LiveStream: Identifiable, Hashable {
 		self.status = status
 		self.showId = showId
 		self.broadcastUrl = broadcastUrl
-		self.chatMode = chatMode
 		self.instructor = instructor
 		self.previewImageUrl = previewImageUrl
 		self.previewImageUrlFullSize = previewImageUrlFullSize
@@ -77,12 +74,6 @@ public enum LiveStreamStatus: Hashable {
 	case waitingRoom
 	case broadcasting
 	case finished
-}
-
-public enum ChatMode: String {
-	case disabled
-	case enabled
-	case qna
 }
 
 public struct LiveStreamStatusUpdate {

@@ -309,7 +309,6 @@ public func fakeLivestream(with state: LiveStreamStatus) -> LiveStream {
 										status: state,
 										showId: "showId",
 										broadcastUrl: nil,
-										chatMode: ChatMode.disabled,
 										instructor: User(
 											id: "abc",
 											firstname: "firstname",

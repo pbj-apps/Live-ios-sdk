@@ -15,7 +15,6 @@ struct JSONLiveStream: Decodable {
 	let status: String
 	let showId: String
 	var broadcastUrlString: String?
-	let chatMode: ChatMode
 	let instructor: JSONUser?
 	let previewImageUrl: String?
 	let previewImageUrlFullSize: String?
@@ -30,21 +29,15 @@ struct JSONLiveStream: Decodable {
 		case id
 		case title
 		case description
+		case waiting_room_description
 		case duration
-		case streamer
-		case chat_mode
 		case status
+		case instructors
+		case preview_asset
 		case starting_at
 		case ends_at
-		case show
 		case streaming_info
 		case pre_recorded_video
-	}
-
-	enum ShowKeys: String, CodingKey {
-		case id
-		case preview_asset
-		case waiting_room_description
 	}
 
 	enum StreamingInfoKeys: String, CodingKey {
@@ -62,21 +55,19 @@ struct JSONLiveStream: Decodable {
 		title = try values.decode(String.self, forKey: .title)
 		description = try values.decodeIfPresent(String.self, forKey: .description) ?? ""
 		duration = try values.decode(Int.self, forKey: .duration)
-		instructor = try? values.decode(JSONUser.self, forKey: .streamer)
+		let instructors = try? values.decode([JSONUser].self, forKey: .instructors)
+				instructor = instructors?.first
 		status = try values.decode(String.self, forKey: .status)
-		chatMode = ChatMode(rawValue: try values.decode(String.self, forKey: .chat_mode)) ?? .disabled
 		startDate = try values.decode(String.self, forKey: .starting_at)
 		endDate = try? values.decode(String.self, forKey: .ends_at)
-		let showKeys = try values.nestedContainer(keyedBy: ShowKeys.self, forKey: .show)
-		showId = try showKeys.decode(String.self, forKey: .id)
-
-		let previewAsset = try? showKeys.decode(JSONPreviewAsset.self, forKey: .preview_asset)
+		showId = "NO_SHOW_ID"
+		let previewAsset = try? values.decode(JSONPreviewAsset.self, forKey: .preview_asset)
 		previewImageUrl = previewAsset?.image.medium
 		previewImageUrlFullSize = previewAsset?.image.full_size
 		previewVideoUrl = previewAsset?.asset_type == "video" ? previewAsset?.asset_url : nil
-		let streamingInfoKeys = try? values.nestedContainer(keyedBy: StreamingInfoKeys.self, forKey: .streaming_info)
-		broadcastUrlString = try? streamingInfoKeys?.decode(String.self, forKey: .broadcast_url)
-		waitingRoomDescription = try showKeys.decode(String.self, forKey: .waiting_room_description)
+//		let streamingInfoKeys = try? values.nestedContainer(keyedBy: StreamingInfoKeys.self, forKey: .streaming_info)
+//		broadcastUrlString = try? streamingInfoKeys?.decode(String.self, forKey: .broadcast_url)
+		waitingRoomDescription = try values.decode(String.self, forKey: .waiting_room_description)
 
 		let preRecordedVideoNode = try? values.nestedContainer(keyedBy: PreRecordedVideoKeys.self, forKey: .pre_recorded_video)
 		vodId = try? preRecordedVideoNode?.decode(String.self, forKey: .id)
@@ -95,7 +86,6 @@ extension JSONLiveStream {
 											status: LiveStreamStatus.fromString(status),
 											showId: showId,
 											broadcastUrl: broadcastUrlString,
-											chatMode: chatMode,
 											instructor: instructor?.toUser() ?? User(id: "unknown", firstname: "no streamer", lastname: "no streamer", email: "no streamer", username: "username", hasAnsweredSurvey: false, avatarUrl: nil),
 											previewImageUrl: previewImageUrl,
 											previewImageUrlFullSize: previewImageUrlFullSize,
