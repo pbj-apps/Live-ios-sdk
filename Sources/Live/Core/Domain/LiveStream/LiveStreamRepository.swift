@@ -17,7 +17,7 @@ public protocol LiveStreamRepository {
 	func fetchBroadcastUrl(for liveStream: LiveStream) -> AnyPublisher<LiveStream, Error>
 
 	// Subscriptions
-	func subscriptions() -> AnyPublisher<[String], Error>
-	func subscribe(to liveStream: LiveStream, with token: String) -> AnyPublisher<Void, Error>
-	func unSubscribe(from liveStream: LiveStream, with token: String) -> AnyPublisher<Void, Error>
+	func registerDevice(token: String) -> AnyPublisher<Void, Error>
+	func subscribe(to liveStream: LiveStream) -> AnyPublisher<Void, Error>
+	func unSubscribe(from liveStream: LiveStream) -> AnyPublisher<Void, Error>
 }

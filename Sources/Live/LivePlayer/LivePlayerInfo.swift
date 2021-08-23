@@ -323,7 +323,8 @@ public func fakeLivestream(with state: LiveStreamStatus) -> LiveStream {
 										previewVideoUrl: nil,
 										startDate: Date().addingTimeInterval(10000),
 										endDate: Date(),
-										waitingRomDescription: "WaitingRoom details")
+										waitingRomDescription: "WaitingRoom details",
+										isPushNotificationReminderSet: false)
 }
 
 struct LivePlayerInfo_Previews: PreviewProvider {

@@ -111,37 +111,28 @@ extension RestApi: LiveStreamRepository {
 		.eraseToAnyPublisher()
 	}
 
-	public func subscriptions() -> AnyPublisher<[String], Error> {
-		return get("/notifications/subscriptions")
-			.map { (json: Any) -> [String] in
-				if let dic = json as? [String: AnyHashable], let results = dic["results"] as? [[String: AnyHashable]] {
-					return results.compactMap {
-						$0["topic_id"] as? String
-					}
-				}
-				return []
-			}
-			.eraseToAnyPublisher()
-	}
-
-	public func subscribe(to liveStream: LiveStream, with token: String) -> AnyPublisher<Void, Error> {
-		let params: [String: CustomStringConvertible] = [
-			"topic_type": "show",
-			"topic_id": liveStream.showId,
-			"device_registration_tokens": [token]
-		]
-		return post("/notifications/subscriptions", params: params)
+	public func registerDevice(token: String) -> AnyPublisher<Void, Error> {
+		return post("/device-registration-tokens", params: ["token" : token])
 			.map { () -> Void in }
 			.eraseToAnyPublisher()
 	}
 
-	public func unSubscribe(from liveStream: LiveStream, with token: String) -> AnyPublisher<Void, Error> {
+	public func subscribe(to liveStream: LiveStream) -> AnyPublisher<Void, Error> {
 		let params: [String: CustomStringConvertible] = [
-			"topic_type": "show",
-			"topic_id": liveStream.showId,
-			"device_registration_tokens": [token]
+			"topic_type": "episode",
+			"topic_id": liveStream.id
 		]
-		return delete("/notifications/subscriptions", params: params)
+		return post("/push-notifications/subscribe", params: params)
+			.map { () -> Void in }
+			.eraseToAnyPublisher()
+	}
+
+	public func unSubscribe(from liveStream: LiveStream) -> AnyPublisher<Void, Error> {
+		let params: [String: CustomStringConvertible] = [
+			"topic_type": "episode",
+			"topic_id": liveStream.id
+		]
+		return post("/push-notifications/unsubscribe", params: params)
 			.map { () -> Void in }
 			.eraseToAnyPublisher()
 	}

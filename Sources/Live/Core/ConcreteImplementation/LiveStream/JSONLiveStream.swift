@@ -22,6 +22,7 @@ struct JSONLiveStream: Decodable {
 	let startDate: String
 	let endDate: String?
 	let waitingRoomDescription: String
+	let isPushNotificationReminderSet: Bool
 
 	let vodId: String?
 
@@ -38,6 +39,7 @@ struct JSONLiveStream: Decodable {
 		case ends_at
 		case streaming_info
 		case pre_recorded_video
+		case is_push_notification_enabled
 	}
 
 	enum StreamingInfoKeys: String, CodingKey {
@@ -65,15 +67,13 @@ struct JSONLiveStream: Decodable {
 		previewImageUrl = previewAsset?.image.medium
 		previewImageUrlFullSize = previewAsset?.image.full_size
 		previewVideoUrl = previewAsset?.asset_type == "video" ? previewAsset?.asset_url : nil
-//		let streamingInfoKeys = try? values.nestedContainer(keyedBy: StreamingInfoKeys.self, forKey: .streaming_info)
-//		broadcastUrlString = try? streamingInfoKeys?.decode(String.self, forKey: .broadcast_url)
 		waitingRoomDescription = try values.decode(String.self, forKey: .waiting_room_description)
-
 		let preRecordedVideoNode = try? values.nestedContainer(keyedBy: PreRecordedVideoKeys.self, forKey: .pre_recorded_video)
 		vodId = try? preRecordedVideoNode?.decode(String.self, forKey: .id)
 		if let asset = try? preRecordedVideoNode?.decode(JSONPreviewAsset.self, forKey: .asset) {
 			broadcastUrlString = asset.asset_url
 		}
+		isPushNotificationReminderSet = try values.decodeIfPresent(Bool.self, forKey: .is_push_notification_enabled) ?? false
 	}
 }
 
@@ -92,7 +92,8 @@ extension JSONLiveStream {
 											previewVideoUrl: previewVideoUrl,
 											startDate: startDate.toRestApiDate() ?? Date(),
 											endDate: endDate?.toRestApiDate() ?? Date(),
-											waitingRomDescription: waitingRoomDescription)
+											waitingRomDescription: waitingRoomDescription,
+											isPushNotificationReminderSet: isPushNotificationReminderSet)
 		liveStream.vodId = vodId
 		return liveStream
 	}

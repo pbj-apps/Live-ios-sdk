@@ -26,6 +26,7 @@ public struct LiveStream: Identifiable, Hashable {
 	public var elapsedTime: TimeInterval?
 	public var elapsedTimeDate: Date?
 	public var vodId: String?
+	public var isPushNotificationReminderSet: Bool
 
 	public func timeElapsed() -> TimeInterval? {
 		guard let elapsedTime = elapsedTime else {
@@ -51,7 +52,8 @@ public struct LiveStream: Identifiable, Hashable {
 		previewVideoUrl: String?,
 		startDate: Date,
 		endDate: Date,
-		waitingRomDescription: String) {
+		waitingRomDescription: String,
+		isPushNotificationReminderSet: Bool) {
 		self.id = id
 		self.title = title
 		self.description = description
@@ -66,6 +68,7 @@ public struct LiveStream: Identifiable, Hashable {
 		self.startDate = startDate
 		self.endDate = endDate
 		self.waitingRomDescription = waitingRomDescription
+		self.isPushNotificationReminderSet = isPushNotificationReminderSet
 	}
 }
 
