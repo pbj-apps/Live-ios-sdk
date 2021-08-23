@@ -16,7 +16,6 @@ public struct LiveStream: Identifiable, Hashable {
 	public var status: LiveStreamStatus
 	public let showId: String
 	public var broadcastUrl: String?
-	public let chatMode: ChatMode
 	public let instructor: User
 	public let previewImageUrl: String?
 	public let previewImageUrlFullSize: String?
@@ -27,6 +26,7 @@ public struct LiveStream: Identifiable, Hashable {
 	public var elapsedTime: TimeInterval?
 	public var elapsedTimeDate: Date?
 	public var vodId: String?
+	public var isPushNotificationReminderSet: Bool
 
 	public func timeElapsed() -> TimeInterval? {
 		guard let elapsedTime = elapsedTime else {
@@ -46,14 +46,14 @@ public struct LiveStream: Identifiable, Hashable {
 		status: LiveStreamStatus,
 		showId: String,
 		broadcastUrl: String?,
-		chatMode: ChatMode,
 		instructor: User,
 		previewImageUrl: String?,
 		previewImageUrlFullSize: String?,
 		previewVideoUrl: String?,
 		startDate: Date,
 		endDate: Date,
-		waitingRomDescription: String) {
+		waitingRomDescription: String,
+		isPushNotificationReminderSet: Bool) {
 		self.id = id
 		self.title = title
 		self.description = description
@@ -61,7 +61,6 @@ public struct LiveStream: Identifiable, Hashable {
 		self.status = status
 		self.showId = showId
 		self.broadcastUrl = broadcastUrl
-		self.chatMode = chatMode
 		self.instructor = instructor
 		self.previewImageUrl = previewImageUrl
 		self.previewImageUrlFullSize = previewImageUrlFullSize
@@ -69,6 +68,7 @@ public struct LiveStream: Identifiable, Hashable {
 		self.startDate = startDate
 		self.endDate = endDate
 		self.waitingRomDescription = waitingRomDescription
+		self.isPushNotificationReminderSet = isPushNotificationReminderSet
 	}
 }
 
@@ -77,12 +77,6 @@ public enum LiveStreamStatus: Hashable {
 	case waitingRoom
 	case broadcasting
 	case finished
-}
-
-public enum ChatMode: String {
-	case disabled
-	case enabled
-	case qna
 }
 
 public struct LiveStreamStatusUpdate {

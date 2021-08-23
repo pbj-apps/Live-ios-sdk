@@ -53,8 +53,26 @@ extension RestApi: LiveStreamRepository {
 		}.eraseToAnyPublisher()
 	}
 
-	public func getLiveStreamsSchedule() -> AnyPaginator<LiveStream> {
-		let paginator = RestApiPaginator<JSONLiveStream, LiveStream>(baseUrl: baseUrl, "/live-streams/schedule?days_ahead=7", client: network, mapping: { $0.toLiveStream() })
+
+
+	public func fetchEpisodes(for date: Date) -> AnyPaginator<LiveStream> {
+		/// For today's episodes, use the time of day to get the latest episode as fast as possible (and we don't need previous episodes.
+		/// For next days, use a 00:00:00 time so as to get all the episode availables.
+		var dateString = ""
+		if date.isSameDay(as: Date()) {
+			let secondsFromGMT = TimeZone.current.secondsFromGMT(for: date)
+			let timeZoneOffsetDate = date.addingTimeInterval(-TimeInterval(secondsFromGMT))
+			let formatter = DateFormatter()
+			formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
+			dateString = formatter.string(from: timeZoneOffsetDate)
+		} else {
+			let formatter = DateFormatter()
+			formatter.dateFormat = "yyyy-MM-dd"
+			dateString = formatter.string(from: date) + "T00:00:00"
+		}
+		let paginator = RestApiPaginator<JSONLiveStream, LiveStream>(baseUrl: baseUrl,
+																																 "/v1/episodes?starting_at=\(dateString)",
+																																 client: network, mapping: { $0.toLiveStream() })
 		return AnyPaginator(paginator)
 	}
 
@@ -93,37 +111,28 @@ extension RestApi: LiveStreamRepository {
 		.eraseToAnyPublisher()
 	}
 
-	public func subscriptions() -> AnyPublisher<[String], Error> {
-		return get("/notifications/subscriptions")
-			.map { (json: Any) -> [String] in
-				if let dic = json as? [String: AnyHashable], let results = dic["results"] as? [[String: AnyHashable]] {
-					return results.compactMap {
-						$0["topic_id"] as? String
-					}
-				}
-				return []
-			}
-			.eraseToAnyPublisher()
-	}
-
-	public func subscribe(to liveStream: LiveStream, with token: String) -> AnyPublisher<Void, Error> {
-		let params: [String: CustomStringConvertible] = [
-			"topic_type": "show",
-			"topic_id": liveStream.showId,
-			"device_registration_tokens": [token]
-		]
-		return post("/notifications/subscriptions", params: params)
+	public func registerDevice(token: String) -> AnyPublisher<Void, Error> {
+		return post("/device-registration-tokens", params: ["token" : token])
 			.map { () -> Void in }
 			.eraseToAnyPublisher()
 	}
 
-	public func unSubscribe(from liveStream: LiveStream, with token: String) -> AnyPublisher<Void, Error> {
+	public func subscribe(to liveStream: LiveStream) -> AnyPublisher<Void, Error> {
 		let params: [String: CustomStringConvertible] = [
-			"topic_type": "show",
-			"topic_id": liveStream.showId,
-			"device_registration_tokens": [token]
+			"topic_type": "episode",
+			"topic_id": liveStream.id
 		]
-		return delete("/notifications/subscriptions", params: params)
+		return post("/push-notifications/subscribe", params: params)
+			.map { () -> Void in }
+			.eraseToAnyPublisher()
+	}
+
+	public func unSubscribe(from liveStream: LiveStream) -> AnyPublisher<Void, Error> {
+		let params: [String: CustomStringConvertible] = [
+			"topic_type": "episode",
+			"topic_id": liveStream.id
+		]
+		return post("/push-notifications/unsubscribe", params: params)
 			.map { () -> Void in }
 			.eraseToAnyPublisher()
 	}
@@ -137,3 +146,12 @@ struct WatchJSONResponse: Decodable, NetworkingJSONDecodable {
 
 extension JSONLiveStream: NetworkingJSONDecodable {}
 extension JSONShow: NetworkingJSONDecodable {}
+
+private extension Date {
+	func isSameDay(as date: Date) -> Bool {
+		var calender = Calendar.current
+		calender.timeZone = TimeZone.current
+		let result = calender.compare(self, to: date, toGranularity: .day)
+		return result == .orderedSame
+	}
+}
