@@ -63,6 +63,8 @@ extension RestApi: LiveStreamRepository {
 			let secondsFromGMT = TimeZone.current.secondsFromGMT(for: date)
 			let timeZoneOffsetDate = date.addingTimeInterval(-TimeInterval(secondsFromGMT))
 			let formatter = DateFormatter()
+			// Without this locale phones with 12hr format setting would produce an AM/PM at the end of the string.
+			formatter.locale = Locale(identifier: "en_US_POSIX")
 			formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
 			dateString = formatter.string(from: timeZoneOffsetDate)
 		} else {
