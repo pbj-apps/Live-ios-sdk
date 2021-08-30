@@ -14,7 +14,6 @@ public struct LiveStream: Identifiable, Hashable {
 	public let description: String
 	public let duration: Int
 	public var status: LiveStreamStatus
-	public let showId: String
 	public var broadcastUrl: String?
 	public let instructor: User
 	public let previewImageUrl: String?
@@ -44,7 +43,6 @@ public struct LiveStream: Identifiable, Hashable {
 		description: String,
 		duration: Int,
 		status: LiveStreamStatus,
-		showId: String,
 		broadcastUrl: String?,
 		instructor: User,
 		previewImageUrl: String?,
@@ -59,7 +57,6 @@ public struct LiveStream: Identifiable, Hashable {
 		self.description = description
 		self.duration = duration
 		self.status = status
-		self.showId = showId
 		self.broadcastUrl = broadcastUrl
 		self.instructor = instructor
 		self.previewImageUrl = previewImageUrl

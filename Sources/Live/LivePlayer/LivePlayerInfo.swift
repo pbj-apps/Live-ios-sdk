@@ -307,7 +307,6 @@ public func fakeLivestream(with state: LiveStreamStatus) -> LiveStream {
 										description: "Aka bok celery chinese greater kuka kurrat moth onion polk radish sprouts yardlong.",
 										duration: 12,
 										status: state,
-										showId: "showId",
 										broadcastUrl: nil,
 										instructor: User(
 											id: "abc",
