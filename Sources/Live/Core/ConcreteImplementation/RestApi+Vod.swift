@@ -36,6 +36,13 @@ extension RestApi: VodRepository {
 		}
 		.eraseToAnyPublisher()
 	}
+
+	public func search(query: String) -> AnyPublisher<[VodItem], Error> {
+		return get("/vod/items", params: ["search": query]).map { (page: JSONPage<JSONVodItem>) in
+			page.results.map { $0.toVodItem() }
+		}
+		.eraseToAnyPublisher()
+	}
 }
 
 struct JSONVodVideo: Decodable, NetworkingJSONDecodable {
