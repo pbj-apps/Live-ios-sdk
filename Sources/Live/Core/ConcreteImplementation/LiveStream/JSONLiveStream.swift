@@ -13,7 +13,6 @@ struct JSONLiveStream: Decodable {
 	let description: String
 	let duration: Int
 	let status: String
-	let showId: String
 	var broadcastUrlString: String?
 	let instructor: JSONUser?
 	let previewImageUrl: String?
@@ -62,7 +61,6 @@ struct JSONLiveStream: Decodable {
 		status = try values.decode(String.self, forKey: .status)
 		startDate = try values.decode(String.self, forKey: .starting_at)
 		endDate = try? values.decode(String.self, forKey: .ends_at)
-		showId = "NO_SHOW_ID"
 		let previewAsset = try? values.decode(JSONPreviewAsset.self, forKey: .preview_asset)
 		previewImageUrl = previewAsset?.image.medium
 		previewImageUrlFullSize = previewAsset?.image.full_size
@@ -84,7 +82,6 @@ extension JSONLiveStream {
 											description: description,
 											duration: duration,
 											status: LiveStreamStatus.fromString(status),
-											showId: showId,
 											broadcastUrl: broadcastUrlString,
 											instructor: instructor?.toUser() ?? User(id: "unknown", firstname: "no streamer", lastname: "no streamer", email: "no streamer", username: "username", hasAnsweredSurvey: false, avatarUrl: nil),
 											previewImageUrl: previewImageUrl,
