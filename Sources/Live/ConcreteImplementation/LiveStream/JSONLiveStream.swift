@@ -65,7 +65,7 @@ struct JSONLiveStream: Decodable {
 		previewImageUrl = previewAsset?.image.medium
 		previewImageUrlFullSize = previewAsset?.image.full_size
 		previewVideoUrl = previewAsset?.asset_type == "video" ? previewAsset?.asset_url : nil
-		waitingRoomDescription = try values.decode(String.self, forKey: .waiting_room_description)
+		waitingRoomDescription = (try? values.decode(String.self, forKey: .waiting_room_description)) ?? ""
 		let preRecordedVideoNode = try? values.nestedContainer(keyedBy: PreRecordedVideoKeys.self, forKey: .pre_recorded_video)
 		vodId = try? preRecordedVideoNode?.decode(String.self, forKey: .id)
 		if let asset = try? preRecordedVideoNode?.decode(JSONPreviewAsset.self, forKey: .asset) {
