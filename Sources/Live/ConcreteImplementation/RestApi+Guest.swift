@@ -11,7 +11,7 @@ import Networking
 
 extension RestApi {
 	
-	func authenticateAsGuest() -> AnyPublisher<(), Error> {
+	public func authenticateAsGuest() -> AnyPublisher<(), Error> {
 		return fetchGuestToken().map { [weak self] r in
 			self?.authenticationToken = r.auth_token
 		}.eraseToAnyPublisher()

@@ -10,6 +10,7 @@ import AVFoundation
 import UIKit
 import Combine
 import AVKit
+import Live
 
 public struct VideoPlayer: UIViewRepresentable {
 
@@ -179,6 +180,7 @@ public struct VideoPlayer: UIViewRepresentable {
 						self.reloadPlayer()
 					}
 				case .unknown:()
+				@unknown default:()
 				}
 			}
 		}

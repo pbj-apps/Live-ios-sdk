@@ -6,7 +6,7 @@
 //
 
 import UIKit
-import Live // 1) Import Live.
+import LivePlayer // 1) Import Live.
 
 class ViewController: UIViewController {
 

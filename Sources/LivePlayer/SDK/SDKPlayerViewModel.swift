@@ -7,6 +7,7 @@
 
 import Foundation
 import Combine
+import Live
 
 final class SDKPlayerViewModel: ObservableObject {
 

@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Live
 
 struct ProductComponent: View {
 	

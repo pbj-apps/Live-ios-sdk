@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Live
 
 public struct ProductsCarrousel: View {
 	

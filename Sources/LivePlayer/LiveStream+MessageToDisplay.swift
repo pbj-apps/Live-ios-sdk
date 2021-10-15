@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Live
 
 public extension LiveStream {
 	func messageToDisplay() -> String {
