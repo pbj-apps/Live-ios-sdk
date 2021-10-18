@@ -13,6 +13,7 @@
 		9965AD492551EE6400E88127 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9965AD482551EE6400E88127 /* Assets.xcassets */; };
 		9965AD4C2551EE6400E88127 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 9965AD4A2551EE6400E88127 /* LaunchScreen.storyboard */; };
 		99C70E702719BE90003FB2F6 /* LivePlayer in Frameworks */ = {isa = PBXBuildFile; productRef = 99C70E6F2719BE90003FB2F6 /* LivePlayer */; };
+		99C70E722719C3D3003FB2F6 /* LiveApiUsageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99C70E712719C3D3003FB2F6 /* LiveApiUsageViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -23,6 +24,7 @@
 		9965AD4B2551EE6400E88127 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		9965AD4D2551EE6400E88127 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		9965AD582551EED700E88127 /* LiveCore */ = {isa = PBXFileReference; lastKnownFileType = folder; name = LiveCore; path = ../..; sourceTree = "<group>"; };
+		99C70E712719C3D3003FB2F6 /* LiveApiUsageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveApiUsageViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -61,6 +63,7 @@
 			children = (
 				9965AD3F2551EE6300E88127 /* AppDelegate.swift */,
 				9965AD432551EE6300E88127 /* ViewController.swift */,
+				99C70E712719C3D3003FB2F6 /* LiveApiUsageViewController.swift */,
 				9965AD482551EE6400E88127 /* Assets.xcassets */,
 				9965AD4A2551EE6400E88127 /* LaunchScreen.storyboard */,
 				9965AD4D2551EE6400E88127 /* Info.plist */,
@@ -150,6 +153,7 @@
 			files = (
 				9965AD442551EE6300E88127 /* ViewController.swift in Sources */,
 				9965AD402551EE6300E88127 /* AppDelegate.swift in Sources */,
+				99C70E722719C3D3003FB2F6 /* LiveApiUsageViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
