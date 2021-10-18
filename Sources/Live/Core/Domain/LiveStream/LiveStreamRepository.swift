@@ -11,7 +11,8 @@ import Combine
 public protocol LiveStreamRepository {
 	func fetch(liveStream: LiveStream) -> AnyPublisher<LiveStream, Error>
 	func getLiveStreams() -> AnyPublisher<[LiveStream], Error>
-	func fetchEpisodes(for: Date) -> AnyPaginator<LiveStream>
+	func fetchEpisodes(for date: Date) -> AnyPaginator<LiveStream>
+	func fetchEpisodes(for date: Date, daysAhead: Int?) -> AnyPaginator<LiveStream>
 	func registerForRealTimeLiveStreamUpdates() -> AnyPublisher<LiveStreamStatusUpdate, Never>
 	func leaveRealTimeLiveStreamUpdates()
 	func fetchBroadcastUrl(for liveStream: LiveStream) -> AnyPublisher<LiveStream, Error>
