@@ -53,9 +53,11 @@ extension RestApi: LiveStreamRepository {
 		}.eraseToAnyPublisher()
 	}
 
-
-
 	public func fetchEpisodes(for date: Date) -> AnyPaginator<LiveStream> {
+		fetchEpisodes(for: date, daysAhead: nil)
+	}
+
+	public func fetchEpisodes(for date: Date, daysAhead: Int?) -> AnyPaginator<LiveStream> {
 		/// For today's episodes, use the time of day to get the latest episode as fast as possible (and we don't need previous episodes.
 		/// For next days, use a 00:00:00 time so as to get all the episode availables.
 		var dateString = ""
@@ -72,8 +74,12 @@ extension RestApi: LiveStreamRepository {
 			formatter.dateFormat = "yyyy-MM-dd"
 			dateString = formatter.string(from: date) + "T00:00:00"
 		}
+		var path = "/v1/episodes?starting_at=\(dateString)"
+		if let daysAhead = daysAhead {
+			path += "&days_ahead=\(daysAhead)"
+		}
 		let paginator = RestApiPaginator<JSONLiveStream, LiveStream>(baseUrl: baseUrl,
-																																 "/v1/episodes?starting_at=\(dateString)",
+																																 path,
 																																 client: network, mapping: { $0.toLiveStream() })
 		return AnyPaginator(paginator)
 	}
