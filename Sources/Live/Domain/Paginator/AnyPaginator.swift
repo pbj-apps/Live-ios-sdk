@@ -13,7 +13,7 @@ public struct AnyPaginator<Model>: Paginator {
 
 	public var objects: CurrentValueSubject<[Model], Never>
 	private var _resetPage: () -> Void
-	private var _fetchNextPage: () -> AnyPublisher<Void, Error>
+	private var _fetchNextPage: () -> AnyPublisher<[Model], Error>
 	private var _hasNextPage: () -> Bool
 	private var _getPageSize: () -> Int?
 	private var _setPageSize: (Int?) -> Void
@@ -45,7 +45,7 @@ public struct AnyPaginator<Model>: Paginator {
 		}
 	}
 
-	public func fetchNextPage() -> AnyPublisher<Void, Error> {
+	public func fetchNextPage() -> AnyPublisher<[Model], Error> {
 		_fetchNextPage()
 	}
 }

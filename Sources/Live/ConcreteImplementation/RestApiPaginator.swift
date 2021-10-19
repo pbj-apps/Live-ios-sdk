@@ -56,7 +56,7 @@ final class RestApiPaginator<JSONModel: Decodable, Model>: Paginator {
 		return nextPath != nil
 	}
 
-	func fetchNextPage() -> AnyPublisher<Void, Error> {
+	func fetchNextPage() -> AnyPublisher<[Model], Error> {
 		if let nextPath = nextPath {
 			currentPath = nextPath
 		}
@@ -72,7 +72,7 @@ final class RestApiPaginator<JSONModel: Decodable, Model>: Paginator {
 			let objects = self.objects.value + newObjects
 			self.objects.send(objects)
 			self.nextPath = page.next?.replacingOccurrences(of: baseUrl, with: "")
-			return Just(())
+			return Just(newObjects)
 				.setFailureType(to: Error.self)
 				.eraseToAnyPublisher()
 		}.onError { error in
