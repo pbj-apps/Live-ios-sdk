@@ -14,4 +14,5 @@ public protocol Paginator {
 	func resetPage()
 	var hasNextPage: Bool { get }
 	func fetchNextPage() -> AnyPublisher<Void, Error>
+	var pageSize: Int? { get set }
 }

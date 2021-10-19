@@ -12,6 +12,12 @@ import Networking
 final class RestApiPaginator<JSONModel: Decodable, Model>: Paginator {
 
 	var objects: CurrentValueSubject<[Model], Never> = CurrentValueSubject<[Model], Never>([])
+	var pageSize: Int? {
+		didSet {
+			guard oldValue != pageSize else { return }
+			resetPage()
+		}
+	}
 	private var client: NetworkingClient
 	private var currentPath: String!
 	private let initialPath: String
@@ -20,19 +26,30 @@ final class RestApiPaginator<JSONModel: Decodable, Model>: Paginator {
 	private var error: Error?
 	private let mapping: (JSONModel) -> Model
 	private let baseUrl: String
+	private var computedPath: String {
+		if let pageSize = pageSize, pageSize > 0 {
+			let pageSizeKey = "per_page"
+			let components = NSURLComponents(string: initialPath)
+			components?.queryItems = components?.queryItems?.filter { $0.name != pageSizeKey }
+			components?.queryItems?.append(URLQueryItem(name: pageSizeKey, value: String(pageSize)))
+			return components?.url?.absoluteString ?? initialPath
+		} else {
+			return initialPath
+		}
+	}
 
 	init(baseUrl: String, _ path: String, client: NetworkingClient, mapping: @escaping (JSONModel) -> Model ) {
 		self.baseUrl = baseUrl
 		self.initialPath = path
 		self.client = client
 		self.mapping = mapping
-		self.currentPath = initialPath
+		self.currentPath = computedPath
 	}
 
 	func resetPage() {
 		objects.value = []
 		nextPath = nil
-		currentPath = initialPath
+		currentPath = computedPath
 	}
 
 	var hasNextPage: Bool {
@@ -47,7 +64,7 @@ final class RestApiPaginator<JSONModel: Decodable, Model>: Paginator {
 		isLoading = true
 		error = nil
 		return client.get(currentPath).then { [unowned self] (page: JSONPage<JSONModel>) in
-			if self.currentPath == self.initialPath {
+			if self.currentPath == self.computedPath {
 				self.objects.send([])
 			}
 
