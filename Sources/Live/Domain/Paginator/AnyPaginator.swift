@@ -13,14 +13,19 @@ public struct AnyPaginator<Model>: Paginator {
 
 	public var objects: CurrentValueSubject<[Model], Never>
 	private var _resetPage: () -> Void
-	private var _fetchNextPage: () -> AnyPublisher<Void, Error>
+	private var _fetchNextPage: () -> AnyPublisher<[Model], Error>
 	private var _hasNextPage: () -> Bool
+	private var _getPageSize: () -> Int?
+	private var _setPageSize: (Int?) -> Void
 
 	internal init<T: Paginator>(_ paginator: T) where T.Model == Model {
-		objects = paginator.objects
-		_resetPage = paginator.resetPage
-		_fetchNextPage = paginator.fetchNextPage
-		_hasNextPage = { paginator.hasNextPage }
+		var mutablePaginator = paginator
+		objects = mutablePaginator.objects
+		_resetPage = mutablePaginator.resetPage
+		_fetchNextPage = mutablePaginator.fetchNextPage
+		_hasNextPage = { mutablePaginator.hasNextPage }
+		_getPageSize = { mutablePaginator.pageSize }
+		_setPageSize = { mutablePaginator.pageSize = $0  }
 	}
 
 	public func resetPage() {
@@ -31,7 +36,16 @@ public struct AnyPaginator<Model>: Paginator {
 		_hasNextPage()
 	}
 
-	public func fetchNextPage() -> AnyPublisher<Void, Error> {
+	public var pageSize: Int? {
+		set {
+			_setPageSize(newValue)
+		}
+		get {
+			_getPageSize()
+		}
+	}
+
+	public func fetchNextPage() -> AnyPublisher<[Model], Error> {
 		_fetchNextPage()
 	}
 }

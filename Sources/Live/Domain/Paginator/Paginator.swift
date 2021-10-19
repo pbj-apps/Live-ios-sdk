@@ -13,5 +13,6 @@ public protocol Paginator {
 	var objects: CurrentValueSubject<[Model], Never> { get }
 	func resetPage()
 	var hasNextPage: Bool { get }
-	func fetchNextPage() -> AnyPublisher<Void, Error>
+	func fetchNextPage() -> AnyPublisher<[Model], Error>
+	var pageSize: Int? { get set }
 }

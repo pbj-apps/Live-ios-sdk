@@ -13,7 +13,7 @@ public extension Paginator {
 		var cancellables = Set<AnyCancellable>()
 		return Future { promise in
 			func fetchNext() {
-				fetchNextPage().then {
+				fetchNextPage().then { _ in
 					if !hasNextPage {
 						promise(.success(self.objects.value))
 						cancellables.removeAll()
