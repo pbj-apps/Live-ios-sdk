@@ -11,20 +11,14 @@ import Networking
 
 extension RestApi: LiveStreamRepository {
 
-	public func fetch(liveStream: LiveStream) -> AnyPublisher<LiveStream, Error> {
-		return get("/live-streams/\(liveStream.id)").map { (jsonLivestream: JSONLiveStream) in
-			return jsonLivestream.toLiveStream()
-		}.eraseToAnyPublisher()
-	}
-
 	public func getLiveStreams() -> AnyPublisher<[LiveStream], Error> {
-		return get("/live-streams").map { (page: JSONPage<JSONLiveStream>) in
+		return get("/v1/episodes").map { (page: JSONPage<JSONLiveStream>) in
 			return page.results.map { $0.toLiveStream() }
 		}.eraseToAnyPublisher()
 	}
 
 	public func getCurrentLiveStream() -> AnyPublisher<LiveStream?, Error> {
-		return get("/episodes/current")
+		return get("/v1/episodes/current")
 			.map { (page: JSONPage<JSONLiveStream>) in
 				return page.results.map { $0.toLiveStream() }
 			}
@@ -33,7 +27,7 @@ extension RestApi: LiveStreamRepository {
 	}
 
 	public func getCurrentLiveStream(from showId: String) -> AnyPublisher<LiveStream?, Error> {
-		return get("/episodes/current", params: ["show_id" : showId ])
+		return get("/v1/episodes/current", params: ["show_id" : showId ])
 			.map { (page: JSONPage<JSONLiveStream>) in
 				return page.results.map { $0.toLiveStream() }
 			}
@@ -41,8 +35,12 @@ extension RestApi: LiveStreamRepository {
 			.eraseToAnyPublisher()
 	}
 
+	public func fetch(liveStream: LiveStream) -> AnyPublisher<LiveStream, Error> {
+		return fetchLiveStream(liveStreamId: liveStream.id)
+	}
+
 	public func fetchLiveStream(liveStreamId: String) -> AnyPublisher<LiveStream, Error> {
-		return get("/live-streams/\(liveStreamId)").map { (jsonLiveStream: JSONLiveStream) in
+		return get("/v1/episodes/\(liveStreamId)").map { (jsonLiveStream: JSONLiveStream) in
 			return jsonLiveStream.toLiveStream()
 		}.eraseToAnyPublisher()
 	}
@@ -93,7 +91,7 @@ extension RestApi: LiveStreamRepository {
 	}
 
 	public func fetchBroadcastUrl(for liveStream: LiveStream) -> AnyPublisher<LiveStream, Error> {
-		get("/live-streams/\(liveStream.id)/watch").map { (response: WatchJSONResponse) in
+		get("/v1/episodes/\(liveStream.id)/watch").map { (response: WatchJSONResponse) in
 			let streamType = response.stream_type
 			var newLiveStream = liveStream
 
