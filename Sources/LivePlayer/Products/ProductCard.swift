@@ -6,18 +6,16 @@
 //
 
 import SwiftUI
-import FetchImage
 
 struct ProductCard: View {
-
+	
 	let title: String
 	let price: String
 	let detail: String
 	let image: URL?
 	let fontName: String
 	let onTap: () -> Void
-	@ObservedObject var imageView: FetchImage
-
+	
 	init(
 		title: String,
 		price: String,
@@ -25,18 +23,13 @@ struct ProductCard: View {
 		image: URL?,
 		fontName: String,
 		onTap: @escaping () -> Void) {
-		self.title = title
-		self.price = price
-		self.detail = detail
-		self.image = image
-		self.fontName = fontName
-		self.onTap = onTap
-		if let image = image {
-			imageView = FetchImage(url: image)
-		} else {
-			imageView = FetchImage(url: URL(string: "http://")!)
+			self.title = title
+			self.price = price
+			self.detail = detail
+			self.image = image
+			self.fontName = fontName
+			self.onTap = onTap
 		}
-	}
 	
 	var body: some View {
 		Button(action: onTap) {
@@ -54,10 +47,7 @@ struct ProductCard: View {
 					.frame(width: 20)
 				ZStack {
 					GeometryReader { proxy in
-						imageView
-							.view?
-							.resizable()
-							.aspectRatio(contentMode: .fill)
+						LiveAsyncImage(url: image?.absoluteString)
 							.frame(width: proxy.size.width, height: proxy.size.height)
 					}
 				}
@@ -71,19 +61,19 @@ struct ProductCard: View {
 			.cornerRadius(16)
 		}.buttonStyle(PlainButtonStyle())
 	}
-
+	
 	var titleView: some View {
 		Text(title)
 			.font(.custom(fontName, size: 16))
 			.foregroundColor(.black)
 	}
-
+	
 	var priceView: some View {
 		Text("$\(price)")
 			.font(.custom(fontName, size: 14))
 			.foregroundColor(.black)
 	}
-
+	
 	var detailView: some View {
 		Text(detail)
 			.multilineTextAlignment(.leading)
@@ -93,7 +83,7 @@ struct ProductCard: View {
 			.opacity(0.5)
 			.fixedSize(horizontal: false, vertical: true)
 	}
-
+	
 	var divider: some View {
 		Rectangle()
 			.foregroundColor(Color.init(red: 202/255.0, green: 202/255.0, blue: 202/255.0, opacity: 1))

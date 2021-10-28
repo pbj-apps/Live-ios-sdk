@@ -7,7 +7,6 @@
 //
 
 import SwiftUI
-import FetchImage
 import AVFoundation
 import Combine
 import AVKit
@@ -16,7 +15,7 @@ import Live
 let sharedKeyboardResponder = KeyboardResponder()
 
 public class LivePlayerViewModel: ObservableObject {
-	
+
 	@Published public var liveStream: LiveStream
 	let productRepository: ProductRepository
 	@Published public var products: [Product]
@@ -24,7 +23,7 @@ public class LivePlayerViewModel: ObservableObject {
 	@Published var showProducts = false
 	//    @Published var showCurrentlyFeaturedProducts = false
 	private var cancellables = Set<AnyCancellable>()
-	
+
 	public init(liveStream: LiveStream, productRepository: ProductRepository) {
 		self.liveStream = liveStream
 		self.products = []
@@ -33,7 +32,7 @@ public class LivePlayerViewModel: ObservableObject {
 		self.fetchProducts()
 		self.fetchCurrentlyFeaturedProducts()
 	}
-	
+
 	public func fetchProducts() {
 		productRepository.fetchProducts(for: liveStream)
 			.then { [unowned self] fetchedProducts in
@@ -45,7 +44,7 @@ public class LivePlayerViewModel: ObservableObject {
 			.sink()
 			.store(in: &cancellables)
 	}
-	
+
 	public func fetchCurrentlyFeaturedProducts() {
 		productRepository.fetchCurrentlyFeaturedProducts(for: liveStream)
 			.then { [unowned self] fetchedProducts in
@@ -57,7 +56,7 @@ public class LivePlayerViewModel: ObservableObject {
 			.sink()
 			.store(in: &cancellables)
 	}
-	
+
 	public func registerForProductHighlights() {
 		productRepository.registerForProductHighlights(for: liveStream)
 			.receive(on: RunLoop.main)
@@ -69,16 +68,16 @@ public class LivePlayerViewModel: ObservableObject {
 				//            self.showCurrentlyFeaturedProducts  = true
 			}.store(in: &cancellables)
 	}
-	
+
 	public func unRegisterForProductHighlights() {
 		productRepository.unRegisterProductHighlights(for: liveStream)
 	}
 }
 
 public struct LivePlayer: View {
-	
+
 	@ObservedObject var viewModel: LivePlayerViewModel
-	
+
 	// Chat
 	let isChatEnabled: Bool
 	let chatMessages: [ChatMessage]
@@ -93,21 +92,20 @@ public struct LivePlayer: View {
 	let accentColor: Color
 	let remindMeButtonBackgroundColor: Color
 	let defaultsToAspectRatioFit: Bool
-	
+
 	var liveStream: LiveStream {
 		return viewModel.liveStream
 	}
-	
+
 	let nextLiveStream: LiveStream?
 	let close: (() -> Void)?
 	let proxy: GeometryProxy?
-	
+
 	@ObservedObject private var keyboard = sharedKeyboardResponder
-	@ObservedObject private var backgroundImage: FetchImage
 	@State private var isLivePlaying = true
 	@State var showInfo = true
 	@State var chatUsername: String?
-	
+
 	public init(
 		viewModel: LivePlayerViewModel,
 		nextLiveStream: LiveStream? = nil,
@@ -132,7 +130,7 @@ public struct LivePlayer: View {
 		self.nextLiveStream = nextLiveStream
 		self.close = close
 		self.proxy = proxy
-		
+
 		self.isAllCaps = isAllCaps
 		self.regularFont = regularFont
 		self.lightFont = lightFont
@@ -141,21 +139,19 @@ public struct LivePlayer: View {
 		self.accentColor = accentColor
 		self.remindMeButtonBackgroundColor = remindMeButtonBackgroundColor
 		self.defaultsToAspectRatioFit = defaultsToAspectRatioFit
-		
+
 		self.isChatEnabled = isChatEnabled
 		self.chatMessages = chatMessages
 		self.fetchMessages = fetchMessages
 		self.sendMessage = sendMessage
 		self.isInGuestMode = isInGuestMode
-		
-		backgroundImage = FetchImage(url: URL(string: viewModel.liveStream.previewImageUrl ?? "https://")!)
 	}
-	
+
 	public var body: some View {
 		ZStack {
 			Color.black
 				.zIndex(0)
-			ImageBackground(image: backgroundImage)
+			ImageBackground(url: viewModel.liveStream.previewImageUrl)
 				.frame(width: proxy?.size.width ?? UIScreen.main.bounds.size.width)
 				.zIndex(1)
 			switch liveStream.status {
@@ -258,7 +254,7 @@ struct LivePlayer_Previews: PreviewProvider {
 		GeometryReader { _ in
 			//			LivePlayer(liveStream: fakeLivestream(with: .idle),
 			//								 nextLiveStream: nil, finishedPlaying: {}, close: {}, proxy: proxy)
-			
+
 			//			LivePlayer(liveStream: fakeLivestream(with: .idle),
 			//								 nextLiveStream: nil,
 			//								 currentUser: nil,
