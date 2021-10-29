@@ -18,7 +18,7 @@ public struct AnyPaginator<Model>: Paginator {
 	private var _getPageSize: () -> Int?
 	private var _setPageSize: (Int?) -> Void
 
-	internal init<T: Paginator>(_ paginator: T) where T.Model == Model {
+	public init<T: Paginator>(_ paginator: T) where T.Model == Model {
 		var mutablePaginator = paginator
 		objects = mutablePaginator.objects
 		_resetPage = mutablePaginator.resetPage

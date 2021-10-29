@@ -9,10 +9,10 @@ import Foundation
 import Combine
 import Networking
 
-final class RestApiPaginator<JSONModel: Decodable, Model>: Paginator {
+final public class RestApiPaginator<JSONModel: Decodable, Model>: Paginator {
 
-	var objects: CurrentValueSubject<[Model], Never> = CurrentValueSubject<[Model], Never>([])
-	var pageSize: Int? {
+	public var objects: CurrentValueSubject<[Model], Never> = CurrentValueSubject<[Model], Never>([])
+	public var pageSize: Int? {
 		didSet {
 			guard oldValue != pageSize else { return }
 			resetPage()
@@ -38,7 +38,7 @@ final class RestApiPaginator<JSONModel: Decodable, Model>: Paginator {
 		}
 	}
 
-	init(baseUrl: String, _ path: String, client: NetworkingClient, mapping: @escaping (JSONModel) -> Model ) {
+	public init(baseUrl: String, _ path: String, client: NetworkingClient, mapping: @escaping (JSONModel) -> Model ) {
 		self.baseUrl = baseUrl
 		self.initialPath = path
 		self.client = client
@@ -46,17 +46,17 @@ final class RestApiPaginator<JSONModel: Decodable, Model>: Paginator {
 		self.currentPath = computedPath
 	}
 
-	func resetPage() {
+	public func resetPage() {
 		objects.value = []
 		nextPath = nil
 		currentPath = computedPath
 	}
 
-	var hasNextPage: Bool {
+	public var hasNextPage: Bool {
 		return nextPath != nil
 	}
 
-	func fetchNextPage() -> AnyPublisher<[Model], Error> {
+	public func fetchNextPage() -> AnyPublisher<[Model], Error> {
 		if let nextPath = nextPath {
 			currentPath = nextPath
 		}
