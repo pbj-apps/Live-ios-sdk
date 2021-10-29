@@ -148,7 +148,7 @@ struct JSONPreviewAsset: Decodable {
 	}
 }
 
-struct JSONVodItem: Decodable {
+public struct JSONVodItem: Decodable {
 	let id: String
 	let title: String
 	let description: String
@@ -175,7 +175,7 @@ struct JSONVodItem: Decodable {
 		case duration
 	}
 
-	init(from decoder: Decoder) throws {
+	public init(from decoder: Decoder) throws {
 		let values = try decoder.container(keyedBy: CodingKeys.self)
 		isFeatured = try values.decode(Bool.self, forKey: .is_featured)
 		itemType = try values.decode(JSONVodItemType.self, forKey: .item_type)
@@ -206,7 +206,7 @@ extension JSONVodCategory {
 	}
 }
 
-extension JSONVodItem {
+public extension JSONVodItem {
 	func toVodItem() -> VodItem {
 		switch itemType {
 		case .video:
