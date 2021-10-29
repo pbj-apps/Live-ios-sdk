@@ -1,51 +1,52 @@
 //
-//  LiveVodPlayer.swift
+//  LiveVodPlayerView.swift
 //  
 //
 //  Created by Sacha on 29/10/2021.
 //
 
 import SwiftUI
-import Live
-import Kingfisher
+import AVFoundation
 
-
-public struct LiveVodPlayer: View {
-
-	let topLeftButton: AnyView?
+public struct LiveVodPlayerView: View {
+	
+	let player: AVPlayer
+	let showsControls: Bool
+	let isPlaying: Bool
+	let tapped: () -> Void
+	let play: () -> Void
+	let pause: () -> Void
+	let stop: () -> Void
+	let sliderValue: Float
+	let setSliderEditing: (Bool) -> Void
+	let sliderChanged: (Float) -> Void
+	let sliderDidEndEditing: () -> Void
 	let close: () -> Void
-
-	@StateObject private var viewModel: LiveVodPlayerViewModel
-
-	public init(url: URL, close: @escaping () -> Void, topLeftButton: AnyView? = nil) {
-		self._viewModel = StateObject(wrappedValue: LiveVodPlayerViewModel(url: url))
-		self.close = close
-		self.topLeftButton = topLeftButton
-	}
-
+	let topLeftButton: AnyView?
+	
 	public var body: some View {
 		GeometryReader { proxy in
 			ZStack {
 				Color.black
-				VODVideoPlayer(player: viewModel.player)
+				VODVideoPlayer(player: player)
 					.onTapGesture {
 						withAnimation {
-							viewModel.tapped()
+							tapped()
 						}
 					}
 				controlsOverlay(safeAreaInsets: proxy.safeAreaInsets)
-					.opacity(viewModel.showsControls ? 1 : 0)
+					.opacity(showsControls ? 1 : 0)
 			}
 			.edgesIgnoringSafeArea(.all)
 		}
 	}
-
+	
 	func controlsOverlay(safeAreaInsets: EdgeInsets) -> some View {
 		ZStack {
 			Color.black.opacity(0.5)
 				.onTapGesture {
 					withAnimation {
-						viewModel.tapped()
+						tapped()
 					}
 				}
 			VStack {
@@ -64,14 +65,14 @@ public struct LiveVodPlayer: View {
 				}
 				Spacer()
 				let sliderBinding: Binding<Float> = Binding(get: {
-					viewModel.sliderValue
+					sliderValue
 				}, set: { value in
-					viewModel.sliderChanged(value: value)
+					sliderChanged(value)
 				})
 				Slider(value:sliderBinding, in: 0...1) { isEditing in
-					viewModel.isEditingSlider = isEditing
+					setSliderEditing(isEditing)
 					if !isEditing {
-						viewModel.endEditingSlider()
+						sliderDidEndEditing()
 					}
 					print(isEditing)
 				}
@@ -83,28 +84,28 @@ public struct LiveVodPlayer: View {
 			.padding(.trailing, safeAreaInsets.trailing)
 		}
 	}
-
+	
 	var playPauseButton: some View {
 		Button(action: {
 			withAnimation {
-				if viewModel.isPlaying {
-					viewModel.pause()
+				if isPlaying {
+					pause()
 				} else {
-					viewModel.play()
+					play()
 				}
 			}
 		}) {
-			Image(systemName: viewModel.isPlaying ? "pause.circle.fill" : "play.circle.fill")
+			Image(systemName: isPlaying ? "pause.circle.fill" : "play.circle.fill")
 				.resizable()
 				.foregroundColor(.white)
 				.frame(width: 70, height: 70)
 		}
 	}
-
+	
 	var closeButton: some View {
 		Button(action: {
 			withAnimation {
-				viewModel.stop()
+				stop()
 				close()
 			}
 		}) {
@@ -114,5 +115,11 @@ public struct LiveVodPlayer: View {
 				.frame(width: 20, height: 20)
 				.padding()
 		}
+	}
+}
+
+struct LiveVodPlayerView_Previews: PreviewProvider {
+	static var previews: some View {
+		Text("LiveVodPlayerView")
 	}
 }
