@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import FetchImage
 import Live
 
 struct LivePlayerFinishedStateOverlay: View {
@@ -21,7 +20,6 @@ struct LivePlayerFinishedStateOverlay: View {
 
 	let nextLiveStream: LiveStream?
 	let close: (() -> Void)?
-	@ObservedObject private var instructorAvatar: FetchImage
 	let proxy: GeometryProxy?
 
 	init(nextLiveStream: LiveStream?,
@@ -46,12 +44,6 @@ struct LivePlayerFinishedStateOverlay: View {
 		self.lightForegroundColor = lightForegroundColor
 		self.accentColor = accentColor
 		self.remindMeButtonBackgroundColor = remindMeButtonBackgroundColor
-
-		if let url = URL(string: nextLiveStream?.instructor.avatarUrl ?? "") {
-			instructorAvatar = FetchImage(url: url)
-		} else {
-			instructorAvatar = FetchImage(url: URL(string: "http://pbj.studio")!)
-		}
 	}
 
 	var body: some View {
@@ -93,7 +85,8 @@ struct LivePlayerFinishedStateOverlay: View {
 							.multilineTextAlignment(.center)
 							.padding(.bottom, 12)
 						HStack(spacing: 0) {
-							LiveImageView(image: instructorAvatar, placeholderColor: imagePlaceholderColor)
+							LiveImageView(url: nextLiveStream.instructor.avatarUrl,
+														placeholderColor: imagePlaceholderColor)
 								.frame(width: 30, height: 30)
 								.clipShape(RoundedRectangle(cornerRadius: 7.43))
 								.padding(.trailing, 10)

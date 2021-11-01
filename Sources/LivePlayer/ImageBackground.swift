@@ -6,25 +6,21 @@
 //
 
 import SwiftUI
-import FetchImage
+
 
 struct ImageBackground: View {
-
-	@ObservedObject var image: FetchImage
-
+	
+	let url: String?
+	
 	public var body: some View {
 		// Somehow without the top level GeometryReader
 		// The image "pushes" the content down and buttons
 		// end up cropped.
 		GeometryReader { proxy in
-			image.view?
-				.resizable()
-				.scaledToFill()
+			LiveAsyncImage(url: url)
 				.frame(width: proxy.size.width, height: proxy.size.height)
 				.clipped()
 		}
 		.edgesIgnoringSafeArea(.all)
-		.onAppear(perform: image.fetch)
-		.onDisappear(perform: image.cancel)
 	}
 }

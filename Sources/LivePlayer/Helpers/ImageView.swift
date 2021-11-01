@@ -6,26 +6,21 @@
 //
 
 import SwiftUI
-import FetchImage
 
 public struct LiveImageView: View {
-
+	
 	let placeholderColor: Color
-	@ObservedObject var image: FetchImage
-
-	public init(image: FetchImage, placeholderColor: Color) {
-		self.image = image
+	let url: String?
+	
+	public init(url: String?, placeholderColor: Color) {
+		self.url = url
 		self.placeholderColor = placeholderColor
 	}
-
+	
 	public var body: some View {
 		ZStack {
 			Rectangle().fill(placeholderColor)
-			image.view?
-				.resizable()
-				.aspectRatio(contentMode: .fill)
+			LiveAsyncImage(url: url)
 		}
-		.onAppear(perform: image.fetch)
-		.onDisappear(perform: image.cancel)
 	}
 }
