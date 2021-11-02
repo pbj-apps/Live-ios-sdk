@@ -8,7 +8,7 @@
 import SwiftUI
 import AVKit
 
-public class LiveVodPlayerViewModel: ObservableObject {
+public class LiveVodPlayerViewModel: NSObject, ObservableObject {
 	
 	@Published var showsControls: Bool = true
 	@Published var isPlaying: Bool = false
@@ -19,33 +19,21 @@ public class LiveVodPlayerViewModel: ObservableObject {
 	private var isEditingSlider: Bool = false
 	private var timeObserver: Any?
 	private var fadeOutTimer: Timer?
+	private var playerItemContext = 0
 	
 	public init(url: URL) {
 		self.player	= AVPlayer(url: url)
-		
+		super.init()
+		self.player.currentItem?.addObserver(self,
+																				 forKeyPath: #keyPath(AVPlayerItem.status),
+																				 options: [.old, .new],
+																				 context: &playerItemContext)
 		let interval = CMTime(seconds: 0.1, preferredTimescale: CMTimeScale(NSEC_PER_SEC))
 		timeObserver = player.addPeriodicTimeObserver(forInterval: interval, queue: .main) { [weak self] time in
 			if let self = self {
-				
-				// Current time
-				let currentTimeSeconds = self.player.currentTime().seconds
-				let currentTimeString = self.formattedTime(seconds: currentTimeSeconds)
-				if self.endTimeLabel != currentTimeString {
-					self.currentTimeLabel = currentTimeString
-				}
-				
+				self.refreshCurrentTimeLabel()
 				if !self.isEditingSlider {
-					
-					// End time
-					if let durationSeconds = self.player.currentItem?.duration.seconds {
-						let endTimeString = self.formattedTime(seconds: durationSeconds)
-						if self.endTimeLabel != endTimeString {
-							self.endTimeLabel = endTimeString
-						}
-					}
-					
-					// Slider value
-					let currentTime = (CMTimeGetSeconds(time) / self.player.currentItem!.duration.seconds)//.rounded(toPlaces: 3)
+					let currentTime = (CMTimeGetSeconds(time) / self.player.currentItem!.duration.seconds)
 					withAnimation {
 						self.sliderValue = Float(currentTime)
 					}
@@ -121,6 +109,52 @@ public class LiveVodPlayerViewModel: ObservableObject {
 		return formattedString
 	}
 	
+	public override func observeValue(forKeyPath keyPath: String?,
+																		of object: Any?,
+																		change: [NSKeyValueChangeKey : Any]?,
+																		context: UnsafeMutableRawPointer?) {
+		// Only handle observations for the playerItemContext
+		guard context == &playerItemContext else {
+			super.observeValue(forKeyPath: keyPath,
+												 of: object,
+												 change: change,
+												 context: context)
+			return
+		}
+		
+		if keyPath == #keyPath(AVPlayerItem.status) {
+			let status: AVPlayerItem.Status
+			if let statusNumber = change?[.newKey] as? NSNumber {
+				status = AVPlayerItem.Status(rawValue: statusNumber.intValue)!
+			} else {
+				status = .unknown
+			}
+			
+			switch status {
+			case .readyToPlay:
+				refreshEndTimeLabel()
+			case .failed, .unknown: ()
+			}
+		}
+	}
+	
+	private func refreshCurrentTimeLabel() {
+		let currentTimeSeconds = self.player.currentTime().seconds
+		let currentTimeString = self.formattedTime(seconds: currentTimeSeconds)
+		if self.endTimeLabel != currentTimeString {
+			self.currentTimeLabel = currentTimeString
+		}
+	}
+	
+	private func refreshEndTimeLabel() {
+		if let durationSeconds = player.currentItem?.duration.seconds {
+			let endTimeString = formattedTime(seconds: durationSeconds)
+			if endTimeLabel != endTimeString {
+				endTimeLabel = endTimeString
+			}
+		}
+	}
+	
 	deinit {
 		if let timeObserver = timeObserver {
 			player.removeTimeObserver(timeObserver)
@@ -130,5 +164,3 @@ public class LiveVodPlayerViewModel: ObservableObject {
 		fadeOutTimer = nil
 	}
 }
-
-

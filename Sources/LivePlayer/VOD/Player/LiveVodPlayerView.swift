@@ -76,7 +76,6 @@ public struct LiveVodPlayerView: View {
 					if !isEditing {
 						sliderDidEndEditing()
 					}
-					print(isEditing)
 				}
 				.padding()
                 HStack {
