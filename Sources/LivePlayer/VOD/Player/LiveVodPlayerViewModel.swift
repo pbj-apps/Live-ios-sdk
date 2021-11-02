@@ -14,6 +14,8 @@ public class LiveVodPlayerViewModel: ObservableObject {
 	@Published var isPlaying: Bool = false
 	@Published var sliderValue: Float = 0
 	@Published var player: AVPlayer
+	@Published var currentTimeLabel: String = "0:00"
+	@Published var endTimeLabel: String = "0:00"
 	private var isEditingSlider: Bool = false
 	private var timeObserver: Any?
 	private var fadeOutTimer: Timer?
@@ -24,7 +26,25 @@ public class LiveVodPlayerViewModel: ObservableObject {
 		let interval = CMTime(seconds: 0.1, preferredTimescale: CMTimeScale(NSEC_PER_SEC))
 		timeObserver = player.addPeriodicTimeObserver(forInterval: interval, queue: .main) { [weak self] time in
 			if let self = self {
+				
+				// Current time
+				let currentTimeSeconds = self.player.currentTime().seconds
+				let currentTimeString = self.formattedTime(seconds: currentTimeSeconds)
+				if self.endTimeLabel != currentTimeString {
+					self.currentTimeLabel = currentTimeString
+				}
+				
 				if !self.isEditingSlider {
+					
+					// End time
+					if let durationSeconds = self.player.currentItem?.duration.seconds {
+						let endTimeString = self.formattedTime(seconds: durationSeconds)
+						if self.endTimeLabel != endTimeString {
+							self.endTimeLabel = endTimeString
+						}
+					}
+					
+					// Slider value
 					let currentTime = (CMTimeGetSeconds(time) / self.player.currentItem!.duration.seconds)//.rounded(toPlaces: 3)
 					withAnimation {
 						self.sliderValue = Float(currentTime)
@@ -86,6 +106,19 @@ public class LiveVodPlayerViewModel: ObservableObject {
 				}
 			}
 		}
+	}
+	
+	func formattedTime(seconds: Double) -> String {
+		let timeInterval: TimeInterval = TimeInterval(seconds)
+		let formatter = DateComponentsFormatter()
+		formatter.unitsStyle = .positional
+		formatter.allowedUnits = [.hour, .minute, .second]
+		formatter.zeroFormattingBehavior = [.pad]
+		let formattedString = formatter.string(from: timeInterval) ?? "0:00"
+		if formattedString.starts(with: "00:") {
+			return String(formattedString.dropFirst(3))
+		}
+		return formattedString
 	}
 	
 	deinit {

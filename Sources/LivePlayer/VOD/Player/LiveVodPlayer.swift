@@ -22,19 +22,22 @@ public struct LiveVodPlayer: View {
 	}
 	
 	public var body: some View {
-		LiveVodPlayerView(player: viewModel.player,
-											showsControls: viewModel.showsControls,
-											isPlaying: viewModel.isPlaying,
-											tapped: viewModel.tapped,
-											play: viewModel.play,
-											pause: viewModel.pause,
-											stop: viewModel.stop,
-											sliderValue: viewModel.sliderValue,
-											setSliderEditing: viewModel.setSliderEditing,
-											sliderChanged: viewModel.sliderChanged,
-											sliderDidEndEditing: viewModel.endEditingSlider,
-											close: close,
-											topLeftButton: topLeftButton)
+		LiveVodPlayerView(
+			player: viewModel.player,
+			showsControls: viewModel.showsControls,
+			isPlaying: viewModel.isPlaying,
+			tapped: viewModel.tapped,
+			play: viewModel.play,
+			pause: viewModel.pause,
+			stop: viewModel.stop,
+			currentTimeLabel: viewModel.currentTimeLabel,
+			endTimeLabel: viewModel.endTimeLabel,
+			sliderValue: viewModel.sliderValue,
+			setSliderEditing: viewModel.setSliderEditing,
+			sliderChanged: viewModel.sliderChanged,
+			sliderDidEndEditing: viewModel.endEditingSlider,
+			close: close,
+			topLeftButton: topLeftButton)
 	}
 }
 
