@@ -17,6 +17,8 @@ public struct LiveVodPlayerView: View {
 	let play: () -> Void
 	let pause: () -> Void
 	let stop: () -> Void
+	let currentTimeLabel: String
+	let endTimeLabel: String
 	let sliderValue: Float
 	let setSliderEditing: (Bool) -> Void
 	let sliderChanged: (Float) -> Void
@@ -74,9 +76,14 @@ public struct LiveVodPlayerView: View {
 					if !isEditing {
 						sliderDidEndEditing()
 					}
-					print(isEditing)
 				}
 				.padding()
+                HStack {
+                    timeLabel(text: currentTimeLabel)
+                    Spacer()
+                    timeLabel(text: endTimeLabel)
+                }
+                .padding(.horizontal)
 			}
 			.padding(.top, safeAreaInsets.top)
 			.padding(.leading, safeAreaInsets.leading)
@@ -84,6 +91,12 @@ public struct LiveVodPlayerView: View {
 			.padding(.trailing, safeAreaInsets.trailing)
 		}
 	}
+    
+    func timeLabel(text: String) -> some View {
+        Text(text)
+            .font(Font.system(size: 12))
+            .foregroundColor(.white)
+    }
 	
 	var playPauseButton: some View {
 		Button(action: {
