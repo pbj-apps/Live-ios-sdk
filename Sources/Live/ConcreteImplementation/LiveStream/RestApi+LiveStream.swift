@@ -82,7 +82,7 @@ extension RestApi: LiveStreamRepository {
 		return AnyPaginator(paginator)
 	}
 
-	public func registerForRealTimeLiveStreamUpdates() -> AnyPublisher<LiveStreamStatusUpdate, Never> {
+	public func registerForRealTimeLiveStreamUpdates() -> AnyPublisher<LiveStreamStatusUpdate, Error> {
 		webSocket.joinEpisodeUpdates()
 	}
 
