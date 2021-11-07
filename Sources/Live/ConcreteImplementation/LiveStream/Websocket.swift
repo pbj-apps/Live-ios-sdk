@@ -17,7 +17,7 @@ class Websocket: NSObject, URLSessionWebSocketDelegate {
     private let apiKey: String
     private var webSocketTask: URLSessionWebSocketTask?
     private var pingTimer: Timer?
-    private var statusUpdatePublisher = PassthroughSubject<LiveStreamStatusUpdate, Never>()
+    private var statusUpdatePublisher = PassthroughSubject<LiveStreamStatusUpdate, Error>()
     private var productUpdatePublisher = PassthroughSubject<ProductUpdate, Never>()
     private var wasReceivingUpdates = false
     private var cancellables = Set<AnyCancellable>()
@@ -44,7 +44,7 @@ class Websocket: NSObject, URLSessionWebSocketDelegate {
         }.store(in: &cancellables)
     }
     
-    func joinEpisodeUpdates() -> AnyPublisher<LiveStreamStatusUpdate, Never> {
+    func joinEpisodeUpdates() -> AnyPublisher<LiveStreamStatusUpdate, Error> {
         sendMessage(json: "{ \"command\": \"join-episode-updates\" }")
         return statusUpdatePublisher
             .eraseToAnyPublisher()
@@ -107,6 +107,7 @@ class Websocket: NSObject, URLSessionWebSocketDelegate {
     }
     
     private func buildWebSocketTask() {
+				statusUpdatePublisher = PassthroughSubject<LiveStreamStatusUpdate, Error>()
         let urlSession = URLSession(configuration: .default, delegate: nil, delegateQueue: OperationQueue())
         webSocketTask = urlSession.webSocketTask(with: URL(string: "\(url)/episodes/stream?token=\(token())&org_api_key=\(apiKey)")!)
         webSocketTask?.resume()
@@ -124,6 +125,8 @@ class Websocket: NSObject, URLSessionWebSocketDelegate {
                     if self.logsEnabled {
                         print("Error in receiving message: \(error)")
                     }
+                    self.closeConnection()
+                    self.statusUpdatePublisher.send(completion: .failure(error))
                 case .success(let message):
                     switch message {
                     case .string(let content):

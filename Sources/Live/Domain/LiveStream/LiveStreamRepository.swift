@@ -13,7 +13,7 @@ public protocol LiveStreamRepository {
 	func getLiveStreams() -> AnyPublisher<[LiveStream], Error>
 	func fetchEpisodes(for date: Date) -> AnyPaginator<LiveStream>
 	func fetchEpisodes(for date: Date, daysAhead: Int?) -> AnyPaginator<LiveStream>
-	func registerForRealTimeLiveStreamUpdates() -> AnyPublisher<LiveStreamStatusUpdate, Never>
+	func registerForRealTimeLiveStreamUpdates() -> AnyPublisher<LiveStreamStatusUpdate, Error>
 	func leaveRealTimeLiveStreamUpdates()
 	func fetchBroadcastUrl(for liveStream: LiveStream) -> AnyPublisher<LiveStream, Error>
 	func getCurrentLiveStream() -> AnyPublisher<LiveStream?, Error>

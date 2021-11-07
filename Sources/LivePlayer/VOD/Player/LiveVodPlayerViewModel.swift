@@ -162,5 +162,6 @@ public class LiveVodPlayerViewModel: NSObject, ObservableObject {
 		timeObserver = nil
 		fadeOutTimer?.invalidate()
 		fadeOutTimer = nil
+		player.currentItem?.removeObserver(self, forKeyPath: #keyPath(AVPlayerItem.status))
 	}
 }

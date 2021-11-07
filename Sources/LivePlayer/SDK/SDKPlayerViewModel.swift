@@ -102,6 +102,7 @@ final class SDKPlayerViewModel: ObservableObject {
 
 	private func registerForRealTimeLiveStreamUpdates() {
 		LiveSDK.shared.api.registerForRealTimeLiveStreamUpdates()
+			.ignoreError()
 			.receive(on: RunLoop.main)
 			.sink { [unowned self] update in
 				if let liveStream = self.livePlayerViewModel?.liveStream, update.id == liveStream.id {
