@@ -9,6 +9,40 @@ import Foundation
 import Combine
 import Live
 
+public class LiveApi {
+
+	public let restApi: RestApi
+	public init(apiKey: String, environment: ApiEnvironment = .prod) {
+		restApi = RestApi(apiUrl: "https://\(environment.domain)/api",
+									webSocketsUrl: "wss://\(environment.domain)/ws",
+									apiKey: apiKey)
+	}
+}
+
+public extension LiveApi {
+	
+	public func getVodCategories() -> AnyPublisher<[VodCategory], Error> {
+		restApi.getVodCategories()
+	}
+	
+//	public func fetch(category: VodCategory) -> AnyPublisher<VodCategory, Error> {
+//		<#code#>
+//	}
+//
+//	public func getPlaylist(playlist: VodPlaylist) -> AnyPublisher<VodPlaylist, Error> {
+//		<#code#>
+//	}
+//
+//	public func fetch(video: VodVideo) -> AnyPublisher<VodVideo, Error> {
+//		<#code#>
+//	}
+//
+//	public func search(query: String) -> AnyPublisher<[VodItem], Error> {
+//		<#code#>
+//	}
+	
+}
+
 public class LiveSDK {
 
 	internal static let shared = LiveSDK()
@@ -18,13 +52,6 @@ public class LiveSDK {
 	public static func initialize(apiKey: String, environment: ApiEnvironment = .prod) {
 		shared.api = RestApi(apiUrl: "https://\(environment.domain)/api",
 												 webSocketsUrl: "wss://\(environment.domain)/ws", apiKey: apiKey)
-	}
-
-	public static func player(showId: String? = nil, defaultsToAspectRatioFit: Bool = false) -> LivePlayerViewController {
-		if let showId = showId {
-			return LivePlayerViewController(showId: showId, defaultsToAspectRatioFit: defaultsToAspectRatioFit)
-		}
-		return LivePlayerViewController(showId: nil, defaultsToAspectRatioFit: defaultsToAspectRatioFit)
 	}
 
 	public static func isEpisodeLive() -> AnyPublisher<Bool, Error> {

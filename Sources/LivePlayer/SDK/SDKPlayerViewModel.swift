@@ -20,7 +20,6 @@ final class SDKPlayerViewModel: ObservableObject {
 	}
 
 	private var cancellables = Set<AnyCancellable>()
-	var didTapClose: () -> Void = {}
 
 	@Published var state = State.loading {
 		didSet {
@@ -30,10 +29,18 @@ final class SDKPlayerViewModel: ObservableObject {
 			}
 		}
 	}
+    
+	init(showId: String?) {
+		load(showId: showId)
+	}
+	
+	deinit {
+		LiveSDK.shared.api.leaveRealTimeLiveStreamUpdates()
+	}
 
 	var livePlayerViewModel: LivePlayerViewModel? = nil
 
-	func load(showId: String?) {
+	private func load(showId: String?) {
 		if let showId = showId {
 			loadSpecificShow(showId: showId)
 		} else {

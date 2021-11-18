@@ -1,5 +1,5 @@
 //
-//  SwiftUIView.swift
+//  SDKLivePlayerView.swift
 //  
 //
 //  Created by Sacha on 01/03/2021.
@@ -8,13 +8,22 @@
 import SwiftUI
 import Networking
 
-struct SDKPlayerView: View {
+public struct SDKLivePlayerView: View {
 
-	@ObservedObject var viewModel: SDKPlayerViewModel
+	@StateObject private var viewModel: SDKPlayerViewModel
+	private var didTapClose: () -> Void
 	let defaultsToAspectRatioFit: Bool
+	
+	public init(showId: String? = nil,
+			 didTapClose: @escaping () -> Void,
+			 defaultsToAspectRatioFit: Bool = true
+	) {
+		_viewModel = StateObject(wrappedValue: SDKPlayerViewModel(showId: showId))
+		self.didTapClose = didTapClose
+		self.defaultsToAspectRatioFit = defaultsToAspectRatioFit
+	}
 
-	var body: some View {
-
+	public var body: some View {
 		switch viewModel.state {
 		case .loading:
 			ZStack {
@@ -26,14 +35,12 @@ struct SDKPlayerView: View {
 				}
 			}.edgesIgnoringSafeArea(.all)
 		case .noLiveStream:
-			SDKPlayerNoStreamAvailableView(didTapClose: viewModel.didTapClose)
+			SDKPlayerNoStreamAvailableView(didTapClose: didTapClose)
 		case .liveStream(_):
 			GeometryReader { proxy in
 				LivePlayer(
 					viewModel: viewModel.livePlayerViewModel!,
-					close: {
-						viewModel.didTapClose()
-					},
+					close: didTapClose,
 					proxy: proxy,
 					isAllCaps: false,
 					regularFont: "HelveticaNeue",
@@ -51,17 +58,17 @@ struct SDKPlayerView: View {
 				)
 			}
 		case .show(let show):
-			ShowPreview(show: show, didTapClose: viewModel.didTapClose)
+			ShowPreview(show: show, didTapClose: didTapClose)
 				.transition(.opacity)
 		case .error(let error):
-			SDKPlayerErrorView(error: error, didTapClose: viewModel.didTapClose)
+			SDKPlayerErrorView(error: error, didTapClose: didTapClose)
 		}
 	}
 }
 
 struct SDKPlayerView_Previews: PreviewProvider {
 	static var previews: some View {
-		SDKPlayerView(viewModel: SDKPlayerViewModel(), defaultsToAspectRatioFit: false)
+		SDKLivePlayerView(didTapClose: {})
 	}
 }
 

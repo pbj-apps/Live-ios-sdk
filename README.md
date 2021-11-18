@@ -6,20 +6,35 @@
 [![Build status](https://build.appcenter.ms/v0.1/apps/3c45f38a-7b97-4647-9355-e95c6383ce05/branches/main/badge)](https://appcenter.ms)
 [![GitHub tag](https://img.shields.io/github/release/pbj-apps/Live-ios-sdk.svg)]()
 
-Stream your PBJ.live content from your iOS App.
+Stream your Live content from your iOS App.
 
-# Stream to your iOS app in 5 simple steps
+## Introduction
+The Live iOS SDK enables you to display your Live content inside your iOS App.
+The live SDK package is separated in two distinct targets:  `Live` which contains all the "core" code, think of it as the data layer. The second one `LivePlayer` contains everything UI-related.
 
-## 1. Import the Live-ios-sdk package
-`Xcode` > `File` > `Swift packages` > `Add Package Dependency`  
+There are two ways to consume the SDK, a basic way, and an advanced one.
+
+## 1. Importing the Live package
+In Xcode, select `File` > `Swift packages` > `Add Package Dependency`  
+and enter Live SDK github url below:
 ```swift
 https://github.com/pbj-apps/Live-ios-sdk
 ```
 
+## Basic Api
+The basic api is a "black-box" `UIViewController` that you present to quickly add Live capabilites to your app.
+
+## Advanced Api
+The advanced api, as the name suggests is for people that want a more fine-grained integration. It enables you to query the Live backend to get
+It also provides you UI components to help you build your own UI's around Livestreams.
+
+
+# Basic Api
+
 ## 2. Initialize the LivePlayerSDK with your credentials on App start
 A good place to do this is typically the `AppDelegate`.
 ```swift
-import Live
+import LivePlayer
 
 // [...]
 
@@ -42,7 +57,7 @@ This api exists with both **callbacks** and **Combine publishers** so your are f
 
 ## 4. Create a Player
 ```swift
-let livePlayerVC = LiveSDK.player() // Optionally pass a showId.
+let livePlayerVC = LivePlayerViewController() // Optionally pass a showId.
 livePlayerVC.delegate = self
 ```
 Without a `showId` parameter, the player will display the first live show it finds.
@@ -58,3 +73,48 @@ With the test app, you can input your Organization api key and battle test your 
 
 ## Got a question? Found an issue? 
 Create a github issue and we'll help you from there ❤️
+
+
+
+## Extended api.
+
+The simplified api is great to 
+
+
+# UI Components
+UI components provided are 100% build with SwiftUI. For apps that haven't made the switch yet, we also provide a UIKit compatible api.
+
+## Live Player
+
+
+```swift
+// SwiftUI
+SDKLivePlayerView(showId: showId, didTapClose: { })
+
+// UIKIt
+let livePlayerVC = LivePlayerViewController(showId: showId)
+livePlayerVC.delegate = self
+present(livePlayerVC, animated: true, completion: nil)
+```
+
+Here `showId` is optional and without it, it would play the first live stream found.
+
+## VOD Player
+
+```swift
+// SwiftUI
+LiveVodPlayer(url: vodUrl, close: {})
+
+// UIKit
+let vodPlayerVC = VodPlayerViewController(url: vodUrl)
+vodPlayerVC.delegate = self
+present(vodPlayerVC, animated: true, completion: nil)
+```
+
+
+
+Desired
+```swift
+let liveApi = LiveApi(apiKey: "API KEY")
+liveApi.
+```
