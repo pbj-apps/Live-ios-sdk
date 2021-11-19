@@ -25,6 +25,8 @@ class LiveApiViewModel: ObservableObject {
 	@Published var vodPlaylist: VodPlaylist?
 	@Published var vodPlaylistId: String = ""
 	@Published var searchTerm: String = ""
+	@Published var liveStream: LiveStream?
+	@Published var liveEpisodeId: String = ""
 	
 	private var cancellables = Set<AnyCancellable>()
 	
@@ -144,6 +146,32 @@ class LiveApiViewModel: ObservableObject {
 		
 		command = """
 		Live.shared.fetch(playlist: playlist)
+		"""
+	}
+	
+	func fetchEpisodes() {
+		Live.shared.fetchEpisodes().then { [weak self] episodes in
+			self?.response = "\(episodes)"
+			self?.liveEpisodeId = episodes.first?.id ?? ""
+		}
+		.sink()
+		.store(in: &cancellables)
+		
+		command = """
+		Live.shared.fetchEpisodes()
+		"""
+	}
+	
+	func fetch(episode: LiveStream) {
+		Live.shared.fetch(episode: episode).then { [weak self] episode in
+			self?.response = "\(episode)"
+			self?.liveStream = episode
+		}
+		.sink()
+		.store(in: &cancellables)
+		
+		command = """
+		Live.shared.fetch(episode: episode)
 		"""
 	}
 }

@@ -302,7 +302,7 @@ struct LivePlayerInfo: View {
 	}
 }
 
-public func fakeLivestream(with state: LiveStreamStatus) -> LiveStream {
+public func fakeLivestream(with state: Status) -> LiveStream {
 	return LiveStream(id: "id",
 										title: "Running with Chris",
 										description: "Aka bok celery chinese greater kuka kurrat moth onion polk radish sprouts yardlong.",
@@ -329,7 +329,7 @@ public func fakeLivestream(with state: LiveStreamStatus) -> LiveStream {
 
 struct LivePlayerInfo_Previews: PreviewProvider {
 
-	static func info(with status: LiveStreamStatus, proxy: GeometryProxy) -> LivePlayerInfo {
+	static func info(with status: Status, proxy: GeometryProxy) -> LivePlayerInfo {
 		LivePlayerInfo(
 			showProducts: .constant(true),
 			isChatEnabled: true,

@@ -13,7 +13,7 @@ public struct LiveStream: Identifiable, Hashable {
 	public let title: String
 	public let description: String
 	public let duration: Int
-	public var status: LiveStreamStatus
+	public var status: Status
 	public var broadcastUrl: String?
 	public let instructor: User
 	public let previewImageUrl: String?
@@ -42,7 +42,7 @@ public struct LiveStream: Identifiable, Hashable {
 		title: String,
 		description: String,
 		duration: Int,
-		status: LiveStreamStatus,
+		status: Status,
 		broadcastUrl: String?,
 		instructor: User,
 		previewImageUrl: String?,
@@ -67,17 +67,27 @@ public struct LiveStream: Identifiable, Hashable {
 		self.waitingRomDescription = waitingRomDescription
 		self.isPushNotificationReminderSet = isPushNotificationReminderSet
 	}
-}
-
-public enum LiveStreamStatus: Hashable {
-	case idle
-	case waitingRoom
-	case broadcasting
-	case finished
+	
+	public init(id: String) {
+		self.id = id
+		self.title = ""
+		self.description = ""
+		self.duration = 0
+		self.status = .idle
+		self.broadcastUrl = nil
+		self.instructor = User(id: "", firstname: "", lastname: "", email: nil, username: "", hasAnsweredSurvey: nil, avatarUrl: nil)
+		self.previewImageUrl = nil
+		self.previewImageUrlFullSize = nil
+		self.previewVideoUrl = nil
+		self.startDate = Date()
+		self.endDate = Date()
+		self.waitingRomDescription = ""
+		self.isPushNotificationReminderSet = false
+	}
 }
 
 public struct LiveStreamStatusUpdate {
 	public let id: String
 	public let waitingRoomDescription: String
-	public let status: LiveStreamStatus
+	public let status: Status
 }

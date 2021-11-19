@@ -81,7 +81,7 @@ extension JSONLiveStream {
 											title: title,
 											description: description,
 											duration: duration,
-											status: LiveStreamStatus.fromString(status),
+											status: Status.fromString(status),
 											broadcastUrl: broadcastUrlString,
 											instructor: instructor?.toUser() ?? User(id: "unknown", firstname: "no streamer", lastname: "no streamer", email: "no streamer", username: "username", hasAnsweredSurvey: false, avatarUrl: nil),
 											previewImageUrl: previewImageUrl,
@@ -107,8 +107,8 @@ extension String {
 	}
 }
 
-extension LiveStreamStatus {
-	static func fromString(_ statusString: String) -> LiveStreamStatus {
+extension Status {
+	static func fromString(_ statusString: String) -> Status {
 		switch statusString {
 		case "idle":
 			return .idle

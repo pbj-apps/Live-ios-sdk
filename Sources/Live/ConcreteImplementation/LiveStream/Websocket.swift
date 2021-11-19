@@ -160,7 +160,7 @@ class Websocket: NSObject, URLSessionWebSocketDelegate {
                                 if response.command == "episode-status-update" {
                                     let update = LiveStreamStatusUpdate(id: response.episode.id,
                                                                         waitingRoomDescription: response.episode.waiting_room_description,
-                                                                        status: response.extra.playback_cutoff ? .broadcasting : LiveStreamStatus.fromString(response.episode.status))
+                                                                        status: response.extra.playback_cutoff ? .broadcasting : Status.fromString(response.episode.status))
                                     self.statusUpdatePublisher.send(update)
                                 }
                                 print(response)

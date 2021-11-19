@@ -132,6 +132,29 @@ struct LiveApiView: View {
 					
 				}.disabled(!viewModel.isInitialized)
 				
+				Section(header: Text("Live")
+									.foregroundColor(.white)) {
+					
+					Button(action: {
+						viewModel.fetchEpisodes()
+					}) {
+						Text("Fetch All Episodes")
+					}
+					
+					HStack {
+						Button(action: {
+							viewModel.fetch(episode: LiveStream(id: viewModel.liveEpisodeId))
+						}) {
+								Text("Fetch Episode")
+						}
+						.disabled(viewModel.liveEpisodeId.isEmpty)
+						
+						TextField("Episode Id", text: $viewModel.liveEpisodeId)
+					}
+					
+				}
+				.disabled(!viewModel.isInitialized)
+				
 				Section(header: Text("UI")
 									.foregroundColor(.white)) {
 					
@@ -167,6 +190,10 @@ struct LiveApiView: View {
 				}
 			}
 			.fullScreenCover(isPresented: $viewModel.showsLivePlayer, onDismiss: {}) {
+//				LivePlayer(viewModel: <#T##LivePlayerViewModel#>, nextLiveStream: <#T##LiveStream?#>,
+//									 close: {
+//					viewModel.showsLivePlayer = false
+//				}, proxy: <#T##GeometryProxy?#>, isAllCaps: <#T##Bool#>, regularFont: <#T##String#>, lightFont: <#T##String#>, lightForegroundColor: <#T##Color#>, imagePlaceholderColor: <#T##Color#>, accentColor: <#T##Color#>, remindMeButtonBackgroundColor: <#T##Color#>, defaultsToAspectRatioFit: <#T##Bool#>, isChatEnabled: <#T##Bool#>, chatMessages: <#T##[ChatMessage]#>, fetchMessages: <#T##() -> Void#>, sendMessage: <#T##(String, String?) -> Void#>, isInGuestMode: <#T##Bool#>)
 				SDKLivePlayerView(showId: nil, didTapClose: {
 					viewModel.showsLivePlayer = false
 				})

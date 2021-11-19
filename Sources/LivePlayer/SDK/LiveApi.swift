@@ -38,7 +38,6 @@ public class Live {
 		api.fetch(category: category)
 	}
 	
-	
 	public func fetchVodVideos() -> AnyPublisher<[VodVideo], Error> {
 		api.fetchVodVideos()
 	}
@@ -61,6 +60,16 @@ public class Live {
 	
 	public func searchVod(query: String) -> AnyPublisher<[VodItem], Error> {
 		api.searchVod(query: query)
+	}
+	
+	// MARK: - Live
+	
+	public func fetchEpisodes() -> AnyPublisher<[LiveStream], Error> {
+		api.getLiveStreams()
+	}
+	
+	public func fetch(episode: LiveStream) -> AnyPublisher<LiveStream, Error> {
+		api.fetch(liveStream: episode)
 	}
 	
 	// MARK: - Old Api
