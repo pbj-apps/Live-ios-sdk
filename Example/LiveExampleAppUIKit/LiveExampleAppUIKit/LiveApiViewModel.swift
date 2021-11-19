@@ -153,6 +153,7 @@ class LiveApiViewModel: ObservableObject {
 		Live.shared.fetchEpisodes().then { [weak self] episodes in
 			self?.response = "\(episodes)"
 			self?.liveEpisodeId = episodes.first?.id ?? ""
+			self?.liveStream = episodes.last
 		}
 		.sink()
 		.store(in: &cancellables)

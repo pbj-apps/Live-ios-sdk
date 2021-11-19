@@ -39,7 +39,8 @@ public struct SDKLivePlayerView: View {
 		case .liveStream(_):
 			GeometryReader { proxy in
 				LivePlayer(
-					viewModel: viewModel.livePlayerViewModel!,
+					liveStream: viewModel.liveStream!,
+					productRepository: Live.shared.api,
 					close: didTapClose,
 					proxy: proxy,
 					isAllCaps: false,

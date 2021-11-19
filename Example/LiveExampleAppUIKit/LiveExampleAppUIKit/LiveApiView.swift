@@ -190,13 +190,12 @@ struct LiveApiView: View {
 				}
 			}
 			.fullScreenCover(isPresented: $viewModel.showsLivePlayer, onDismiss: {}) {
-//				LivePlayer(viewModel: <#T##LivePlayerViewModel#>, nextLiveStream: <#T##LiveStream?#>,
-//									 close: {
-//					viewModel.showsLivePlayer = false
-//				}, proxy: <#T##GeometryProxy?#>, isAllCaps: <#T##Bool#>, regularFont: <#T##String#>, lightFont: <#T##String#>, lightForegroundColor: <#T##Color#>, imagePlaceholderColor: <#T##Color#>, accentColor: <#T##Color#>, remindMeButtonBackgroundColor: <#T##Color#>, defaultsToAspectRatioFit: <#T##Bool#>, isChatEnabled: <#T##Bool#>, chatMessages: <#T##[ChatMessage]#>, fetchMessages: <#T##() -> Void#>, sendMessage: <#T##(String, String?) -> Void#>, isInGuestMode: <#T##Bool#>)
-				SDKLivePlayerView(showId: nil, didTapClose: {
-					viewModel.showsLivePlayer = false
-				})
+
+				GeometryReader { proxy in
+					LivePlayer(liveStream: viewModel.liveStream!,
+										 close: { viewModel.showsLivePlayer = false },
+										 proxy: proxy)
+				}
 			}
 			.fullScreenCover(isPresented: $viewModel.showsVodPlayer, onDismiss: {}) {
 				let url = viewModel.vodVideo?.videoURL ?? URL(string:"https://www.w3schools.com/html/mov_bbb.mp4")

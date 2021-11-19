@@ -14,69 +14,9 @@ import Live
 
 let sharedKeyboardResponder = KeyboardResponder()
 
-public class LivePlayerViewModel: ObservableObject {
-
-	@Published public var liveStream: LiveStream
-	let productRepository: ProductRepository
-	@Published public var products: [Product]
-	@Published public var currentlyFeaturedProducts: [Product]
-	@Published var showProducts = false
-	//    @Published var showCurrentlyFeaturedProducts = false
-	private var cancellables = Set<AnyCancellable>()
-
-	public init(liveStream: LiveStream, productRepository: ProductRepository) {
-		self.liveStream = liveStream
-		self.products = []
-		self.currentlyFeaturedProducts = []
-		self.productRepository = productRepository
-		self.fetchProducts()
-		self.fetchCurrentlyFeaturedProducts()
-	}
-
-	public func fetchProducts() {
-		productRepository.fetchProducts(for: liveStream)
-			.then { [unowned self] fetchedProducts in
-				withAnimation {
-					self.products = fetchedProducts
-					//					self.showProducts  = true
-				}
-			}
-			.sink()
-			.store(in: &cancellables)
-	}
-
-	public func fetchCurrentlyFeaturedProducts() {
-		productRepository.fetchCurrentlyFeaturedProducts(for: liveStream)
-			.then { [unowned self] fetchedProducts in
-				withAnimation {
-					self.currentlyFeaturedProducts = fetchedProducts
-					//                    self.showProducts  = true
-				}
-			}
-			.sink()
-			.store(in: &cancellables)
-	}
-
-	public func registerForProductHighlights() {
-		productRepository.registerForProductHighlights(for: liveStream)
-			.receive(on: RunLoop.main)
-			.sink {  [unowned self] productUpdate in
-				print(productUpdate)
-				withAnimation {
-					self.currentlyFeaturedProducts = productUpdate.products
-				}
-				//            self.showCurrentlyFeaturedProducts  = true
-			}.store(in: &cancellables)
-	}
-
-	public func unRegisterForProductHighlights() {
-		productRepository.unRegisterProductHighlights(for: liveStream)
-	}
-}
-
 public struct LivePlayer: View {
 
-	@ObservedObject var viewModel: LivePlayerViewModel
+	@StateObject var viewModel: LivePlayerViewModel
 
 	// Chat
 	let isChatEnabled: Bool
@@ -107,26 +47,27 @@ public struct LivePlayer: View {
 	@State var chatUsername: String?
 
 	public init(
-		viewModel: LivePlayerViewModel,
+		liveStream: LiveStream,
+		productRepository: ProductRepository? = nil,
 		nextLiveStream: LiveStream? = nil,
 		close: (() -> Void)? = nil,
 		proxy: GeometryProxy? = nil,
-		isAllCaps: Bool,
-		regularFont: String,
-		lightFont: String,
-		lightForegroundColor: Color,
-		imagePlaceholderColor: Color,
-		accentColor: Color,
-		remindMeButtonBackgroundColor: Color,
-		defaultsToAspectRatioFit: Bool,
+		isAllCaps: Bool = false,
+		regularFont: String = "HelveticaNeue",
+		lightFont: String = "Helvetica-Light",
+		lightForegroundColor: Color = Color.white,
+		imagePlaceholderColor: Color = Color(#colorLiteral(red: 0.9499530196, green: 0.9499530196, blue: 0.9499530196, alpha: 1)),
+		accentColor: Color = Color.black,
+		remindMeButtonBackgroundColor: Color =  Color.white,
+		defaultsToAspectRatioFit: Bool = true,
 		// Chat
-		isChatEnabled: Bool,
-		chatMessages: [ChatMessage],
-		fetchMessages: @escaping () -> Void,
-		sendMessage: @escaping (String, String?) -> Void,
-		isInGuestMode: Bool
+		isChatEnabled: Bool = false,
+		chatMessages: [ChatMessage] = [],
+		fetchMessages: @escaping () -> Void = {},
+		sendMessage: @escaping (String, String?) -> Void = { _, _ in},
+		isInGuestMode: Bool = true
 	) {
-		self.viewModel = viewModel
+		_viewModel =  StateObject(wrappedValue: LivePlayerViewModel(liveStream: liveStream, productRepository: productRepository))
 		self.nextLiveStream = nextLiveStream
 		self.close = close
 		self.proxy = proxy

@@ -20,11 +20,13 @@ final class SDKPlayerViewModel: ObservableObject {
 	}
 
 	private var cancellables = Set<AnyCancellable>()
+	
+	@Published var liveStream: LiveStream?
 
 	@Published var state = State.loading {
 		didSet {
 			if case let .liveStream(liveStream) = state {
-				livePlayerViewModel = LivePlayerViewModel(liveStream: liveStream, productRepository: Live.shared.api)
+
 				fetchBroadcastURL(liveStream: liveStream)
 			}
 		}
@@ -37,8 +39,6 @@ final class SDKPlayerViewModel: ObservableObject {
 	deinit {
 		Live.shared.api.leaveRealTimeLiveStreamUpdates()
 	}
-
-	var livePlayerViewModel: LivePlayerViewModel? = nil
 
 	private func load(showId: String?) {
 		if let showId = showId {
@@ -101,7 +101,7 @@ final class SDKPlayerViewModel: ObservableObject {
 		Live.shared.api.fetchBroadcastUrl(for: liveStream)
 			.receive(on: RunLoop.main)
 			.then { [unowned self] fetchedLiveStream in
-				self.livePlayerViewModel?.liveStream = fetchedLiveStream
+				self.liveStream = fetchedLiveStream
 			}
 			.sink()
 			.store(in: &cancellables)
@@ -112,9 +112,9 @@ final class SDKPlayerViewModel: ObservableObject {
 			.ignoreError()
 			.receive(on: RunLoop.main)
 			.sink { [unowned self] update in
-				if let liveStream = self.livePlayerViewModel?.liveStream, update.id == liveStream.id {
-					self.livePlayerViewModel?.liveStream.waitingRomDescription = update.waitingRoomDescription
-					self.livePlayerViewModel?.liveStream.status = update.status
+				if let liveStream = self.liveStream, update.id == liveStream.id {
+					self.liveStream?.waitingRomDescription = update.waitingRoomDescription
+					self.liveStream?.status = update.status
 					if update.status == .broadcasting { // Fetch broadcastURL
 						self.fetchBroadcastURL(liveStream: liveStream)
 					}
