@@ -45,4 +45,17 @@ public struct VodVideo: IsVodItem, Hashable, Identifiable {
 		self.categories = categories
 		self.playlists = playlists
 	}
+	
+	public init(id: String) {
+		self.id = id
+		self.title = ""
+		self.description = ""
+		self.isFeatured = false
+		self.thumbnailImageUrl = nil
+		self.videoURL = nil
+		self.duration = nil
+		self.instructors = []
+		self.categories = []
+		self.playlists = []
+	}
 }

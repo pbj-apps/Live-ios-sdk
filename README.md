@@ -38,13 +38,13 @@ import LivePlayer
 
 // [...]
 
-LiveSDK.initialize(apiKey: "YOUR_API_KEY")
+Live.shared.initialize(apiKey: "YOUR_API_KEY")
 ```
 
 ## 3. (Optional) Check if there is a live episode beforehand
 Typical usage is that you have a "Watch live" button that you only want to show if there is an actual episode currently live.
 ```swift
-LiveSDK.isEpisodeLive { isLive, error in			
+Live.shared.isEpisodeLive { isLive, error in			
     // -> isLive is true if there is any episode live.
     // Show player here. (step 4)
 }
@@ -54,26 +54,6 @@ You can also pass your `showID` as a parameter to query live episodes, but this 
 You can find your `showId` in your web dashboard. Select the show you want and grab it's id from the browser's url.
 
 This api exists with both **callbacks** and **Combine publishers** so your are free to choose the version that fits best with your app.
-
-## 4. Create a Player
-```swift
-let livePlayerVC = LivePlayerViewController() // Optionally pass a showId.
-livePlayerVC.delegate = self
-```
-Without a `showId` parameter, the player will display the first live show it finds.
-
-## 5. Present it like you would any UIViewController
-```swift
-present(livePlayerVC, animated: true, completion: nil)
-```
-
-## Example App
-Checkout the example App provided in this repository to see a typical integration.
-With the test app, you can input your Organization api key and battle test your own environment.
-
-## Got a question? Found an issue? 
-Create a github issue and we'll help you from there ❤️
-
 
 
 ## Extended api.
@@ -112,9 +92,10 @@ present(vodPlayerVC, animated: true, completion: nil)
 ```
 
 
+## Example App
+Checkout the example App provided in this repository to see a typical integration.
+With the test app, you can input your Organization api key and battle test your own environment.
 
-Desired
-```swift
-let liveApi = LiveApi(apiKey: "API KEY")
-liveApi.
-```
+## Got a question? Found an issue? 
+Create a github issue and we'll help you from there ❤️
+

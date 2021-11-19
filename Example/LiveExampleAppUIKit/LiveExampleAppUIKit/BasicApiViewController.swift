@@ -129,7 +129,7 @@ class BasicApiViewController: UIViewController {
 		// 2) Setup SDK with your API Key
 		// This is typically done in the AppDelegate but we do it here
 		// Because we want to change org api key at runtime.
-		LiveSDK.initialize(apiKey: apiKey, environment: selectedEnvironment)
+		Live.shared.initialize(apiKey: apiKey, environment: selectedEnvironment)
 	}
 	
 	@objc

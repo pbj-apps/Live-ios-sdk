@@ -24,7 +24,7 @@ final class SDKPlayerViewModel: ObservableObject {
 	@Published var state = State.loading {
 		didSet {
 			if case let .liveStream(liveStream) = state {
-				livePlayerViewModel = LivePlayerViewModel(liveStream: liveStream, productRepository: LiveSDK.shared.api)
+				livePlayerViewModel = LivePlayerViewModel(liveStream: liveStream, productRepository: Live.shared.api)
 				fetchBroadcastURL(liveStream: liveStream)
 			}
 		}
@@ -35,7 +35,7 @@ final class SDKPlayerViewModel: ObservableObject {
 	}
 	
 	deinit {
-		LiveSDK.shared.api.leaveRealTimeLiveStreamUpdates()
+		Live.shared.api.leaveRealTimeLiveStreamUpdates()
 	}
 
 	var livePlayerViewModel: LivePlayerViewModel? = nil
@@ -50,9 +50,9 @@ final class SDKPlayerViewModel: ObservableObject {
 
 	private func loadAnyLiveStream() {
 		state = .loading
-		LiveSDK.shared.api.authenticateAsGuest().flatMap { [unowned self] () -> AnyPublisher<LiveStream?, Error>  in
+		Live.shared.api.authenticateAsGuest().flatMap { [unowned self] () -> AnyPublisher<LiveStream?, Error>  in
 			self.registerForRealTimeLiveStreamUpdates()
-			return LiveSDK.shared.api.getCurrentLiveStream()
+			return Live.shared.api.getCurrentLiveStream()
 		}.map { [unowned self] currentLiveStream in
 			if let liveStream = currentLiveStream {
 				state = .liveStream(liveStream)
@@ -70,15 +70,15 @@ final class SDKPlayerViewModel: ObservableObject {
 
 	private func loadSpecificShow(showId: String) {
 		state = .loading
-		LiveSDK.shared.api.authenticateAsGuest().flatMap { [unowned self] () -> AnyPublisher<LiveStream?, Error>  in
+		Live.shared.api.authenticateAsGuest().flatMap { [unowned self] () -> AnyPublisher<LiveStream?, Error>  in
 			self.registerForRealTimeLiveStreamUpdates()
-			return LiveSDK.shared.api.getCurrentLiveStream(from: showId)
+			return Live.shared.api.getCurrentLiveStream(from: showId)
 		}.map { [unowned self] currentLiveStream in
 			if let liveStream = currentLiveStream {
 				state = .liveStream(liveStream)
 			} else {
 				// Try to Load show
-				LiveSDK.shared.api.fetchShowPublic(showId: showId).map { show in
+				Live.shared.api.fetchShowPublic(showId: showId).map { show in
 					state = .show(show)
 				}.mapError { e -> Error in
 					print(e)
@@ -98,7 +98,7 @@ final class SDKPlayerViewModel: ObservableObject {
 	}
 
 	private func fetchBroadcastURL(liveStream: LiveStream) {
-		LiveSDK.shared.api.fetchBroadcastUrl(for: liveStream)
+		Live.shared.api.fetchBroadcastUrl(for: liveStream)
 			.receive(on: RunLoop.main)
 			.then { [unowned self] fetchedLiveStream in
 				self.livePlayerViewModel?.liveStream = fetchedLiveStream
@@ -108,7 +108,7 @@ final class SDKPlayerViewModel: ObservableObject {
 	}
 
 	private func registerForRealTimeLiveStreamUpdates() {
-		LiveSDK.shared.api.registerForRealTimeLiveStreamUpdates()
+		Live.shared.api.registerForRealTimeLiveStreamUpdates()
 			.ignoreError()
 			.receive(on: RunLoop.main)
 			.sink { [unowned self] update in

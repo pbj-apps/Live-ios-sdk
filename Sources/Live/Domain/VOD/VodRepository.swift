@@ -11,7 +11,7 @@ import Combine
 public protocol VodRepository {
 	func getVodCategories() -> AnyPublisher<[VodCategory], Error>
 	func fetch(category: VodCategory) -> AnyPublisher<VodCategory, Error>
-	func getPlaylist(playlist: VodPlaylist) -> AnyPublisher<VodPlaylist, Error>
+	func fetch(playlist: VodPlaylist) -> AnyPublisher<VodPlaylist, Error>
 	func fetch(video: VodVideo) -> AnyPublisher<VodVideo, Error>
-	func search(query: String) -> AnyPublisher<[VodItem], Error>
+	func searchVod(query: String) -> AnyPublisher<[VodItem], Error>
 }

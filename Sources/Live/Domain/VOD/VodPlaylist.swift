@@ -15,6 +15,7 @@ public struct VodPlaylist: IsVodItem, Hashable {
 	public let thumbnailImageUrl: URL?
 	public let videos: [VodVideo]
 	public let videoCount: Int
+	
 	public init (id: String, title: String, description: String, isFeatured: Bool, thumbnailImageUrl: URL?, videos: [VodVideo], videoCount: Int) {
 		self.id = id
 		self.title = title
@@ -23,5 +24,15 @@ public struct VodPlaylist: IsVodItem, Hashable {
 		self.thumbnailImageUrl = thumbnailImageUrl
 		self.videos = videos
 		self.videoCount = videoCount
+	}
+	
+	public init(id: String) {
+		self.id = id
+		self.title = ""
+		self.description = ""
+		self.isFeatured = false
+		self.thumbnailImageUrl = nil
+		self.videos = []
+		self.videoCount = 0
 	}
 }

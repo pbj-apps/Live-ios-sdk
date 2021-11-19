@@ -22,10 +22,24 @@ extension RestApi: VodRepository {
 			jsonVodCategory.toVodCategory()
 		}.eraseToAnyPublisher()
 	}
+	
+	public func fetchVodPlaylists() -> AnyPublisher<[VodPlaylist], Error> {
+		return get("/vod/playlists").map { (page: JSONPage<JSONVodPlaylist>) in
+			page.results.map { $0.playlist }
+		}
+		.eraseToAnyPublisher()
+	}
 
-	public func getPlaylist(playlist: VodPlaylist) -> AnyPublisher<VodPlaylist, Error> {
+	public func fetch(playlist: VodPlaylist) -> AnyPublisher<VodPlaylist, Error> {
 		return get("/vod/playlists/\(playlist.id)").map { (jsonPlaylist: JSONVodPlaylist) in
 			jsonPlaylist.playlist
+		}
+		.eraseToAnyPublisher()
+	}
+	
+	public func fetchVodVideos() -> AnyPublisher<[VodVideo], Error> {
+		return get("/vod/videos").map { (page: JSONPage<JSONVodVideo>) in
+			page.results.map { $0.video }
 		}
 		.eraseToAnyPublisher()
 	}
@@ -37,9 +51,16 @@ extension RestApi: VodRepository {
 		.eraseToAnyPublisher()
 	}
 
-	public func search(query: String) -> AnyPublisher<[VodItem], Error> {
+	public func searchVod(query: String) -> AnyPublisher<[VodItem], Error> {
 		return get("/vod/items", params: ["search": query]).map { (page: JSONPage<JSONVodItem>) in
 			page.results.map { $0.toVodItem() }
+		}
+		.eraseToAnyPublisher()
+	}
+	
+	public func searchVodVideos(query: String) -> AnyPublisher<[VodVideo], Error> {
+		return get("/vod/videos", params: ["search": query]).map { (page: JSONPage<JSONVodVideo>) in
+			page.results.map { $0.video }
 		}
 		.eraseToAnyPublisher()
 	}

@@ -17,4 +17,11 @@ public struct VodCategory: Identifiable, Hashable, Equatable {
 		self.title = title
 		self.items = items
 	}
+	
+	public init(id: String) {
+		self.id = id
+		self.title = ""
+		self.items = []
+	}
+	
 }
