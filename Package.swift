@@ -8,7 +8,7 @@ let package = Package(
 		platforms: [.iOS(.v14)],
 		products: [
 				.library(name: "Live", targets: ["Live"]),
-				.library(name: "LivePlayer", targets: ["LivePlayer"])
+				.library(name: "LiveUI", targets: ["LiveUI"])
 		],
 		dependencies: [
 				.package(url: "https://github.com/freshOS/Networking", .exact("0.3.4")),
@@ -16,7 +16,7 @@ let package = Package(
 		],
 		targets: [
 				.target( name: "Live", dependencies: [ "Networking" ]),
-				.target( name: "LivePlayer", dependencies: [ "Live", "Kingfisher"]),
+				.target( name: "LiveUI", dependencies: [ "Live", "Kingfisher"]),
 				.testTarget(name: "LiveTests", dependencies: ["Live"])
 		]
 )

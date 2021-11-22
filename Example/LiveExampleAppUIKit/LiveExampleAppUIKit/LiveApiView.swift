@@ -7,7 +7,7 @@
 
 import Foundation
 import SwiftUI
-import LivePlayer
+import LiveUI
 import Live
 import Combine
 

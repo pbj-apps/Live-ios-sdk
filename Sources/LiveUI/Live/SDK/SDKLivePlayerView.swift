@@ -7,6 +7,7 @@
 
 import SwiftUI
 import Networking
+import Live
 
 public struct SDKLivePlayerView: View {
 

@@ -8,12 +8,12 @@
 
 /* Begin PBXBuildFile section */
 		991D78DE255C5911009341F1 /* Live in Frameworks */ = {isa = PBXBuildFile; productRef = 991D78DD255C5911009341F1 /* Live */; };
+		9942B00A274B7839003B7382 /* LiveUI in Frameworks */ = {isa = PBXBuildFile; productRef = 9942B009274B7839003B7382 /* LiveUI */; };
 		996323992747FC88001CD2D7 /* LiveApiViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 996323982747FC88001CD2D7 /* LiveApiViewModel.swift */; };
 		9965AD402551EE6300E88127 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9965AD3F2551EE6300E88127 /* AppDelegate.swift */; };
 		9965AD442551EE6300E88127 /* BasicApiViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9965AD432551EE6300E88127 /* BasicApiViewController.swift */; };
 		9965AD492551EE6400E88127 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9965AD482551EE6400E88127 /* Assets.xcassets */; };
 		9965AD4C2551EE6400E88127 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 9965AD4A2551EE6400E88127 /* LaunchScreen.storyboard */; };
-		99C70E702719BE90003FB2F6 /* LivePlayer in Frameworks */ = {isa = PBXBuildFile; productRef = 99C70E6F2719BE90003FB2F6 /* LivePlayer */; };
 		99C70E722719C3D3003FB2F6 /* LiveApiView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99C70E712719C3D3003FB2F6 /* LiveApiView.swift */; };
 /* End PBXBuildFile section */
 
@@ -34,8 +34,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9942B00A274B7839003B7382 /* LiveUI in Frameworks */,
 				991D78DE255C5911009341F1 /* Live in Frameworks */,
-				99C70E702719BE90003FB2F6 /* LivePlayer in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -99,7 +99,7 @@
 			name = SachasPotatoes;
 			packageProductDependencies = (
 				991D78DD255C5911009341F1 /* Live */,
-				99C70E6F2719BE90003FB2F6 /* LivePlayer */,
+				9942B009274B7839003B7382 /* LiveUI */,
 			);
 			productName = LiveExampleAppUIKit;
 			productReference = 9965AD3C2551EE6300E88127 /* Live SDK.app */;
@@ -361,9 +361,9 @@
 			isa = XCSwiftPackageProductDependency;
 			productName = Live;
 		};
-		99C70E6F2719BE90003FB2F6 /* LivePlayer */ = {
+		9942B009274B7839003B7382 /* LiveUI */ = {
 			isa = XCSwiftPackageProductDependency;
-			productName = LivePlayer;
+			productName = LiveUI;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

@@ -34,7 +34,7 @@ It also provides you UI components to help you build your own UI's around Livest
 ## 2. Initialize the LivePlayerSDK with your credentials on App start
 A good place to do this is typically the `AppDelegate`.
 ```swift
-import LivePlayer
+import LiveUI
 
 // [...]
 
@@ -69,7 +69,7 @@ UI components provided are 100% build with SwiftUI. For apps that haven't made t
 
 ```swift
 // SwiftUI
-SDKLivePlayerView(showId: showId, didTapClose: { })
+LivePlayer(liveStream: liveStream, close: { }, proxy: proxy)
 
 // UIKIt
 let livePlayerVC = LivePlayerViewController(showId: showId)

@@ -7,7 +7,6 @@
 
 import Foundation
 import Live
-import LivePlayer
 import Combine
 
 class LiveApiViewModel: ObservableObject {

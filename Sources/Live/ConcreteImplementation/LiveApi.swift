@@ -12,7 +12,7 @@ import Live
 public class Live {
 
 	public static let shared = Live()
-	internal var api: RestApi!
+	public var api: RestApi!
 	private var cancellables = Set<AnyCancellable>()
 	
 	// MARK: - Initialization

@@ -6,7 +6,8 @@
 //
 
 import UIKit
-import LivePlayer // 1) Import LivePlayer.
+import Live
+import LiveUI // 1) Import Live & LiveUI
 import SwiftUI
 
 class BasicApiViewController: UIViewController {
