@@ -14,13 +14,13 @@ public protocol VodPlayerViewControllerDelegate: AnyObject {
 }
 
 /// Wraps LiveVodPlayer to expose a clean UIKit api.
-public class VodPlayerViewController: UIHostingController<LiveVodPlayer> {
+public class VodPlayerViewController: UIHostingController<VodPlayer> {
     
     public weak var delegate: VodPlayerViewControllerDelegate?
     
     public convenience init(url: URL) {
-        self.init(rootView: LiveVodPlayer(url: url, close: {}))
-        rootView = LiveVodPlayer(url: url, close: { [weak self] in self?.delegate?.vodPlayerViewControllerDidTapClose()
+        self.init(rootView: VodPlayer(url: url, close: {}))
+        rootView = VodPlayer(url: url, close: { [weak self] in self?.delegate?.vodPlayerViewControllerDidTapClose()
 				})
         modalPresentationStyle = .fullScreen
     }

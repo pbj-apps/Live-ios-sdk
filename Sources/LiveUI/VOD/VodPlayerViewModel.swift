@@ -1,5 +1,5 @@
 //
-//  LiveVodPlayerViewModel.swift
+//  VodPlayerViewModel.swift
 //
 //
 //  Created by Sacha on 29/10/2021.
@@ -8,7 +8,7 @@
 import SwiftUI
 import AVKit
 
-public class LiveVodPlayerViewModel: NSObject, ObservableObject {
+public class VodPlayerViewModel: NSObject, ObservableObject {
 	
 	@Published var showsControls: Bool = true
 	@Published var isPlaying: Bool = false

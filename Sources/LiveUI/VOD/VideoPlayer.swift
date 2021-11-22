@@ -46,7 +46,7 @@ public struct VideoPlayer: UIViewRepresentable {
 	}
 
 	public func makeUIView(context: Context) -> UIView {
-		let playerView = VideoAVPlayerView()
+		let playerView = AVPlayerView()
 		playerView.playerLayer?.videoGravity = aspectRatioFit ? .resizeAspect : .resizeAspectFill
 		context.coordinator.loadPlayer(url: url, in: playerView, isLooping: looping, isLive: isLive, allowsPictureInPicture: allowsPictureInPicture)
 		return playerView
@@ -91,7 +91,7 @@ public struct VideoPlayer: UIViewRepresentable {
 		var url: String = ""
 		var looper: AVPlayerLooper?
 		var player: AVPlayer?
-		var playerView: VideoAVPlayerView?
+		var playerView: AVPlayerView?
 		var isLooping: Bool = false
 		var isLive: Bool = false
 		var playerItemContext = 0
@@ -101,7 +101,7 @@ public struct VideoPlayer: UIViewRepresentable {
 		var liveStream: LiveStream?
 		var hasAlreadySeeked = false
 
-		func loadPlayer(url: String, in playerView: VideoAVPlayerView, isLooping: Bool, isLive: Bool, allowsPictureInPicture: Bool) {
+		func loadPlayer(url: String, in playerView: AVPlayerView, isLooping: Bool, isLive: Bool, allowsPictureInPicture: Bool) {
 			self.url = url
 			self.playerView = playerView
 			self.isLooping = isLooping
@@ -198,15 +198,5 @@ public struct VideoPlayer: UIViewRepresentable {
 			}
 			NotificationCenter.default.removeObserver(self)
 		}
-	}
-}
-
-final class VideoAVPlayerView: UIView {
-
-	override static var layerClass: AnyClass { AVPlayerLayer.self }
-	var playerLayer: AVPlayerLayer? { layer as? AVPlayerLayer }
-	var player: AVPlayer? {
-		get { playerLayer?.player }
-		set { playerLayer?.player = newValue }
 	}
 }

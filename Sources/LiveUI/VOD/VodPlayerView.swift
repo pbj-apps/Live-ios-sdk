@@ -1,5 +1,5 @@
 //
-//  LiveVodPlayerView.swift
+//  VodPlayerView.swift
 //  
 //
 //  Created by Sacha on 29/10/2021.
@@ -8,7 +8,7 @@
 import SwiftUI
 import AVFoundation
 
-public struct LiveVodPlayerView: View {
+public struct VodPlayerView: View {
 	
 	let player: AVPlayer
 	let showsControls: Bool
@@ -30,7 +30,7 @@ public struct LiveVodPlayerView: View {
 		GeometryReader { proxy in
 			ZStack {
 				Color.black
-				VODVideoPlayer(player: player)
+				SwiftUIAVPlayer(player: player)
 					.onTapGesture {
 						withAnimation {
 							tapped()

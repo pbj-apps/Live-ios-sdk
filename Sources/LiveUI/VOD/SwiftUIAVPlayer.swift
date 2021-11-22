@@ -6,13 +6,11 @@
 //
 
 import SwiftUI
-import AVFoundation
 import UIKit
-import Combine
 import AVKit
 
 
-public struct VODVideoPlayer: UIViewRepresentable {
+public struct SwiftUIAVPlayer: UIViewRepresentable {
 
 	let player: AVPlayer
 
@@ -21,7 +19,7 @@ public struct VODVideoPlayer: UIViewRepresentable {
 	}
 	
 	public func makeUIView(context: Context) -> UIView {
-		let playerView = VODVideoAVPlayerView()
+		let playerView = AVPlayerView()
 		context.coordinator.load(player: player, in: playerView)
 		return playerView
 	}
@@ -36,10 +34,10 @@ public struct VODVideoPlayer: UIViewRepresentable {
 
 	public class Coordinator: NSObject, AVPictureInPictureControllerDelegate {
 
-		var playerView: VODVideoAVPlayerView?
+		var playerView: AVPlayerView?
 		var pictureInPictureController: AVPictureInPictureController?
 
-		func load(player: AVPlayer, in playerView: VODVideoAVPlayerView) {
+		func load(player: AVPlayer, in playerView: AVPlayerView) {
 			self.playerView = playerView
 			self.playerView?.player = player
 
@@ -51,12 +49,3 @@ public struct VODVideoPlayer: UIViewRepresentable {
 	}
 }
 
-final class VODVideoAVPlayerView: UIView {
-
-	override static var layerClass: AnyClass { AVPlayerLayer.self }
-	var playerLayer: AVPlayerLayer? { layer as? AVPlayerLayer }
-	var player: AVPlayer? {
-		get { playerLayer?.player }
-		set { playerLayer?.player = newValue }
-	}
-}

@@ -199,7 +199,7 @@ struct LiveApiView: View {
 			}
 			.fullScreenCover(isPresented: $viewModel.showsVodPlayer, onDismiss: {}) {
 				let url = viewModel.vodVideo?.videoURL ?? URL(string:"https://www.w3schools.com/html/mov_bbb.mp4")
-				LiveVodPlayer(url: url!,
+				VodPlayer(url: url!,
 											close: { viewModel.showsVodPlayer = false })
 					.accentColor(.pink)
 			}
