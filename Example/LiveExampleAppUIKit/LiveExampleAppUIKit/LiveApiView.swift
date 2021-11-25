@@ -190,9 +190,8 @@ struct LiveApiView: View {
 				}
 			}
 			.fullScreenCover(isPresented: $viewModel.showsLivePlayer, onDismiss: {}) {
-
 				GeometryReader { proxy in
-					LivePlayer(liveStream: viewModel.liveStream!,
+					LivePlayer(liveStream: LiveStream(id: viewModel.liveEpisodeId),
 										 close: { viewModel.showsLivePlayer = false },
 										 proxy: proxy)
 				}

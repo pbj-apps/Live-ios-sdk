@@ -48,6 +48,7 @@ public struct LivePlayer: View {
 
 	public init(
 		liveStream: LiveStream,
+		liveStreamRepository: LiveStreamRepository = Live.shared.api,
 		productRepository: ProductRepository? = nil,
 		nextLiveStream: LiveStream? = nil,
 		close: (() -> Void)? = nil,
@@ -67,7 +68,7 @@ public struct LivePlayer: View {
 		sendMessage: @escaping (String, String?) -> Void = { _, _ in},
 		isInGuestMode: Bool = true
 	) {
-		_viewModel =  StateObject(wrappedValue: LivePlayerViewModel(liveStream: liveStream, productRepository: productRepository))
+		_viewModel =  StateObject(wrappedValue: LivePlayerViewModel(liveStream: liveStream, liveStreamRepository: liveStreamRepository, productRepository: productRepository))
 		self.nextLiveStream = nextLiveStream
 		self.close = close
 		self.proxy = proxy
