@@ -103,8 +103,10 @@ public class LivePlayerViewModel: ObservableObject {
 			.receive(on: RunLoop.main)
 			.sink { [unowned self] update in
 				if update.id == liveStream.id {
-					liveStream.waitingRomDescription = update.waitingRoomDescription
-					liveStream.status = update.status
+					withAnimation {
+						liveStream.waitingRomDescription = update.waitingRoomDescription
+						liveStream.status = update.status
+					}
 					if update.status == .broadcasting {
 						self.fetchBroadcastURL()
 					}
