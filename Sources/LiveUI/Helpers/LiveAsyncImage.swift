@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  LiveAsyncImage.swift
 //  
 //
 //  Created by Sacha on 28/10/2021.
@@ -17,9 +17,11 @@ public struct LiveAsyncImage: View {
 	}
 	
 	public var body: some View {
-		KFImage(URL(string: url!))
-			.fade(duration: 0.25)
-			.resizable()
-			.scaledToFill()
+		if let url = url {
+			KFImage(URL(string: url))
+				.fade(duration: 0.25)
+				.resizable()
+				.scaledToFill()
+		}
 	}
 }
