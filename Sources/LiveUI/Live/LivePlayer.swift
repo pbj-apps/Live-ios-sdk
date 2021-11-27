@@ -15,9 +15,9 @@ import Live
 let sharedKeyboardResponder = KeyboardResponder()
 
 public struct LivePlayer: View {
-
+	
 	@StateObject var viewModel: LivePlayerViewModel
-
+	
 	// Chat
 	let isChatEnabled: Bool
 	let chatMessages: [ChatMessage]
@@ -32,27 +32,25 @@ public struct LivePlayer: View {
 	let accentColor: Color
 	let remindMeButtonBackgroundColor: Color
 	let defaultsToAspectRatioFit: Bool
-
+	
 	var liveStream: LiveStream {
 		return viewModel.liveStream
 	}
-
+	
 	let nextLiveStream: LiveStream?
 	let close: (() -> Void)?
-	let proxy: GeometryProxy?
-
+	
 	@ObservedObject private var keyboard = sharedKeyboardResponder
 	@State private var isLivePlaying = true
 	@State var showInfo = true
 	@State var chatUsername: String?
-
+	
 	public init(
 		liveStream: LiveStream,
 		liveStreamRepository: LiveStreamRepository = Live.shared.api,
 		productRepository: ProductRepository? = nil,
 		nextLiveStream: LiveStream? = nil,
 		close: (() -> Void)? = nil,
-		proxy: GeometryProxy? = nil,
 		isAllCaps: Bool = false,
 		regularFont: String = "HelveticaNeue",
 		lightFont: String = "Helvetica-Light",
@@ -71,8 +69,7 @@ public struct LivePlayer: View {
 		_viewModel =  StateObject(wrappedValue: LivePlayerViewModel(liveStream: liveStream, liveStreamRepository: liveStreamRepository, productRepository: productRepository))
 		self.nextLiveStream = nextLiveStream
 		self.close = close
-		self.proxy = proxy
-
+		
 		self.isAllCaps = isAllCaps
 		self.regularFont = regularFont
 		self.lightFont = lightFont
@@ -81,113 +78,116 @@ public struct LivePlayer: View {
 		self.accentColor = accentColor
 		self.remindMeButtonBackgroundColor = remindMeButtonBackgroundColor
 		self.defaultsToAspectRatioFit = defaultsToAspectRatioFit
-
+		
 		self.isChatEnabled = isChatEnabled
 		self.chatMessages = chatMessages
 		self.fetchMessages = fetchMessages
 		self.sendMessage = sendMessage
 		self.isInGuestMode = isInGuestMode
 	}
-
+	
 	public var body: some View {
-		ZStack {
-			Color.black
-				.zIndex(0)
-			ImageBackground(url: viewModel.liveStream.previewImageUrl)
-				.frame(width: proxy?.size.width ?? UIScreen.main.bounds.size.width)
-				.zIndex(1)
-			switch liveStream.status {
-			case .idle, .waitingRoom:
-				if let previewVideoUrl = liveStream.previewVideoUrl {
-					VideoPlayer(
-						liveStream: liveStream,
-						url: previewVideoUrl,
-						looping: true,
-						isPlaying: true,
-						isLive: true,
-						isMuted: false,
-						allowsPictureInPicture: false,
-						aspectRatioFit: false,
-						elapsedTime: nil)
-						.zIndex(2)
-				}
-			case .broadcasting:
-				ZStack {
-					Color.black
-					VStack {
-						ActivityIndicator(isAnimating: .constant(true), style: .medium, color: UIColor.white)
-						Text("Connecting to Livestream...")
-							.foregroundColor(Color.white)
+		GeometryReader { proxy in
+			ZStack {
+				Color.black
+					.zIndex(0)
+				ImageBackground(url: viewModel.liveStream.previewImageUrl)
+					.frame(width: proxy.size.width ?? UIScreen.main.bounds.size.width)
+					.zIndex(1)
+				switch liveStream.status {
+				case .idle, .waitingRoom:
+					if let previewVideoUrl = liveStream.previewVideoUrl {
+						VideoPlayer(
+							liveStream: liveStream,
+							url: previewVideoUrl,
+							looping: true,
+							isPlaying: true,
+							isLive: true,
+							isMuted: false,
+							allowsPictureInPicture: false,
+							aspectRatioFit: false,
+							elapsedTime: nil)
+							.zIndex(2)
 					}
-					if let broadcastUrl = liveStream.broadcastUrl {
-						VideoPlayer(liveStream: liveStream,
-												url: broadcastUrl,
-												looping: false,
-												isPlaying: isLivePlaying,
-												isLive: true,
-												isMuted: false,
-												allowsPictureInPicture: true,
-												aspectRatioFit: defaultsToAspectRatioFit,
-												elapsedTime: liveStream.timeElapsed())
-					}
-				}.zIndex(2)
-			case .finished:
-				LivePlayerFinishedStateOverlay(
-					nextLiveStream: nextLiveStream,
-					proxy: proxy,
-					close: close,
-					regularFont: regularFont,
-					lightFont: lightFont,
-					isAllCaps: isAllCaps,
-					imagePlaceholderColor: imagePlaceholderColor,
-					lightForegroundColor: lightForegroundColor,
-					accentColor: accentColor,
-					remindMeButtonBackgroundColor: remindMeButtonBackgroundColor)
-					.transition(.opacity)
-					.zIndex(3)
-			}
-			if liveStream.status != .finished { //} && liveStream.status != .idle {
-				if showInfo {
-					LivePlayerInfo(
-						showProducts: $viewModel.showProducts,
-						isChatEnabled: isChatEnabled,
-						chatMessages: chatMessages,
-						fetchMessages: fetchMessages,
-						sendMessage: sendMessage,
-						products: viewModel.products,
-						currentlyFeaturedProducts: viewModel.currentlyFeaturedProducts,
-						isAllCaps: isAllCaps,
+				case .broadcasting:
+					ZStack {
+						Color.black
+						VStack {
+							ActivityIndicator(isAnimating: .constant(true), style: .medium, color: UIColor.white)
+							Text("Connecting to Livestream...")
+								.foregroundColor(Color.white)
+						}
+						if let broadcastUrl = liveStream.broadcastUrl {
+							VideoPlayer(liveStream: liveStream,
+													url: broadcastUrl,
+													looping: false,
+													isPlaying: isLivePlaying,
+													isLive: true,
+													isMuted: false,
+													allowsPictureInPicture: true,
+													aspectRatioFit: defaultsToAspectRatioFit,
+													elapsedTime: liveStream.timeElapsed())
+						}
+					}.zIndex(2)
+				case .finished:
+					LivePlayerFinishedStateOverlay(
+						nextLiveStream: nextLiveStream,
+						proxy: proxy,
+						close: close,
 						regularFont: regularFont,
 						lightFont: lightFont,
+						isAllCaps: isAllCaps,
+						imagePlaceholderColor: imagePlaceholderColor,
 						lightForegroundColor: lightForegroundColor,
-						isInGuestMode: isInGuestMode,
-						chatUsername: $chatUsername,
-						liveStream: liveStream,
-						close: {
-							isLivePlaying = false
-							close?()
-						},
-						proxy: proxy)
+						accentColor: accentColor,
+						remindMeButtonBackgroundColor: remindMeButtonBackgroundColor)
 						.transition(.opacity)
-						.padding(.bottom, keyboard.currentHeight)
-						.zIndex(4)
+						.zIndex(3)
+				}
+				if liveStream.status != .finished { //} && liveStream.status != .idle {
+					if showInfo {
+						LivePlayerInfo(
+							showProducts: $viewModel.showProducts,
+							isChatEnabled: isChatEnabled,
+							chatMessages: chatMessages,
+							fetchMessages: fetchMessages,
+							sendMessage: sendMessage,
+							products: viewModel.products,
+							currentlyFeaturedProducts: viewModel.currentlyFeaturedProducts,
+							isAllCaps: isAllCaps,
+							regularFont: regularFont,
+							lightFont: lightFont,
+							lightForegroundColor: lightForegroundColor,
+							isInGuestMode: isInGuestMode,
+							chatUsername: $chatUsername,
+							liveStream: liveStream,
+							close: {
+								isLivePlaying = false
+								close?()
+							},
+							proxy: proxy)
+							.transition(.opacity)
+							.padding(.bottom, keyboard.currentHeight)
+							.zIndex(4)
+					}
 				}
 			}
-		}
-		.clipped()
-		.edgesIgnoringSafeArea(.all)
-		.onTapGesture {
-			withAnimation {
-				showInfo.toggle()
+			.clipped()
+			.edgesIgnoringSafeArea(.all)
+			.onTapGesture {
+				withAnimation {
+					showInfo.toggle()
+				}
+			}.onAppear {
+				print("On appear")
+				viewModel.registerForProductHighlights()
 			}
-		}.onAppear {
-			print("On appear")
-			viewModel.registerForProductHighlights()
-		}
-		.onDisappear {
-			print("onDisappear")
-			viewModel.unRegisterForProductHighlights()
-		}
+			.onDisappear {
+				print("onDisappear")
+				viewModel.unRegisterForProductHighlights()
+			}
+			
+		}.ignoresSafeArea(.keyboard, edges: .bottom)
 	}
 }
 
@@ -196,7 +196,7 @@ struct LivePlayer_Previews: PreviewProvider {
 		GeometryReader { _ in
 			//			LivePlayer(liveStream: fakeLivestream(with: .idle),
 			//								 nextLiveStream: nil, finishedPlaying: {}, close: {}, proxy: proxy)
-
+			
 			//			LivePlayer(liveStream: fakeLivestream(with: .idle),
 			//								 nextLiveStream: nil,
 			//								 currentUser: nil,

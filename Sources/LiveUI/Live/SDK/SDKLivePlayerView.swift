@@ -38,27 +38,24 @@ public struct SDKLivePlayerView: View {
 		case .noLiveStream:
 			SDKPlayerNoStreamAvailableView(didTapClose: didTapClose)
 		case .liveStream(_):
-			GeometryReader { proxy in
-				LivePlayer(
-					liveStream: viewModel.liveStream!,
-					productRepository: Live.shared.api,
-					close: didTapClose,
-					proxy: proxy,
-					isAllCaps: false,
-					regularFont: "HelveticaNeue",
-					lightFont: "Helvetica-Light",
-					lightForegroundColor: .white,
-					imagePlaceholderColor: Color(red: 239.0/255, green: 239.0/255, blue: 239.0/255),
-					accentColor: .black,
-					remindMeButtonBackgroundColor: .white,
-					defaultsToAspectRatioFit: defaultsToAspectRatioFit,
-					isChatEnabled: false,
-					chatMessages: [],
-					fetchMessages: {},
-					sendMessage: { _, _ in },
-					isInGuestMode: false
-				)
-			}
+			LivePlayer(
+				liveStream: viewModel.liveStream!,
+				productRepository: Live.shared.api,
+				close: didTapClose,
+				isAllCaps: false,
+				regularFont: "HelveticaNeue",
+				lightFont: "Helvetica-Light",
+				lightForegroundColor: .white,
+				imagePlaceholderColor: Color(red: 239.0/255, green: 239.0/255, blue: 239.0/255),
+				accentColor: .black,
+				remindMeButtonBackgroundColor: .white,
+				defaultsToAspectRatioFit: defaultsToAspectRatioFit,
+				isChatEnabled: false,
+				chatMessages: [],
+				fetchMessages: {},
+				sendMessage: { _, _ in },
+				isInGuestMode: false
+			)
 		case .show(let show):
 			ShowPreview(show: show, didTapClose: didTapClose)
 				.transition(.opacity)
