@@ -40,8 +40,7 @@ struct LiveApiView: View {
 	var body: some View {
 		UITableView.appearance().backgroundColor = #colorLiteral(red: 0.1411764706, green: 0.09019607843, blue: 0.3019607843, alpha: 1)
 		UINavigationBar.appearance().largeTitleTextAttributes = [.foregroundColor: UIColor.pbjPink]
-		return
-		NavigationView {
+		return NavigationView {
 			List {
 				Section(header: Text("Api")
 									.foregroundColor(.white)) {
@@ -147,6 +146,13 @@ struct LiveApiView: View {
 						Text("Fetch All Episodes")
 					}
 					
+					Button(action: {
+						viewModel.fetchCurrentEpisode()
+					}) {
+						Text("Fetch Current Episode")
+					}
+					
+					
 					HStack {
 						Button(action: {
 							viewModel.fetch(episode: Episode(id: viewModel.liveEpisodeId))
@@ -199,8 +205,8 @@ struct LiveApiView: View {
 				}
 			}
 			.fullScreenCover(isPresented: $viewModel.showsLivePlayer, onDismiss: {}) {
-					LivePlayer(episode: Episode(id: viewModel.liveEpisodeId),
-										 close: { viewModel.showsLivePlayer = false })
+				LivePlayer(episode: Episode(id: viewModel.liveEpisodeId),
+									 close: { viewModel.showsLivePlayer = false })
 			}
 			.fullScreenCover(isPresented: $viewModel.showsVodPlayer, onDismiss: {}) {
 				let url = viewModel.vodVideo?.videoURL ?? URL(string:"https://www.w3schools.com/html/mov_bbb.mp4")

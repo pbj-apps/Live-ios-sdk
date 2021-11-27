@@ -29,7 +29,7 @@ class LiveApiViewModel: ObservableObject {
 	
 	private var cancellables = Set<AnyCancellable>()
 	
-	private var live: Live!
+	var live: Live!
 	
 	func initialize() {
 		live = LiveSDK.initialize(apiKey: apiKey, environment: environment, logLevels: .debug)
@@ -39,7 +39,7 @@ class LiveApiViewModel: ObservableObject {
 			.store(in: &cancellables)
 		
 		command = """
-		Live.shared.initialize(apiKey: \"\(apiKey)\", environment: .\(environment.wording), completion: {
+		let live = LiveSDK.initialize(apiKey: \"\(apiKey)\", environment: .\(environment.wording), completion: {
 					// authenticated !
 		})
 		"""
@@ -163,20 +163,35 @@ class LiveApiViewModel: ObservableObject {
 		.store(in: &cancellables)
 		
 		command = """
-		Live.shared.fetchEpisodes()
+		live.fetchEpisodes()
 		"""
 	}
 	
-	func fetch(episode: Episode) {
-		live.fetch(episode: episode).then { [weak self] episode in
-			self?.response = "\(episode)"
-			self?.episode = episode
+	func fetchCurrentEpisode() {
+		live.fetchCurrentEpisode().then { [weak self] fetchedEpisode in
+			self?.response = "\(fetchedEpisode)"
+			self?.liveEpisodeId = fetchedEpisode?.id ?? ""
+			self?.episode = fetchedEpisode
 		}
 		.sink()
 		.store(in: &cancellables)
 		
 		command = """
-		Live.shared.fetch(episode: episode)
+		live.fetchCurrentEpisode()
+		"""
+	}
+	
+	func fetch(episode: Episode) {
+		live.fetch(episode: episode).then { [weak self] fetchedEpisode in
+			self?.response = "\(fetchedEpisode)"
+			self?.liveEpisodeId = fetchedEpisode.id
+			self?.episode = fetchedEpisode
+		}
+		.sink()
+		.store(in: &cancellables)
+		
+		command = """
+		live.fetch(episode: episode)
 		"""
 	}
 }

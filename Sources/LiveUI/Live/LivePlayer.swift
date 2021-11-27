@@ -47,7 +47,7 @@ public struct LivePlayer: View {
 	
 	public init(
 		episode: Episode,
-		liveRepository: LiveRepository = RestApi.shared,
+		liveRepository: LiveRepository = LiveSDKInstance.shared,
 		productRepository: ProductRepository? = nil,
 		nextEpisode: Episode? = nil,
 		close: (() -> Void)? = nil,

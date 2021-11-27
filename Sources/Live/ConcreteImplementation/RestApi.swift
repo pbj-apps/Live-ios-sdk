@@ -11,8 +11,6 @@ import Combine
 
 public final class RestApi: NetworkingService {
 	
-	public static var shared: RestApi! = nil
-
 	private let kAuthorizationKey = "Authorization"
 	public var authenticationToken: String? {
 		didSet {

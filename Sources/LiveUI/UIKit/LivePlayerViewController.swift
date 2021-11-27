@@ -23,9 +23,9 @@ public class LivePlayerViewController: UIHostingController<LivePlayer> {
 	public convenience init(
 		episode: Episode,
 		defaultsToAspectRatioFit: Bool = false) {
-			self.init(rootView: LivePlayer(episode: Episode(id: ""), close: {}))
+			self.init(rootView: LivePlayer(episode: Episode(id: ""),
+																		 close: {}))
 			rootView = LivePlayer(episode: episode,
-														liveRepository: RestApi.shared,
 														close: { [weak self] in
 				self?.delegate?.livePlayerViewControllerDidTapClose()
 			},
