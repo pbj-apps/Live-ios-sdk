@@ -64,51 +64,17 @@ public class Live {
 	
 	// MARK: - Live
 	
-	public func fetchEpisodes() -> AnyPublisher<[LiveStream], Error> {
-		api.getLiveStreams()
+	func fetchCurrentEpisode() -> AnyPublisher<Episode?, Error> {
+		api.fetchCurrentEpisode()
 	}
 	
-	public func fetch(episode: LiveStream) -> AnyPublisher<LiveStream, Error> {
-		api.fetch(liveStream: episode)
+	public func fetchEpisodes() -> AnyPublisher<[Episode], Error> {
+		api.fetchEpisodes()
 	}
 	
-	// MARK: - Old Api
-	
-	public func isEpisodeLive() -> AnyPublisher<Bool, Error> {
-		return api.authenticateAsGuest()
-			.flatMap { self.api.getCurrentLiveStream() }
-			.map { $0 != nil }
-			.eraseToAnyPublisher()
-	}
-	
-	public func isEpisodeLive(completion: @escaping (Bool, Error?) -> Void) {
-		isEpisodeLive().sink { receiveCompletion in
-			switch receiveCompletion {
-			case .finished: ()
-			case .failure(let error):
-				completion(false, error)
-			}
-		} receiveValue: {
-			completion($0, nil)
-		}.store(in: &cancellables)
-	}
-
-	public func isEpisodeLive(forShowId showId: String) -> AnyPublisher<Bool, Error> {
-		return api.authenticateAsGuest()
-			.flatMap { self.api.getCurrentLiveStream(from: showId) }
-			.map { $0 != nil }
-			.eraseToAnyPublisher()
-	}
-
-	public func isEpisodeLive(forShowId showId: String, completion: @escaping (Bool, Error?) -> Void) {
-		isEpisodeLive(forShowId: showId).sink { receiveCompletion in
-			switch receiveCompletion {
-			case .finished: ()
-			case .failure(let error):
-				completion(false, error)
-			}
-		} receiveValue: {
-			completion($0, nil)
-		}.store(in: &cancellables)
+	public func fetch(episode: Episode) -> AnyPublisher<Episode, Error> {
+		api.fetch(episode: episode)
 	}
 }
+
+

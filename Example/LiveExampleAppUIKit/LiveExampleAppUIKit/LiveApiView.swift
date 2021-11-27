@@ -149,7 +149,7 @@ struct LiveApiView: View {
 					
 					HStack {
 						Button(action: {
-							viewModel.fetch(episode: LiveStream(id: viewModel.liveEpisodeId))
+							viewModel.fetch(episode: Episode(id: viewModel.liveEpisodeId))
 						}) {
 								Text("Fetch Episode")
 						}
@@ -167,7 +167,7 @@ struct LiveApiView: View {
 					Button(action: {
 						viewModel.showsLivePlayer = true
 						viewModel.command = """
-						LivePlayer(liveStream: liveStream, close: { })
+						LivePlayer(episode: episode, close: { })
 						"""
 					}) {
 						Text("Show Live Player")
@@ -199,7 +199,7 @@ struct LiveApiView: View {
 				}
 			}
 			.fullScreenCover(isPresented: $viewModel.showsLivePlayer, onDismiss: {}) {
-					LivePlayer(liveStream: LiveStream(id: viewModel.liveEpisodeId),
+					LivePlayer(episode: Episode(id: viewModel.liveEpisodeId),
 										 close: { viewModel.showsLivePlayer = false })
 			}
 			.fullScreenCover(isPresented: $viewModel.showsVodPlayer, onDismiss: {}) {

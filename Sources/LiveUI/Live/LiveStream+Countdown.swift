@@ -1,5 +1,5 @@
 //
-//  LiveStream+Countdown.swift
+//  Episode+Countdown.swift
 //  
 //
 //  Created by Sacha on 03/09/2020.
@@ -8,7 +8,7 @@
 import Foundation
 import Live
 
-public extension LiveStream {
+public extension Episode {
 	func timeUntil() -> String {
 		let now = Date()
 		if now > endDate {

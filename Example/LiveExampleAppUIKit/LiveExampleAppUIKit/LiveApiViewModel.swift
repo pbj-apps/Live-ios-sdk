@@ -24,7 +24,7 @@ class LiveApiViewModel: ObservableObject {
 	@Published var vodPlaylist: VodPlaylist?
 	@Published var vodPlaylistId: String = ""
 	@Published var searchTerm: String = ""
-	@Published var liveStream: LiveStream?
+	@Published var episode: Episode?
 	@Published var liveEpisodeId: String = ""
 	
 	private var cancellables = Set<AnyCancellable>()
@@ -152,7 +152,7 @@ class LiveApiViewModel: ObservableObject {
 		Live.shared.fetchEpisodes().then { [weak self] episodes in
 			self?.response = "\(episodes)"
 			self?.liveEpisodeId = episodes.first?.id ?? ""
-			self?.liveStream = episodes.last
+			self?.episode = episodes.last
 		}
 		.sink()
 		.store(in: &cancellables)
@@ -162,10 +162,10 @@ class LiveApiViewModel: ObservableObject {
 		"""
 	}
 	
-	func fetch(episode: LiveStream) {
+	func fetch(episode: Episode) {
 		Live.shared.fetch(episode: episode).then { [weak self] episode in
 			self?.response = "\(episode)"
-			self?.liveStream = episode
+			self?.episode = episode
 		}
 		.sink()
 		.store(in: &cancellables)

@@ -20,12 +20,12 @@ public struct VideoPlayer: UIViewRepresentable {
 	let isLive: Bool
 	let isMuted: Bool
 	let allowsPictureInPicture: Bool
-	let liveStream: LiveStream
+	let episode: Episode
 	let aspectRatioFit: Bool
 	let elapsedTime: TimeInterval?
 
 	public init(
-		liveStream: LiveStream,
+		episode: Episode,
 		url: String,
 		looping: Bool,
 		isPlaying: Bool,
@@ -34,7 +34,7 @@ public struct VideoPlayer: UIViewRepresentable {
 		allowsPictureInPicture: Bool,
 		aspectRatioFit: Bool,
 		elapsedTime: TimeInterval?) {
-		self.liveStream = liveStream
+		self.episode = episode
 		self.url = url
 		self.looping = looping
 		self.isPlaying = isPlaying
@@ -56,7 +56,7 @@ public struct VideoPlayer: UIViewRepresentable {
 		if isPlaying {
 			if isLive {
 				// Vod Live
-				if liveStream.vodId != nil {
+				if episode.vodId != nil {
 					// Seek vod to correct timing whenever we are too far off. (1 sec)
 					if let elapsedTime = elapsedTime, let currentPlayerTime = context.coordinator.player?.currentTime().seconds {
 						let timeDifference = abs(currentPlayerTime - elapsedTime)
@@ -79,7 +79,7 @@ public struct VideoPlayer: UIViewRepresentable {
 		}
 		context.coordinator.player?.isMuted = isMuted
 		context.coordinator.isPlaying = isPlaying
-		context.coordinator.liveStream = liveStream
+		context.coordinator.episode = episode
 	}
 
 	public func makeCoordinator() -> VideoPlayer.Coordinator {
@@ -98,7 +98,7 @@ public struct VideoPlayer: UIViewRepresentable {
 		var pictureInPictureController: AVPictureInPictureController?
 		var playerItem: AVPlayerItem?
 		var isPlaying: Bool = false
-		var liveStream: LiveStream?
+		var episode: Episode?
 		var hasAlreadySeeked = false
 
 		func loadPlayer(url: String, in playerView: AVPlayerView, isLooping: Bool, isLive: Bool, allowsPictureInPicture: Bool) {
@@ -174,7 +174,7 @@ public struct VideoPlayer: UIViewRepresentable {
 						player?.play()
 					}
 				case .failed:
-					// Typical case is that Livestream just started and not ready to play yet.
+					// Typical case is that episode just started and not ready to play yet.
 					// Retry 5s later.
 					Timer.scheduledTimer(withTimeInterval: 3, repeats: false) { _ in
 						self.reloadPlayer()
@@ -187,8 +187,8 @@ public struct VideoPlayer: UIViewRepresentable {
 
 		@objc
 		func playerDidFinishPlaying(note: NSNotification) {
-			liveStream?.status = .finished
-			NotificationCenter.default.post(name: NSNotification.Name("PBJLiveStreamDidEndStreaming"), object: liveStream)
+			episode?.status = .finished
+			NotificationCenter.default.post(name: NSNotification.Name("PBJLiveStreamDidEndStreaming"), object: episode)
 		}
 
 		deinit {

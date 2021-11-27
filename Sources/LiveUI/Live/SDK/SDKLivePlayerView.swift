@@ -35,11 +35,11 @@ public struct SDKLivePlayerView: View {
 					ActivityIndicator(isAnimating: .constant(true), style: UIActivityIndicatorView.Style.medium, color: .white)
 				}
 			}.edgesIgnoringSafeArea(.all)
-		case .noLiveStream:
+		case .noEpisode:
 			SDKPlayerNoStreamAvailableView(didTapClose: didTapClose)
-		case .liveStream(_):
+		case .episode(_):
 			LivePlayer(
-				liveStream: viewModel.liveStream!,
+				episode: viewModel.episode!,
 				productRepository: Live.shared.api,
 				close: didTapClose,
 				isAllCaps: false,

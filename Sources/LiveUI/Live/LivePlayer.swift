@@ -33,11 +33,11 @@ public struct LivePlayer: View {
 	let remindMeButtonBackgroundColor: Color
 	let defaultsToAspectRatioFit: Bool
 	
-	var liveStream: LiveStream {
-		return viewModel.liveStream
+	var episode: Episode {
+		return viewModel.episode
 	}
 	
-	let nextLiveStream: LiveStream?
+	let nextEpisode: Episode?
 	let close: (() -> Void)?
 	
 	@ObservedObject private var keyboard = sharedKeyboardResponder
@@ -46,10 +46,10 @@ public struct LivePlayer: View {
 	@State var chatUsername: String?
 	
 	public init(
-		liveStream: LiveStream,
-		liveStreamRepository: LiveStreamRepository = Live.shared.api,
+		episode: Episode,
+		liveRepository: LiveRepository = Live.shared.api,
 		productRepository: ProductRepository? = nil,
-		nextLiveStream: LiveStream? = nil,
+		nextEpisode: Episode? = nil,
 		close: (() -> Void)? = nil,
 		isAllCaps: Bool = false,
 		regularFont: String = "HelveticaNeue",
@@ -66,8 +66,8 @@ public struct LivePlayer: View {
 		sendMessage: @escaping (String, String?) -> Void = { _, _ in},
 		isInGuestMode: Bool = true
 	) {
-		_viewModel =  StateObject(wrappedValue: LivePlayerViewModel(liveStream: liveStream, liveStreamRepository: liveStreamRepository, productRepository: productRepository))
-		self.nextLiveStream = nextLiveStream
+		_viewModel =  StateObject(wrappedValue: LivePlayerViewModel(episode: episode, liveRepository: liveRepository, productRepository: productRepository))
+		self.nextEpisode = nextEpisode
 		self.close = close
 		
 		self.isAllCaps = isAllCaps
@@ -91,14 +91,14 @@ public struct LivePlayer: View {
 			ZStack {
 				Color.black
 					.zIndex(0)
-				ImageBackground(url: viewModel.liveStream.previewImageUrl)
+				ImageBackground(url: viewModel.episode.previewImageUrl)
 					.frame(width: proxy.size.width ?? UIScreen.main.bounds.size.width)
 					.zIndex(1)
-				switch liveStream.status {
+				switch episode.status {
 				case .idle, .waitingRoom:
-					if let previewVideoUrl = liveStream.previewVideoUrl {
+					if let previewVideoUrl = episode.previewVideoUrl {
 						VideoPlayer(
-							liveStream: liveStream,
+							episode: episode,
 							url: previewVideoUrl,
 							looping: true,
 							isPlaying: true,
@@ -117,8 +117,8 @@ public struct LivePlayer: View {
 							Text("Connecting to Livestream...")
 								.foregroundColor(Color.white)
 						}
-						if let broadcastUrl = liveStream.broadcastUrl {
-							VideoPlayer(liveStream: liveStream,
+						if let broadcastUrl = episode.broadcastUrl {
+							VideoPlayer(episode: episode,
 													url: broadcastUrl,
 													looping: false,
 													isPlaying: isLivePlaying,
@@ -126,12 +126,12 @@ public struct LivePlayer: View {
 													isMuted: false,
 													allowsPictureInPicture: true,
 													aspectRatioFit: defaultsToAspectRatioFit,
-													elapsedTime: liveStream.timeElapsed())
+													elapsedTime: episode.timeElapsed())
 						}
 					}.zIndex(2)
 				case .finished:
 					LivePlayerFinishedStateOverlay(
-						nextLiveStream: nextLiveStream,
+						nextEpisode: nextEpisode,
 						proxy: proxy,
 						close: close,
 						regularFont: regularFont,
@@ -144,7 +144,7 @@ public struct LivePlayer: View {
 						.transition(.opacity)
 						.zIndex(3)
 				}
-				if liveStream.status != .finished { //} && liveStream.status != .idle {
+				if episode.status != .finished { //} && liveStream.status != .idle {
 					if showInfo {
 						LivePlayerInfo(
 							showProducts: $viewModel.showProducts,
@@ -160,7 +160,7 @@ public struct LivePlayer: View {
 							lightForegroundColor: lightForegroundColor,
 							isInGuestMode: isInGuestMode,
 							chatUsername: $chatUsername,
-							liveStream: liveStream,
+							episode: episode,
 							close: {
 								isLivePlaying = false
 								close?()

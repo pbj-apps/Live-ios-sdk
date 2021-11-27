@@ -13,21 +13,20 @@ final class SDKPlayerViewModel: ObservableObject {
 
 	enum State {
 		case loading
-		case noLiveStream
-		case liveStream(LiveStream)
+		case noEpisode
+		case episode(Episode)
 		case show(Show)
 		case error(Error)
 	}
 
 	private var cancellables = Set<AnyCancellable>()
 	
-	@Published var liveStream: LiveStream?
+	@Published var episode: Episode?
 
 	@Published var state = State.loading {
 		didSet {
-			if case let .liveStream(liveStream) = state {
-
-				fetchBroadcastURL(liveStream: liveStream)
+			if case let .episode(episode) = state {
+				fetchBroadcastURL(episode: episode)
 			}
 		}
 	}
@@ -37,30 +36,30 @@ final class SDKPlayerViewModel: ObservableObject {
 	}
 	
 	deinit {
-		Live.shared.api.leaveRealTimeLiveStreamUpdates()
+		Live.shared.api.leaveEpisodeUpdates()
 	}
 
 	private func load(showId: String?) {
 		if let showId = showId {
 			loadSpecificShow(showId: showId)
 		} else {
-			loadAnyLiveStream()
+			loadAnyEpisode()
 		}
 	}
 
-	private func loadAnyLiveStream() {
+	private func loadAnyEpisode() {
 		state = .loading
-		Live.shared.api.authenticateAsGuest().flatMap { [unowned self] () -> AnyPublisher<LiveStream?, Error>  in
-			self.registerForRealTimeLiveStreamUpdates()
-			return Live.shared.api.getCurrentLiveStream()
-		}.map { [unowned self] currentLiveStream in
-			if let liveStream = currentLiveStream {
-				state = .liveStream(liveStream)
+		Live.shared.api.authenticateAsGuest().flatMap { [unowned self] () -> AnyPublisher<Episode?, Error>  in
+			self.registerForEpisodeUpdates()
+			return Live.shared.api.fetchCurrentEpisode()
+		}.map { [unowned self] currentEpisode in
+			if let episode = currentEpisode {
+				state = .episode(episode)
 			} else {
-				state = .noLiveStream
+				state = .noEpisode
 			}
 		}
-		.mapError { [unowned self] (error: Publishers.FlatMap<AnyPublisher<LiveStream?, Error>, AnyPublisher<(), Error>>.Failure) -> Error in
+		.mapError { [unowned self] (error: Publishers.FlatMap<AnyPublisher<Episode?, Error>, AnyPublisher<(), Error>>.Failure) -> Error in
 			state = .error(error)
 			return error
 		}
@@ -70,12 +69,12 @@ final class SDKPlayerViewModel: ObservableObject {
 
 	private func loadSpecificShow(showId: String) {
 		state = .loading
-		Live.shared.api.authenticateAsGuest().flatMap { [unowned self] () -> AnyPublisher<LiveStream?, Error>  in
-			self.registerForRealTimeLiveStreamUpdates()
-			return Live.shared.api.getCurrentLiveStream(from: showId)
-		}.map { [unowned self] currentLiveStream in
-			if let liveStream = currentLiveStream {
-				state = .liveStream(liveStream)
+		Live.shared.api.authenticateAsGuest().flatMap { [unowned self] () -> AnyPublisher<Episode?, Error>  in
+			self.registerForEpisodeUpdates()
+			return Live.shared.api.fetchCurrentEpisode(from: showId)
+		}.map { [unowned self] currentEpisode in
+			if let episode = currentEpisode {
+				state = .episode(episode)
 			} else {
 				// Try to Load show
 				Live.shared.api.fetchShowPublic(showId: showId).map { show in
@@ -89,7 +88,7 @@ final class SDKPlayerViewModel: ObservableObject {
 				.store(in: &cancellables)
 			}
 		}.eraseToAnyPublisher()
-		.mapError { [unowned self] (error: Publishers.FlatMap<AnyPublisher<LiveStream?, Error>, AnyPublisher<(), Error>>.Failure) -> Error in
+		.mapError { [unowned self] (error: Publishers.FlatMap<AnyPublisher<Episode?, Error>, AnyPublisher<(), Error>>.Failure) -> Error in
 			state = .error(error)
 			return error
 		}
@@ -97,26 +96,26 @@ final class SDKPlayerViewModel: ObservableObject {
 		.store(in: &cancellables)
 	}
 
-	private func fetchBroadcastURL(liveStream: LiveStream) {
-		Live.shared.api.fetchBroadcastUrl(for: liveStream)
+	private func fetchBroadcastURL(episode: Episode) {
+		Live.shared.api.fetchBroadcastUrl(for: episode)
 			.receive(on: RunLoop.main)
-			.then { [unowned self] fetchedLiveStream in
-				self.liveStream = fetchedLiveStream
+			.then { [unowned self] fetchedEpisode in
+				self.episode = fetchedEpisode
 			}
 			.sink()
 			.store(in: &cancellables)
 	}
 
-	private func registerForRealTimeLiveStreamUpdates() {
-		Live.shared.api.registerForRealTimeLiveStreamUpdates()
+	private func registerForEpisodeUpdates() {
+		Live.shared.api.registerForEpisodeUpdates()
 			.ignoreError()
 			.receive(on: RunLoop.main)
 			.sink { [unowned self] update in
-				if let liveStream = self.liveStream, update.id == liveStream.id {
-					self.liveStream?.waitingRomDescription = update.waitingRoomDescription
-					self.liveStream?.status = update.status
+				if let episode = self.episode, update.id == episode.id {
+					self.episode?.waitingRomDescription = update.waitingRoomDescription
+					self.episode?.status = update.status
 					if update.status == .broadcasting { // Fetch broadcastURL
-						self.fetchBroadcastURL(liveStream: liveStream)
+						self.fetchBroadcastURL(episode: episode)
 					}
 				}
 			}.store(in: &cancellables)

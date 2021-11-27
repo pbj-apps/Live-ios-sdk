@@ -29,12 +29,12 @@ struct LivePlayerInfo: View {
 	@State private var chatText: String = ""
 	@State private var showsUsernameAlert = false
 
-	let liveStream: LiveStream
+	let episode: Episode
 	let close: (() -> Void)?
 	let proxy: GeometryProxy?
 
 	var canShowFeaturedProducts: Bool {
-		return liveStream.status == .broadcasting && !products.isEmpty
+		return episode.status == .broadcasting && !products.isEmpty
 	}
 
 	var body: some View {
@@ -44,10 +44,10 @@ struct LivePlayerInfo: View {
 			VStack(alignment: .leading, spacing: 0) {
 				topBar
 				Spacer()
-				if liveStream.status == .idle || (liveStream.status == .waitingRoom && !isChatShown) {
+				if episode.status == .idle || (episode.status == .waitingRoom && !isChatShown) {
 					showDetails
 				}
-				if !showProducts && liveStream.status == .broadcasting && !currentlyFeaturedProducts.isEmpty {
+				if !showProducts && episode.status == .broadcasting && !currentlyFeaturedProducts.isEmpty {
 					currentlyFeaturedProductsView
 				}
 				if canShowFeaturedProducts && showProducts {
@@ -161,7 +161,7 @@ struct LivePlayerInfo: View {
 
 	var showDetails: some View {
 		VStack(alignment: .leading) {
-			UppercasedText(liveStream.messageToDisplay(), uppercased: isAllCaps)
+			UppercasedText(episode.messageToDisplay(), uppercased: isAllCaps)
 				.lineLimit(5)
 				.foregroundColor(Color.white)
 				.font(.custom(regularFont, size: 50))
@@ -171,7 +171,7 @@ struct LivePlayerInfo: View {
 				.foregroundColor(Color.white)
 				.font(.custom(regularFont, size: 14))
 			LiveCountDown(
-				date: liveStream.startDate,
+				date: episode.startDate,
 				isAllCaps: isAllCaps,
 				lightForegroundColor: lightForegroundColor,
 				regularFont: regularFont)
@@ -217,13 +217,13 @@ struct LivePlayerInfo: View {
 	var topBar: some View {
 		ZStack {
 			HStack {
-				LiveIndicatorView(isLive: liveStream.status == .broadcasting)
+				LiveIndicatorView(isLive: episode.status == .broadcasting)
 				Spacer()
 				closeButton
 			}
 			HStack {
 				Spacer()
-				UppercasedText(liveStream.title, uppercased: isAllCaps)
+				UppercasedText(episode.title, uppercased: isAllCaps)
 					.foregroundColor(Color.white)
 					.font(.custom(regularFont, size: 18))
 					.multilineTextAlignment(TextAlignment.center)
@@ -298,12 +298,12 @@ struct LivePlayerInfo: View {
 	}
 
 	var canShowChat: Bool {
-		isChatEnabled && (liveStream.status == .waitingRoom || liveStream.status == .broadcasting)
+		isChatEnabled && (episode.status == .waitingRoom || episode.status == .broadcasting)
 	}
 }
 
-public func fakeLivestream(with state: Status) -> LiveStream {
-	return LiveStream(id: "id",
+public func fakeEpisode(with state: Status) -> Episode {
+	return Episode(id: "id",
 										title: "Running with Chris",
 										description: "Aka bok celery chinese greater kuka kurrat moth onion polk radish sprouts yardlong.",
 										duration: 12,
@@ -344,7 +344,7 @@ struct LivePlayerInfo_Previews: PreviewProvider {
 			lightForegroundColor: .white,
 			isInGuestMode: false,
 			chatUsername: .constant("John"),
-			liveStream: fakeLivestream(with: status), close: { }, proxy: proxy)
+			episode: fakeEpisode(with: status), close: { }, proxy: proxy)
 	}
 
 	static var previews: some View {

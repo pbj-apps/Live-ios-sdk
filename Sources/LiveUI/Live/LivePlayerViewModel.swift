@@ -12,34 +12,34 @@ import Combine
 
 public class LivePlayerViewModel: ObservableObject {
 
-	@Published public var liveStream: LiveStream
+	@Published public var episode: Episode
 	let productRepository: ProductRepository?
-	let liveStreamRepository: LiveStreamRepository
+	let liveRepository: LiveRepository
 	@Published public var products: [Product]
 	@Published public var currentlyFeaturedProducts: [Product]
 	@Published var showProducts = false
 	//    @Published var showCurrentlyFeaturedProducts = false
 	private var cancellables = Set<AnyCancellable>()
 
-	public init(liveStream: LiveStream,
-							liveStreamRepository: LiveStreamRepository,
+	public init(episode: Episode,
+							liveRepository: LiveRepository,
 							productRepository: ProductRepository?) {
-		self.liveStream = liveStream
+		self.episode = episode
 		self.products = []
 		self.currentlyFeaturedProducts = []
-		self.liveStreamRepository = liveStreamRepository
+		self.liveRepository = liveRepository
 		self.productRepository = productRepository
 		self.fetchProducts()
 		self.fetchCurrentlyFeaturedProducts()
 		
-		registerForRealTimeLiveStreamUpdates()
+		registerForEpisodeUpdates()
 		refresh()
 	}
 	
 	private func refresh() {
-		liveStreamRepository.fetch(liveStream: liveStream).then { [weak self] fetchedLivestream in
-			self?.liveStream = fetchedLivestream
-			if self?.liveStream.status == .broadcasting {
+		liveRepository.fetch(episode: episode).then { [weak self] fetchedEpisode in
+			self?.episode = fetchedEpisode
+			if self?.episode.status == .broadcasting {
 				self?.fetchBroadcastURL()
 			}
 		}
@@ -48,17 +48,17 @@ public class LivePlayerViewModel: ObservableObject {
 	}
 	
 	private func fetchBroadcastURL() {
-		liveStreamRepository.fetchBroadcastUrl(for: liveStream)
+		liveRepository.fetchBroadcastUrl(for: episode)
 			.receive(on: RunLoop.main)
-			.then { [unowned self] fetchedLiveStream in
-				self.liveStream = fetchedLiveStream
+			.then { [unowned self] fetchedEpisode in
+				self.episode = fetchedEpisode
 			}
 			.sink()
 			.store(in: &cancellables)
 	}
 
 	public func fetchProducts() {
-		productRepository?.fetchProducts(for: liveStream)
+		productRepository?.fetchProducts(for: episode)
 			.then { [unowned self] fetchedProducts in
 				withAnimation {
 					self.products = fetchedProducts
@@ -70,7 +70,7 @@ public class LivePlayerViewModel: ObservableObject {
 	}
 
 	public func fetchCurrentlyFeaturedProducts() {
-		productRepository?.fetchCurrentlyFeaturedProducts(for: liveStream)
+		productRepository?.fetchCurrentlyFeaturedProducts(for: episode)
 			.then { [unowned self] fetchedProducts in
 				withAnimation {
 					self.currentlyFeaturedProducts = fetchedProducts
@@ -82,10 +82,9 @@ public class LivePlayerViewModel: ObservableObject {
 	}
 
 	public func registerForProductHighlights() {
-		productRepository?.registerForProductHighlights(for: liveStream)
+		productRepository?.registerForProductHighlights(for: episode)
 			.receive(on: RunLoop.main)
 			.sink {  [unowned self] productUpdate in
-				print(productUpdate)
 				withAnimation {
 					self.currentlyFeaturedProducts = productUpdate.products
 				}
@@ -94,18 +93,18 @@ public class LivePlayerViewModel: ObservableObject {
 	}
 
 	public func unRegisterForProductHighlights() {
-		productRepository?.unRegisterProductHighlights(for: liveStream)
+		productRepository?.unRegisterProductHighlights(for: episode)
 	}
 	
-	private func registerForRealTimeLiveStreamUpdates() {
-		liveStreamRepository.registerForRealTimeLiveStreamUpdates()
+	private func registerForEpisodeUpdates() {
+		liveRepository.registerForEpisodeUpdates()
 			.ignoreError()
 			.receive(on: RunLoop.main)
 			.sink { [unowned self] update in
-				if update.id == liveStream.id {
+				if update.id == episode.id {
 					withAnimation {
-						liveStream.waitingRomDescription = update.waitingRoomDescription
-						liveStream.status = update.status
+						episode.waitingRomDescription = update.waitingRoomDescription
+						episode.status = update.status
 					}
 					if update.status == .broadcasting {
 						self.fetchBroadcastURL()
@@ -115,6 +114,6 @@ public class LivePlayerViewModel: ObservableObject {
 	}
 	
 	deinit {
-		liveStreamRepository.leaveRealTimeLiveStreamUpdates()
+		liveRepository.leaveEpisodeUpdates()
 	}
 }

@@ -17,7 +17,7 @@ class Websocket: NSObject, URLSessionWebSocketDelegate {
     private let apiKey: String
     private var webSocketTask: URLSessionWebSocketTask?
     private var pingTimer: Timer?
-    private var statusUpdatePublisher = PassthroughSubject<LiveStreamStatusUpdate, Error>()
+    private var statusUpdatePublisher = PassthroughSubject<EpisodeStatusUpdate, Error>()
     private var productUpdatePublisher = PassthroughSubject<ProductUpdate, Never>()
     private var wasReceivingUpdates = false
     private var cancellables = Set<AnyCancellable>()
@@ -44,7 +44,7 @@ class Websocket: NSObject, URLSessionWebSocketDelegate {
         }.store(in: &cancellables)
     }
     
-    func joinEpisodeUpdates() -> AnyPublisher<LiveStreamStatusUpdate, Error> {
+    func joinEpisodeUpdates() -> AnyPublisher<EpisodeStatusUpdate, Error> {
         sendMessage(json: "{ \"command\": \"join-episode-updates\" }")
         return statusUpdatePublisher
             .eraseToAnyPublisher()
@@ -55,7 +55,7 @@ class Websocket: NSObject, URLSessionWebSocketDelegate {
         closeConnection()
     }
     
-    func registerForProductHighlights(for episode: LiveStream) -> AnyPublisher<ProductUpdate, Never> {
+    func registerForProductHighlights(for episode: Episode) -> AnyPublisher<ProductUpdate, Never> {
         let command =
             """
         {
@@ -68,7 +68,7 @@ class Websocket: NSObject, URLSessionWebSocketDelegate {
             .eraseToAnyPublisher()
     }
     
-    func unRegisterProductHighlights(for episode: LiveStream) {
+    func unRegisterProductHighlights(for episode: Episode) {
         let command =
             """
         {
@@ -107,7 +107,7 @@ class Websocket: NSObject, URLSessionWebSocketDelegate {
     }
     
     private func buildWebSocketTask() {
-				statusUpdatePublisher = PassthroughSubject<LiveStreamStatusUpdate, Error>()
+				statusUpdatePublisher = PassthroughSubject<EpisodeStatusUpdate, Error>()
         let urlSession = URLSession(configuration: .default, delegate: nil, delegateQueue: OperationQueue())
         webSocketTask = urlSession.webSocketTask(with: URL(string: "\(url)/episodes/stream?token=\(token())&org_api_key=\(apiKey)")!)
         webSocketTask?.resume()
@@ -158,7 +158,7 @@ class Websocket: NSObject, URLSessionWebSocketDelegate {
                             let jsonDecoder = JSONDecoder()
                             if let response = try? jsonDecoder.decode(JSONEpisodeStatusWebsocketResponse.self, from: data) {
                                 if response.command == "episode-status-update" {
-                                    let update = LiveStreamStatusUpdate(id: response.episode.id,
+                                    let update = EpisodeStatusUpdate(id: response.episode.id,
                                                                         waitingRoomDescription: response.episode.waiting_room_description,
                                                                         status: response.extra.playback_cutoff ? .broadcasting : Status.fromString(response.episode.status))
                                     self.statusUpdatePublisher.send(update)

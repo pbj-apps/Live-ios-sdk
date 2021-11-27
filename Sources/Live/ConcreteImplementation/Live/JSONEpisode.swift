@@ -1,5 +1,5 @@
 //
-//  JSONLiveStream.swift
+//  JSONEpisode.swift
 //  
 //
 //  Created by Sacha on 11/08/2020.
@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct JSONLiveStream: Decodable {
+struct JSONEpisode: Decodable {
 	let id: String
 	let title: String
 	let description: String
@@ -75,24 +75,24 @@ struct JSONLiveStream: Decodable {
 	}
 }
 
-extension JSONLiveStream {
-	func toLiveStream() -> LiveStream {
-		var liveStream =  LiveStream(id: id,
-											title: title,
-											description: description,
-											duration: duration,
-											status: Status.fromString(status),
-											broadcastUrl: broadcastUrlString,
-											instructor: instructor?.toUser() ?? User(id: "unknown", firstname: "no streamer", lastname: "no streamer", email: "no streamer", username: "username", hasAnsweredSurvey: false, avatarUrl: nil),
-											previewImageUrl: previewImageUrl,
-											previewImageUrlFullSize: previewImageUrlFullSize,
-											previewVideoUrl: previewVideoUrl,
-											startDate: startDate.toRestApiDate() ?? Date(),
-											endDate: endDate?.toRestApiDate() ?? Date(),
-											waitingRomDescription: waitingRoomDescription,
-											isPushNotificationReminderSet: isPushNotificationReminderSet)
-		liveStream.vodId = vodId
-		return liveStream
+extension JSONEpisode {
+	func toEpisode() -> Episode {
+		var episode = Episode(id: id,
+													title: title,
+													description: description,
+													duration: duration,
+													status: Status.fromString(status),
+													broadcastUrl: broadcastUrlString,
+													instructor: instructor?.toUser() ?? User(id: "unknown", firstname: "no streamer", lastname: "no streamer", email: "no streamer", username: "username", hasAnsweredSurvey: false, avatarUrl: nil),
+													previewImageUrl: previewImageUrl,
+													previewImageUrlFullSize: previewImageUrlFullSize,
+													previewVideoUrl: previewVideoUrl,
+													startDate: startDate.toRestApiDate() ?? Date(),
+													endDate: endDate?.toRestApiDate() ?? Date(),
+													waitingRomDescription: waitingRoomDescription,
+													isPushNotificationReminderSet: isPushNotificationReminderSet)
+		episode.vodId = vodId
+		return episode
 	}
 }
 

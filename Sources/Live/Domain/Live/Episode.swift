@@ -1,5 +1,5 @@
 //
-//  LiveStream.swift
+//  Episode.swift
 //  
 //
 //  Created by Sacha on 26/07/2020.
@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct LiveStream: Identifiable, Hashable {
+public struct Episode: Identifiable, Hashable {
 	public let internalId = UUID()
 	public let id: String
 	public let title: String
@@ -86,7 +86,7 @@ public struct LiveStream: Identifiable, Hashable {
 	}
 }
 
-public struct LiveStreamStatusUpdate {
+public struct EpisodeStatusUpdate {
 	public let id: String
 	public let waitingRoomDescription: String
 	public let status: Status

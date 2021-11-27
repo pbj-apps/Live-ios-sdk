@@ -1,5 +1,5 @@
 //
-//  RestApi+LiveStream.swift
+//  RestApi+LiveRepository.swift
 //  
 //
 //  Created by Sacha on 27/07/2020.
@@ -9,39 +9,39 @@ import Foundation
 import Combine
 import Networking
 
-extension RestApi: LiveStreamRepository {
-
-	public func getLiveStreams() -> AnyPublisher<[LiveStream], Error> {
-		return get("/v1/episodes").map { (page: JSONPage<JSONLiveStream>) in
-			return page.results.map { $0.toLiveStream() }
+extension RestApi: LiveRepository {
+	
+	public func fetchEpisodes() -> AnyPublisher<[Episode], Error> {
+		return get("/v1/episodes").map { (page: JSONPage<JSONEpisode>) in
+			return page.results.map { $0.toEpisode() }
 		}.eraseToAnyPublisher()
 	}
 
-	public func getCurrentLiveStream() -> AnyPublisher<LiveStream?, Error> {
+	public func fetchCurrentEpisode() -> AnyPublisher<Episode?, Error> {
 		return get("/v1/episodes/current")
-			.map { (page: JSONPage<JSONLiveStream>) in
-				return page.results.map { $0.toLiveStream() }
+			.map { (page: JSONPage<JSONEpisode>) in
+				return page.results.map { $0.toEpisode() }
 			}
 			.map { $0.first }
 			.eraseToAnyPublisher()
 	}
 
-	public func getCurrentLiveStream(from showId: String) -> AnyPublisher<LiveStream?, Error> {
+	public func fetchCurrentEpisode(from showId: String) -> AnyPublisher<Episode?, Error> {
 		return get("/v1/episodes/current", params: ["show_id" : showId ])
-			.map { (page: JSONPage<JSONLiveStream>) in
-				return page.results.map { $0.toLiveStream() }
+			.map { (page: JSONPage<JSONEpisode>) in
+				return page.results.map { $0.toEpisode() }
 			}
 			.map { $0.first }
 			.eraseToAnyPublisher()
 	}
 
-	public func fetch(liveStream: LiveStream) -> AnyPublisher<LiveStream, Error> {
-		return fetchLiveStream(liveStreamId: liveStream.id)
+	public func fetch(episode: Episode) -> AnyPublisher<Episode, Error> {
+		return fetchEpisode(episodeId: episode.id)
 	}
 
-	public func fetchLiveStream(liveStreamId: String) -> AnyPublisher<LiveStream, Error> {
-		return get("/v1/episodes/\(liveStreamId)").map { (jsonLiveStream: JSONLiveStream) in
-			return jsonLiveStream.toLiveStream()
+	public func fetchEpisode(episodeId: String) -> AnyPublisher<Episode, Error> {
+		return get("/v1/episodes/\(episodeId)").map { (jsonEpisode: JSONEpisode) in
+			return jsonEpisode.toEpisode()
 		}.eraseToAnyPublisher()
 	}
 
@@ -51,11 +51,11 @@ extension RestApi: LiveStreamRepository {
 		}.eraseToAnyPublisher()
 	}
 
-	public func fetchEpisodes(for date: Date) -> AnyPaginator<LiveStream> {
+	public func fetchEpisodes(for date: Date) -> AnyPaginator<Episode> {
 		fetchEpisodes(for: date, daysAhead: nil)
 	}
 
-	public func fetchEpisodes(for date: Date, daysAhead: Int?) -> AnyPaginator<LiveStream> {
+	public func fetchEpisodes(for date: Date, daysAhead: Int?) -> AnyPaginator<Episode> {
 		/// For today's episodes, use the time of day to get the latest episode as fast as possible (and we don't need previous episodes.
 		/// For next days, use a 00:00:00 time so as to get all the episode availables.
 		var dateString = ""
@@ -76,29 +76,29 @@ extension RestApi: LiveStreamRepository {
 		if let daysAhead = daysAhead {
 			path += "&days_ahead=\(daysAhead)"
 		}
-		let paginator = RestApiPaginator<JSONLiveStream, LiveStream>(baseUrl: baseUrl,
+		let paginator = RestApiPaginator<JSONEpisode, Episode>(baseUrl: baseUrl,
 																																 path,
-																																 client: network, mapping: { $0.toLiveStream() })
+																																 client: network, mapping: { $0.toEpisode() })
 		return AnyPaginator(paginator)
 	}
 
-	public func registerForRealTimeLiveStreamUpdates() -> AnyPublisher<LiveStreamStatusUpdate, Error> {
+	public func registerForEpisodeUpdates() -> AnyPublisher<EpisodeStatusUpdate, Error> {
 		webSocket.joinEpisodeUpdates()
 	}
 
-	public func leaveRealTimeLiveStreamUpdates() {
+	public func leaveEpisodeUpdates() {
 		webSocket.leaveEpisodeUpdates()
 	}
 
-	public func fetchBroadcastUrl(for liveStream: LiveStream) -> AnyPublisher<LiveStream, Error> {
-		get("/v1/episodes/\(liveStream.id)/watch").map { (response: WatchJSONResponse) in
+	public func fetchBroadcastUrl(for episode: Episode) -> AnyPublisher<Episode, Error> {
+		get("/v1/episodes/\(episode.id)/watch").map { (response: WatchJSONResponse) in
 			let streamType = response.stream_type
-			var newLiveStream = liveStream
+			var newEpisode = episode
 
 			// BroadcastUrl
 			if streamType == nil || streamType == "live_stream" {
-				if liveStream.vodId == nil && !response.broadcast_url.isEmpty {
-					newLiveStream.broadcastUrl = response.broadcast_url
+				if episode.vodId == nil && !response.broadcast_url.isEmpty {
+					newEpisode.broadcastUrl = response.broadcast_url
 				}
 			}
 
@@ -107,12 +107,12 @@ extension RestApi: LiveStreamRepository {
 				if let elapsed_time = response.elapsed_time,
 					 let time = elapsed_time.split(separator: ".").first,
 					 let timeInt = String(time).toSeconds() {
-					newLiveStream.elapsedTime = TimeInterval(Float(timeInt))
-					newLiveStream.elapsedTimeDate = Date()
+					newEpisode.elapsedTime = TimeInterval(Float(timeInt))
+					newEpisode.elapsedTimeDate = Date()
 				}
 			}
 
-			return newLiveStream
+			return newEpisode
 		}
 		.eraseToAnyPublisher()
 	}
@@ -123,20 +123,20 @@ extension RestApi: LiveStreamRepository {
 			.eraseToAnyPublisher()
 	}
 
-	public func subscribe(to liveStream: LiveStream) -> AnyPublisher<Void, Error> {
+	public func subscribe(to episode: Episode) -> AnyPublisher<Void, Error> {
 		let params: [String: CustomStringConvertible] = [
 			"topic_type": "episode",
-			"topic_id": liveStream.id
+			"topic_id": episode.id
 		]
 		return post("/push-notifications/subscribe", params: params)
 			.map { () -> Void in }
 			.eraseToAnyPublisher()
 	}
 
-	public func unSubscribe(from liveStream: LiveStream) -> AnyPublisher<Void, Error> {
+	public func unSubscribe(from episode: Episode) -> AnyPublisher<Void, Error> {
 		let params: [String: CustomStringConvertible] = [
 			"topic_type": "episode",
-			"topic_id": liveStream.id
+			"topic_id": episode.id
 		]
 		return post("/push-notifications/unsubscribe", params: params)
 			.map { () -> Void in }
@@ -150,7 +150,7 @@ struct WatchJSONResponse: Decodable, NetworkingJSONDecodable {
 	let elapsed_time: String?
 }
 
-extension JSONLiveStream: NetworkingJSONDecodable {}
+extension JSONEpisode: NetworkingJSONDecodable {}
 extension JSONShow: NetworkingJSONDecodable {}
 
 private extension Date {

@@ -1,5 +1,5 @@
 //
-//  LiveStream+MessageToDisplay.swift
+//  Episode+MessageToDisplay.swift
 //  
 //
 //  Created by Sacha on 03/09/2020.
@@ -8,7 +8,7 @@
 import Foundation
 import Live
 
-public extension LiveStream {
+public extension Episode {
 	func messageToDisplay() -> String {
 		switch status {
 		case .idle:

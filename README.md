@@ -156,7 +156,7 @@ UI components provided are 100% build with SwiftUI. For apps that haven't made t
 
 SwiftUI
 ```swift
-LivePlayer(liveStream: liveStream, close: { }, proxy: proxy)
+LivePlayer(episode: episode, close: { }, proxy: proxy)
 ```
 
 UIKIt

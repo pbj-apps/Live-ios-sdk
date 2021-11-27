@@ -11,7 +11,7 @@ import Networking
 
 extension RestApi: ProductRepository {
 	
-	public func fetchProducts(for episode: LiveStream) -> AnyPublisher<[Product], Error> {
+	public func fetchProducts(for episode: Episode) -> AnyPublisher<[Product], Error> {
 		if let vodId = episode.vodId {
 			let video = VodVideo(id: vodId, title: "", description: "", isFeatured: false, thumbnailImageUrl: nil, videoURL: nil, duration: nil)
 			return fetchProducts(for: video)
@@ -29,18 +29,18 @@ extension RestApi: ProductRepository {
 			}.eraseToAnyPublisher()
 	}
 	
-	public func fetchCurrentlyFeaturedProducts(for episode: LiveStream) -> AnyPublisher<[Product], Error> {
+	public func fetchCurrentlyFeaturedProducts(for episode: Episode) -> AnyPublisher<[Product], Error> {
 		return get("/integrations/shopify/episodes/featured-products/highlighted", params: ["episode" : episode.id])
 			.map { (page: JSONPage<JSONProductResult>) in
 				return page.results.map { $0.toProduct() }
 			}.eraseToAnyPublisher()
 	}
 	
-	public func registerForProductHighlights(for episode: LiveStream) -> AnyPublisher<ProductUpdate, Never> {
+	public func registerForProductHighlights(for episode: Episode) -> AnyPublisher<ProductUpdate, Never> {
 		webSocket.registerForProductHighlights(for: episode)
 	}
 	
-	public func unRegisterProductHighlights(for episode: LiveStream) {
+	public func unRegisterProductHighlights(for episode: Episode) {
 		webSocket.unRegisterProductHighlights(for: episode)
 	}
 }

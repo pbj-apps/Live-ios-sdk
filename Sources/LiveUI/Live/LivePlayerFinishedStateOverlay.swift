@@ -18,11 +18,11 @@ struct LivePlayerFinishedStateOverlay: View {
 	let accentColor: Color
 	let remindMeButtonBackgroundColor: Color
 
-	let nextLiveStream: LiveStream?
+	let nextEpisode: Episode?
 	let close: (() -> Void)?
 	let proxy: GeometryProxy?
 
-	init(nextLiveStream: LiveStream?,
+	init(nextEpisode: Episode?,
 			 proxy: GeometryProxy?,
 			 close: (() -> Void)?,
 			 regularFont: String,
@@ -33,7 +33,7 @@ struct LivePlayerFinishedStateOverlay: View {
 			 accentColor: Color,
 			 remindMeButtonBackgroundColor: Color
 	) {
-		self.nextLiveStream = nextLiveStream
+		self.nextEpisode = nextEpisode
 		self.proxy = proxy
 		self.close = close
 
@@ -73,19 +73,19 @@ struct LivePlayerFinishedStateOverlay: View {
 				.padding(.horizontal, 30)
 
 				Spacer()
-				if let nextLiveStream = nextLiveStream {
+				if let nextEpisode = nextEpisode {
 					VStack(spacing: 0) {
 						UppercasedText("Next up", uppercased: isAllCaps)
 							.foregroundColor(Color.white)
 							.font(.custom(regularFont, size: 18))
 							.padding(.bottom, 10)
-						UppercasedText(nextLiveStream.title, uppercased: isAllCaps)
+						UppercasedText(nextEpisode.title, uppercased: isAllCaps)
 							.foregroundColor(Color.white)
 							.font(.custom(regularFont, size: 39))
 							.multilineTextAlignment(.center)
 							.padding(.bottom, 12)
 						HStack(spacing: 0) {
-							LiveImageView(url: nextLiveStream.instructor.avatarUrl,
+							LiveImageView(url: nextEpisode.instructor.avatarUrl,
 														placeholderColor: imagePlaceholderColor)
 								.frame(width: 30, height: 30)
 								.clipShape(RoundedRectangle(cornerRadius: 7.43))
@@ -93,13 +93,13 @@ struct LivePlayerFinishedStateOverlay: View {
 							UppercasedText("with ", uppercased: isAllCaps)
 								.foregroundColor(Color.white)
 								.font(.custom(lightFont, size: 18))
-							UppercasedText("\(nextLiveStream.instructor.firstname) \(nextLiveStream.instructor.lastname)", uppercased: isAllCaps)
+							UppercasedText("\(nextEpisode.instructor.firstname) \(nextEpisode.instructor.lastname)", uppercased: isAllCaps)
 								.foregroundColor(Color.white)
 								.font(.custom(regularFont, size: 18))
 						}
 						.padding(.bottom, 10)
 						LiveCountDown(
-							date: nextLiveStream.startDate,
+							date: nextEpisode.startDate,
 							isAllCaps: isAllCaps,
 							lightForegroundColor: lightForegroundColor,
 							regularFont: regularFont)
