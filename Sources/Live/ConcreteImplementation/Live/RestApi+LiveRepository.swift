@@ -36,11 +36,7 @@ extension RestApi: LiveRepository {
 	}
 
 	public func fetch(episode: Episode) -> AnyPublisher<Episode, Error> {
-		return fetchEpisode(episodeId: episode.id)
-	}
-
-	public func fetchEpisode(episodeId: String) -> AnyPublisher<Episode, Error> {
-		return get("/v1/episodes/\(episodeId)").map { (jsonEpisode: JSONEpisode) in
+		return get("/v1/episodes/\(episode.id)").map { (jsonEpisode: JSONEpisode) in
 			return jsonEpisode.toEpisode()
 		}.eraseToAnyPublisher()
 	}

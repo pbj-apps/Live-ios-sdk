@@ -18,7 +18,6 @@ public protocol LiveRepository {
 	func fetchBroadcastUrl(for episode: Episode) -> AnyPublisher<Episode, Error>
 	func fetchCurrentEpisode() -> AnyPublisher<Episode?, Error>
 	func fetchCurrentEpisode(from showId: String) -> AnyPublisher<Episode?, Error>
-	func fetchEpisode(episodeId: String) -> AnyPublisher<Episode, Error>
 	func fetchShowPublic(showId: String) -> AnyPublisher<Show, Error>
 	
 	// Subscriptions
