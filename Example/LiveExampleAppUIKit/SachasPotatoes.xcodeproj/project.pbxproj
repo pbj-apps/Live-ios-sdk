@@ -11,7 +11,6 @@
 		9942B00A274B7839003B7382 /* LiveUI in Frameworks */ = {isa = PBXBuildFile; productRef = 9942B009274B7839003B7382 /* LiveUI */; };
 		996323992747FC88001CD2D7 /* LiveApiViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 996323982747FC88001CD2D7 /* LiveApiViewModel.swift */; };
 		9965AD402551EE6300E88127 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9965AD3F2551EE6300E88127 /* AppDelegate.swift */; };
-		9965AD442551EE6300E88127 /* BasicApiViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9965AD432551EE6300E88127 /* BasicApiViewController.swift */; };
 		9965AD492551EE6400E88127 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9965AD482551EE6400E88127 /* Assets.xcassets */; };
 		9965AD4C2551EE6400E88127 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 9965AD4A2551EE6400E88127 /* LaunchScreen.storyboard */; };
 		99C70E722719C3D3003FB2F6 /* LiveApiView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99C70E712719C3D3003FB2F6 /* LiveApiView.swift */; };
@@ -21,7 +20,6 @@
 		996323982747FC88001CD2D7 /* LiveApiViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveApiViewModel.swift; sourceTree = "<group>"; };
 		9965AD3C2551EE6300E88127 /* Live SDK.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Live SDK.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		9965AD3F2551EE6300E88127 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		9965AD432551EE6300E88127 /* BasicApiViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BasicApiViewController.swift; sourceTree = "<group>"; };
 		9965AD482551EE6400E88127 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		9965AD4B2551EE6400E88127 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		9965AD4D2551EE6400E88127 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -64,7 +62,6 @@
 			isa = PBXGroup;
 			children = (
 				9965AD3F2551EE6300E88127 /* AppDelegate.swift */,
-				9965AD432551EE6300E88127 /* BasicApiViewController.swift */,
 				99C70E712719C3D3003FB2F6 /* LiveApiView.swift */,
 				996323982747FC88001CD2D7 /* LiveApiViewModel.swift */,
 				9965AD482551EE6400E88127 /* Assets.xcassets */,
@@ -154,7 +151,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9965AD442551EE6300E88127 /* BasicApiViewController.swift in Sources */,
 				9965AD402551EE6300E88127 /* AppDelegate.swift in Sources */,
 				99C70E722719C3D3003FB2F6 /* LiveApiView.swift in Sources */,
 				996323992747FC88001CD2D7 /* LiveApiViewModel.swift in Sources */,
