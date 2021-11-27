@@ -11,6 +11,10 @@ import LiveUI
 import Live
 import Combine
 
+extension UIColor {
+	public static var pbjPink = #colorLiteral(red: 0.9098039216, green: 0.2196078431, blue: 0.4274509804, alpha: 1)
+}
+
 
 extension ApiEnvironment: Identifiable {
 	public var id: Int {
@@ -35,7 +39,9 @@ struct LiveApiView: View {
 	
 	var body: some View {
 		UITableView.appearance().backgroundColor = #colorLiteral(red: 0.1411764706, green: 0.09019607843, blue: 0.3019607843, alpha: 1)
-		return NavigationView {
+		UINavigationBar.appearance().largeTitleTextAttributes = [.foregroundColor: UIColor.pbjPink]
+		return
+		NavigationView {
 			List {
 				Section(header: Text("Api")
 									.foregroundColor(.white)) {
@@ -161,26 +167,29 @@ struct LiveApiView: View {
 					Button(action: {
 						viewModel.showsLivePlayer = true
 						viewModel.command = """
-						LiveVodPlayer(url: url, close: { })
+						LivePlayer(liveStream: liveStream, close: { })
 						"""
 					}) {
 						Text("Show Live Player")
 					}
+					.disabled(viewModel.liveEpisodeId.isEmpty)
 					
 					Button(action: {
 						viewModel.showsVodPlayer = true
 						viewModel.command = """
-						LiveVodPlayer(url: url, close: { })
+						VodPlayer(url: url, close: { })
 						"""
 					}) {
 						Text("Show VOD Player")
 					}
 				}
+				.disabled(!viewModel.isInitialized)
+				
 				Section(header: Text("Command")
 									.foregroundColor(.white)) {
 					TextEditor(text: $viewModel.command)
 						.font(Font.system(size: 12, design: .monospaced))
-						.frame(height: 150)
+						.frame(height: 80)
 				}
 				Section(header: Text("Response")
 									.foregroundColor(.white)) {
@@ -190,21 +199,18 @@ struct LiveApiView: View {
 				}
 			}
 			.fullScreenCover(isPresented: $viewModel.showsLivePlayer, onDismiss: {}) {
-				GeometryReader { proxy in
 					LivePlayer(liveStream: LiveStream(id: viewModel.liveEpisodeId),
-										 close: { viewModel.showsLivePlayer = false },
-										 proxy: proxy)
-				}
+										 close: { viewModel.showsLivePlayer = false })
 			}
 			.fullScreenCover(isPresented: $viewModel.showsVodPlayer, onDismiss: {}) {
 				let url = viewModel.vodVideo?.videoURL ?? URL(string:"https://www.w3schools.com/html/mov_bbb.mp4")
 				VodPlayer(url: url!,
 											close: { viewModel.showsVodPlayer = false })
-					.accentColor(.pink)
+					.accentColor(Color(UIColor.pbjPink))
 			}
+			.navigationBarTitle("Live SDK", displayMode: .large)
 		}
-		.navigationBarTitle("Live SDK", displayMode: .large)
-		.accentColor(.pink)
+		.accentColor(Color(UIColor.pbjPink))
 	}
 }
 
