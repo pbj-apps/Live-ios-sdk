@@ -79,7 +79,7 @@ class LiveApiViewModel: ObservableObject {
 		.store(in: &cancellables)
 		
 		command = """
-		Live.shared.fetchAllVodVideos()
+		live.fetchAllVodVideos()
 		"""
 	}
 	
@@ -92,7 +92,7 @@ class LiveApiViewModel: ObservableObject {
 		.store(in: &cancellables)
 		
 		command = """
-		Live.shared.fetch(video: video)
+		live.fetch(video: video)
 		"""
 	}
 	
@@ -105,7 +105,7 @@ class LiveApiViewModel: ObservableObject {
 		.store(in: &cancellables)
 		
 		command = """
-		Live.shared.searchVodVideos(query: query)
+		live.searchVodVideos(query: query)
 		"""
 	}
 	
@@ -115,7 +115,7 @@ class LiveApiViewModel: ObservableObject {
 		}
 		.store(in: &cancellables)
 		command = """
-		Live.shared.searchVod(query: query)
+		live.searchVod(query: query)
 		"""
 	}
 	
@@ -128,7 +128,7 @@ class LiveApiViewModel: ObservableObject {
 		.store(in: &cancellables)
 		
 		command = """
-		Live.shared.fetchVodPlaylists()
+		live.fetchVodPlaylists()
 		"""
 	}
 	
@@ -141,7 +141,7 @@ class LiveApiViewModel: ObservableObject {
 		.store(in: &cancellables)
 		
 		command = """
-		Live.shared.fetch(playlist: playlist)
+		live.fetch(playlist: playlist)
 		"""
 	}
 	

@@ -43,13 +43,26 @@ A good place to do this is typically the `AppDelegate`.
 import Live
 
 // [...]
-Live.shared.initialize(apiKey: "YOUR_API_KEY", environment: .dev, completion: { [weak self] in
-    // SDK is initialized.
-})
+let live = LiveSDK.initialize(
+   apiKey: "YOUR_API_KEY",
+   environment: .dev,
+   logLevels: .debug)
 ```
-`environment` is optional and defaults to `.prod`. Once the completion handler is called, the SDK is initialized and you can start querying your Live data.
+- `environment` is optional and defaults to `.prod`.  
+- `logLevels` is also optional and defaults to `.off`.  
 
-The whole `Live` api is accessed via the `Live.shared` object which exposes a classic Combine api returning `AnyPublisher<Result, Error>`
+The whole `Live` api is accessed via this `live` object which exposes a classic Combine api returning `AnyPublisher<Result, Error>`
+
+## Authentication
+
+Before querying any data, you need to authenticate the SDK. This process is asynchonous.
+```swift
+live.authenticateAsGuest()
+   .sink { 
+      // SDK is now authenticated \o/
+   }
+   .store(in: &cancellables)
+```
 
 # Api
 
@@ -59,72 +72,72 @@ The whole `Live` api is accessed via the `Live.shared` object which exposes a cl
 
 Fetch all VoD Categories
 ```swift
- Live.shared.fetchVodCategories().sink { categories in 
-    // categories
- }
- .store(in: &cancellables)
+live.fetchVodCategories().sink { categories in 
+   // categories
+}
+.store(in: &cancellables)
 ```
 
 Fetch a specific VoD Category
 
 ```swift
- Live.shared.fetch(category: category).sink { category in 
-    // category
- }
- .store(in: &cancellables)
+live.fetch(category: category).sink { category in 
+   // category
+}
+.store(in: &cancellables)
 ```
 
 ### Playlists
 Fetch all playlists
 ```swift
- Live.shared.fetchVodPlaylists().sink { playlists in 
-    // playlists
- }
- .store(in: &cancellables)
+live.fetchVodPlaylists().sink { playlists in 
+   // playlists
+}
+.store(in: &cancellables)
 ```
 Fetch a specific playlist
 ```swift
- Live.shared.fetch(playlist: playlist).sink { playlist in 
-    // playlist
- }
- .store(in: &cancellables)
+live.fetch(playlist: playlist).sink { playlist in 
+   // playlist
+}
+.store(in: &cancellables)
 ```
 
 ### Videos
 
 Fetch all VoD Videos
 ```swift
- Live.shared.fetchVodVideos().sink { videos in 
-    // videos
- }
- .store(in: &cancellables)
- ```
+live.fetchVodVideos().sink { videos in 
+   // videos
+}
+.store(in: &cancellables)
+```
 
  Fetch a specific VoD Video
  ```swift
- Live.shared.fetch(video: vodVideo).sink { video in 
-    // video
- }
- .store(in: &cancellables)
- ```
+live.fetch(video: vodVideo).sink { video in 
+   // video
+}
+.store(in: &cancellables)
+```
 
 ### Search
 
 Search Vod Videos only
 ```swift
- Live.shared.searchVodVideos(query: query).sink { videos in 
-    // videos
- }
- .store(in: &cancellables)
- ```
+live.searchVodVideos(query: query).sink { videos in 
+   // videos
+}
+.store(in: &cancellables)
+```
 
  Search Vod Videos & Playlists
 ```swift
- Live.shared.searchVod(query: query).sink { vodItems in 
-    // vodItems (VodVideo & VodPlaylist)
- }
- .store(in: &cancellables)
- ```
+live.searchVod(query: query).sink { vodItems in 
+   // vodItems (VodVideo & VodPlaylist)
+}
+.store(in: &cancellables)
+```
 
 ## Live
 
@@ -132,18 +145,18 @@ Search Vod Videos only
 
 Fetch all episodes
 ```swift
- Live.shared.fetchEpisodes().sink { episodes in 
-    // episodes
- }
- .store(in: &cancellables)
+live.fetchEpisodes().sink { episodes in 
+   // episodes
+}
+.store(in: &cancellables)
 ```
 
 Fetch a specific episode
 ```swift
- Live.shared.fetch(episode: Episode).sink { episode in 
-    // episode
- }
- .store(in: &cancellables)
+live.fetch(episode: Episode).sink { episode in 
+   // episode
+}
+.store(in: &cancellables)
 ```
 
 # UI Components
@@ -161,7 +174,7 @@ LivePlayer(episode: episode, close: { }, proxy: proxy)
 
 UIKIt
 ```swift
-let livePlayerVC = LivePlayerViewController(showId: showId)
+let livePlayerVC = LivePlayerViewController(episode: episode)
 livePlayerVC.delegate = self
 present(livePlayerVC, animated: true, completion: nil)
 ```
