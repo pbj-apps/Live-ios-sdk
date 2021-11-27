@@ -9,25 +9,27 @@ import SwiftUI
 import Combine
 import AVKit
 import Networking
+import Live
 
 public protocol LivePlayerViewControllerDelegate: AnyObject {
 	func livePlayerViewControllerDidTapClose()
 }
 
-/// Wraps SDKLivePlayerView to expose a clean UIKit api.
-public class LivePlayerViewController: UIHostingController<SDKLivePlayerView> {
+/// Wraps LivePlayer to expose a clean UIKit api.
+public class LivePlayerViewController: UIHostingController<LivePlayer> {
 	
 	public weak var delegate: LivePlayerViewControllerDelegate?
 	
 	public convenience init(
-        showId: String? = nil,
-        defaultsToAspectRatioFit: Bool = false) {
-		self.init(rootView: SDKLivePlayerView(didTapClose: {}))
-		rootView = SDKLivePlayerView(
-			showId: showId,
-			didTapClose: { [weak self] in self?.delegate?.livePlayerViewControllerDidTapClose()
-            },
-			defaultsToAspectRatioFit: defaultsToAspectRatioFit)
-		modalPresentationStyle = .fullScreen
-	}
+		episode: Episode,
+		defaultsToAspectRatioFit: Bool = false) {
+			self.init(rootView: LivePlayer(episode: Episode(id: ""), close: {}))
+			rootView = LivePlayer(episode: episode,
+														liveRepository: RestApi.shared,
+														close: { [weak self] in
+				self?.delegate?.livePlayerViewControllerDidTapClose()
+			},
+														defaultsToAspectRatioFit: defaultsToAspectRatioFit)
+			modalPresentationStyle = .fullScreen
+		}
 }

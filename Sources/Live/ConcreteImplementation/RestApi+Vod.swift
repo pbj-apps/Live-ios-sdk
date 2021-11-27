@@ -11,7 +11,7 @@ import Networking
 
 extension RestApi: VodRepository {
 
-	public func getVodCategories() -> AnyPublisher<[VodCategory], Error> {
+	public func fetchVodCategories() -> AnyPublisher<[VodCategory], Error> {
 		return get("/vod/categories").map { (jsonVodCategoryPage: JSONPage<JSONVodCategory>) in
 			jsonVodCategoryPage.results.map { $0.toVodCategory() }
 		}.eraseToAnyPublisher()

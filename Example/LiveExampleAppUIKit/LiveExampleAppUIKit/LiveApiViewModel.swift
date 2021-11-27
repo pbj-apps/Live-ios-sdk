@@ -29,10 +29,15 @@ class LiveApiViewModel: ObservableObject {
 	
 	private var cancellables = Set<AnyCancellable>()
 	
+	private var live: Live!
+	
 	func initialize() {
-		Live.shared.initialize(apiKey: apiKey, environment: environment, completion: { [weak self] in
-			self?.isInitialized = true
-		})
+		live = LiveSDK.initialize(apiKey: apiKey, environment: environment, logLevels: .debug)
+		
+		live.authenticateAsGuest()
+			.sink()
+			.store(in: &cancellables)
+		
 		command = """
 		Live.shared.initialize(apiKey: \"\(apiKey)\", environment: .\(environment.wording), completion: {
 					// authenticated !
@@ -42,7 +47,7 @@ class LiveApiViewModel: ObservableObject {
 	}
 	
 	func fetchVodCategories() {
-		Live.shared.fetchVodCategories().then { [weak self] categories in
+		live.fetchVodCategories().then { [weak self] categories in
 			self?.response = "\(categories)"
 			self?.vodCategoryId = categories.first?.id ?? ""
 		}
@@ -55,7 +60,7 @@ class LiveApiViewModel: ObservableObject {
 	}
 	
 	func fetch(category: VodCategory) {
-		Live.shared.fetch(category: category).then { [weak self] category in
+		live.fetch(category: category).then { [weak self] category in
 			self?.response = "\(category)"
 			self?.vodCategoryId = category.id
 		}
@@ -68,7 +73,7 @@ class LiveApiViewModel: ObservableObject {
 	}
 	
 	func fetchVodVideos() {
-		Live.shared.fetchVodVideos().then { [weak self] videos in
+		live.fetchVodVideos().then { [weak self] videos in
 			self?.response = "\(videos)"
 			self?.vodVideo = videos.first
 			self?.vodVideoId = videos.first?.id ?? ""
@@ -82,7 +87,7 @@ class LiveApiViewModel: ObservableObject {
 	}
 	
 	func fetch(video: VodVideo) {
-		Live.shared.fetch(video: video).then { [weak self] fetchedVideo in
+		live.fetch(video: video).then { [weak self] fetchedVideo in
 			self?.response = "\(fetchedVideo)"
 			self?.vodVideo = fetchedVideo
 			self?.vodVideoId = fetchedVideo.id
@@ -96,7 +101,7 @@ class LiveApiViewModel: ObservableObject {
 	}
 	
 	func searchVodVideos(query: String) {
-		Live.shared.searchVodVideos(query: query).then { [weak self] videos in
+		live.searchVodVideos(query: query).then { [weak self] videos in
 			self?.response = "\(videos)"
 			self?.vodVideo = videos.first
 			self?.vodVideoId = videos.first?.id ?? ""
@@ -110,7 +115,7 @@ class LiveApiViewModel: ObservableObject {
 	}
 	
 	func searchVod(query: String) {
-		Live.shared.searchVod(query: query).then { [weak self] vodItems in
+		live.searchVod(query: query).then { [weak self] vodItems in
 			self?.response = "\(vodItems)"
 		}
 		.sink()
@@ -121,7 +126,7 @@ class LiveApiViewModel: ObservableObject {
 	}
 	
 	func fetchVodPlaylists() {
-		Live.shared.fetchVodPlaylists().then { [weak self] playlists in
+		live.fetchVodPlaylists().then { [weak self] playlists in
 			self?.response = "\(playlists)"
 			self?.vodPlaylist = playlists.first
 			self?.vodPlaylistId = playlists.first?.id ?? ""
@@ -135,7 +140,7 @@ class LiveApiViewModel: ObservableObject {
 	}
 	
 	func fetch(playlist: VodPlaylist) {
-		Live.shared.fetch(playlist: playlist).then { [weak self] fetchedPlaylist in
+		live.fetch(playlist: playlist).then { [weak self] fetchedPlaylist in
 			self?.response = "\(fetchedPlaylist)"
 			self?.vodPlaylist = fetchedPlaylist
 			self?.vodPlaylistId = fetchedPlaylist.id
@@ -149,7 +154,7 @@ class LiveApiViewModel: ObservableObject {
 	}
 	
 	func fetchEpisodes() {
-		Live.shared.fetchEpisodes().then { [weak self] episodes in
+		live.fetchEpisodes().then { [weak self] episodes in
 			self?.response = "\(episodes)"
 			self?.liveEpisodeId = episodes.first?.id ?? ""
 			self?.episode = episodes.last
@@ -163,7 +168,7 @@ class LiveApiViewModel: ObservableObject {
 	}
 	
 	func fetch(episode: Episode) {
-		Live.shared.fetch(episode: episode).then { [weak self] episode in
+		live.fetch(episode: episode).then { [weak self] episode in
 			self?.response = "\(episode)"
 			self?.episode = episode
 		}

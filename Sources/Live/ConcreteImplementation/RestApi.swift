@@ -10,6 +10,8 @@ import Networking
 import Combine
 
 public final class RestApi: NetworkingService {
+	
+	public static var shared: RestApi! = nil
 
 	private let kAuthorizationKey = "Authorization"
 	public var authenticationToken: String? {
@@ -28,10 +30,13 @@ public final class RestApi: NetworkingService {
 
 	var cancellables = Set<AnyCancellable>()
 
-	public init(apiUrl: String, webSocketsUrl: String, apiKey: String) {
+	public init(apiUrl: String,
+							webSocketsUrl: String,
+							apiKey: String,
+							logLevels: LiveLogLevel = .off) {
 		self.baseUrl = apiUrl
-		var client = NetworkingClient(baseURL: apiUrl)
-		client.logLevels = .debug
+		let client = NetworkingClient(baseURL: apiUrl)
+		client.logLevels = logLevels.toNetworkingLogLevel()
 		client.headers["Accept"] = "application/vnd.pbj+json; version=1.0"
 		client.headers["X-api-key"] = apiKey
 		client.parameterEncoding = .json
@@ -42,3 +47,19 @@ public final class RestApi: NetworkingService {
 		}
 	}
 }
+
+extension LiveLogLevel {
+	func toNetworkingLogLevel() -> NetworkingLogLevel {
+		switch self {
+		case .off:
+			return .off
+		case .info:
+			return .info
+		case .debug:
+			return .debug
+		}
+	}
+}
+
+
+

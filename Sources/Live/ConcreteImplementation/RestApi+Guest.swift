@@ -9,7 +9,7 @@ import Foundation
 import Combine
 import Networking
 
-extension RestApi {
+extension RestApi: GuestAuthenticationRepository {
 	
 	public func authenticateAsGuest() -> AnyPublisher<(), Error> {
 		return fetchGuestToken().map { [weak self] r in
