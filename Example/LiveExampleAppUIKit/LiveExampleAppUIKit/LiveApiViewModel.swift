@@ -47,38 +47,35 @@ class LiveApiViewModel: ObservableObject {
 	}
 	
 	func fetchVodCategories() {
-		live.fetchVodCategories().then { [weak self] categories in
+		live.fetchVodCategories().sink { [weak self] categories in
 			self?.response = "\(categories)"
 			self?.vodCategoryId = categories.first?.id ?? ""
 		}
-		.sink()
 		.store(in: &cancellables)
 
 		command = """
-		Live.shared.fetchVodCategories()
+		live.fetchVodCategories()
 		"""
 	}
 	
 	func fetch(category: VodCategory) {
-		live.fetch(category: category).then { [weak self] category in
+		live.fetch(category: category).sink { [weak self] category in
 			self?.response = "\(category)"
 			self?.vodCategoryId = category.id
 		}
-		.sink()
 		.store(in: &cancellables)
 		
 		command = """
-		Live.shared.fetch(category: category)
+		live.fetch(category: category)
 		"""
 	}
 	
 	func fetchVodVideos() {
-		live.fetchVodVideos().then { [weak self] videos in
+		live.fetchVodVideos().sink { [weak self] videos in
 			self?.response = "\(videos)"
 			self?.vodVideo = videos.first
 			self?.vodVideoId = videos.first?.id ?? ""
 		}
-		.sink()
 		.store(in: &cancellables)
 		
 		command = """
@@ -87,12 +84,11 @@ class LiveApiViewModel: ObservableObject {
 	}
 	
 	func fetch(video: VodVideo) {
-		live.fetch(video: video).then { [weak self] fetchedVideo in
+		live.fetch(video: video).sink { [weak self] fetchedVideo in
 			self?.response = "\(fetchedVideo)"
 			self?.vodVideo = fetchedVideo
 			self?.vodVideoId = fetchedVideo.id
 		}
-		.sink()
 		.store(in: &cancellables)
 		
 		command = """
@@ -101,12 +97,11 @@ class LiveApiViewModel: ObservableObject {
 	}
 	
 	func searchVodVideos(query: String) {
-		live.searchVodVideos(query: query).then { [weak self] videos in
+		live.searchVodVideos(query: query).sink { [weak self] videos in
 			self?.response = "\(videos)"
 			self?.vodVideo = videos.first
 			self?.vodVideoId = videos.first?.id ?? ""
 		}
-		.sink()
 		.store(in: &cancellables)
 		
 		command = """
@@ -115,10 +110,9 @@ class LiveApiViewModel: ObservableObject {
 	}
 	
 	func searchVod(query: String) {
-		live.searchVod(query: query).then { [weak self] vodItems in
+		live.searchVod(query: query).sink { [weak self] vodItems in
 			self?.response = "\(vodItems)"
 		}
-		.sink()
 		.store(in: &cancellables)
 		command = """
 		Live.shared.searchVod(query: query)
@@ -126,12 +120,11 @@ class LiveApiViewModel: ObservableObject {
 	}
 	
 	func fetchVodPlaylists() {
-		live.fetchVodPlaylists().then { [weak self] playlists in
+		live.fetchVodPlaylists().sink { [weak self] playlists in
 			self?.response = "\(playlists)"
 			self?.vodPlaylist = playlists.first
 			self?.vodPlaylistId = playlists.first?.id ?? ""
 		}
-		.sink()
 		.store(in: &cancellables)
 		
 		command = """
@@ -140,12 +133,11 @@ class LiveApiViewModel: ObservableObject {
 	}
 	
 	func fetch(playlist: VodPlaylist) {
-		live.fetch(playlist: playlist).then { [weak self] fetchedPlaylist in
+		live.fetch(playlist: playlist).sink { [weak self] fetchedPlaylist in
 			self?.response = "\(fetchedPlaylist)"
 			self?.vodPlaylist = fetchedPlaylist
 			self?.vodPlaylistId = fetchedPlaylist.id
 		}
-		.sink()
 		.store(in: &cancellables)
 		
 		command = """
@@ -154,12 +146,11 @@ class LiveApiViewModel: ObservableObject {
 	}
 	
 	func fetchEpisodes() {
-		live.fetchEpisodes().then { [weak self] episodes in
+		live.fetchEpisodes().sink { [weak self] episodes in
 			self?.response = "\(episodes)"
 			self?.liveEpisodeId = episodes.first?.id ?? ""
 			self?.episode = episodes.last
 		}
-		.sink()
 		.store(in: &cancellables)
 		
 		command = """
@@ -168,12 +159,11 @@ class LiveApiViewModel: ObservableObject {
 	}
 	
 	func fetchCurrentEpisode() {
-		live.fetchCurrentEpisode().then { [weak self] fetchedEpisode in
+		live.fetchCurrentEpisode().sink { [weak self] fetchedEpisode in
 			self?.response = "\(fetchedEpisode)"
 			self?.liveEpisodeId = fetchedEpisode?.id ?? ""
 			self?.episode = fetchedEpisode
 		}
-		.sink()
 		.store(in: &cancellables)
 		
 		command = """
@@ -182,16 +172,22 @@ class LiveApiViewModel: ObservableObject {
 	}
 	
 	func fetch(episode: Episode) {
-		live.fetch(episode: episode).then { [weak self] fetchedEpisode in
+		live.fetch(episode: episode).sink { [weak self] fetchedEpisode in
 			self?.response = "\(fetchedEpisode)"
 			self?.liveEpisodeId = fetchedEpisode.id
 			self?.episode = fetchedEpisode
 		}
-		.sink()
 		.store(in: &cancellables)
 		
 		command = """
 		live.fetch(episode: episode)
 		"""
+	}
+}
+
+
+public extension Publisher {
+	func sink(receiveValue: @escaping ((Self.Output) -> Void)) -> AnyCancellable {
+		return sink(receiveCompletion: { _ in }, receiveValue: receiveValue)
 	}
 }
