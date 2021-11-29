@@ -35,7 +35,7 @@ final class UserTests: XCTestCase {
 	func testMockedSignupSucceeds() {
 		let exp = expectation(description: "expectation")
 		let sut = MockedUserRepository()
-		sut.signup(email: "sachadso@gmail.com", password: "1234", firstname: "Sacha", lastname: "DSO").then { _ in
+        sut.signup(email: "sachadso@gmail.com", password: "1234", firstname: "Sacha", lastname: "DSO", username: "").then { _ in
 			exp.fulfill()
 		}
 		.sink()
@@ -46,7 +46,7 @@ final class UserTests: XCTestCase {
 	func testMockedSignupFails() {
 		let exp = expectation(description: "expectation")
 		let sut = MockedUserRepository()
-		sut.signup(email: "", password: "", firstname: "", lastname: "").onError {_ in
+        sut.signup(email: "", password: "", firstname: "", lastname: "", username: "").onError {_ in
 			exp.fulfill()
 		}
 		.sink()
@@ -105,7 +105,7 @@ struct MockedUserRepository: UserRepository {
 		}
 	}
 
-	func signup(email: Email, password: Password, firstname: String, lastname: String) -> AnyPublisher<User, SignupError> {
+    func signup(email: Email, password: Password, firstname: String, lastname: String, username: String) -> AnyPublisher<User, SignupError> {
 		if email != "" {
 			return Just(User(id: "id", firstname: "John", lastname: "Doe", email: "johndoe@gmail.com", username: "", hasAnsweredSurvey: false))
 				.setFailureType(to: SignupError.self)

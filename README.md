@@ -6,51 +6,196 @@
 [![Build status](https://build.appcenter.ms/v0.1/apps/3c45f38a-7b97-4647-9355-e95c6383ce05/branches/main/badge)](https://appcenter.ms)
 [![GitHub tag](https://img.shields.io/github/release/pbj-apps/Live-ios-sdk.svg)]()
 
-Stream your PBJ.live content from your iOS App.
+Stream your Live content from your iOS App.
 
-# Stream to your iOS app in 5 simple steps
+- [Introduction](#Introduction)
+    - [Installation](#Installation)
+    - [Initialization](#Initialization)
+    - [Authentication](#Authentication)
+- [Api](#Api)
+    - [Vod](#Vod)
+        - [Categories](#Categories)
+        - [Playlists](#Playlists)
+        - [Videos](#Videos)
+        - [Search](#Search)
+    - [Live](#Live) 
+        - [Episodes](#Episodes) 
+- [UI Components](#UI-Components)
+    - [Live Player](#Live-Player)
+    - [Vod Player](#Vod-Player)
+- [Example App](#Example-App)
 
-## 1. Import the Live-ios-sdk package
-`Xcode` > `File` > `Swift packages` > `Add Package Dependency`  
+
+# Introduction
+The Live iOS SDK enables you to display your Live content inside your iOS App.
+The live SDK package is separated in two distinct targets:  `Live` which contains all the "core" code and `LiveUI` containing UI elements.
+
+## Installation
+In Xcode, select `File` > `Swift packages` > `Add Package Dependency`  
+and enter Live SDK github url below:
 ```swift
 https://github.com/pbj-apps/Live-ios-sdk
 ```
 
-## 2. Initialize the LivePlayerSDK with your credentials on App start
+## Initialization
+You need to initialize the `Live` SDK with your credentials on App start.  
 A good place to do this is typically the `AppDelegate`.
 ```swift
 import Live
 
 // [...]
+let live = LiveSDK.initialize(
+   apiKey: "YOUR_API_KEY",
+   environment: .dev,
+   logLevels: .debug)
+```
+- `environment` is optional and defaults to `.prod`.  
+- `logLevels` is also optional and defaults to `.off`.  
 
-LiveSDK.initialize(apiKey: "YOUR_API_KEY")
+The whole `Live` api is accessed via this `live` object which exposes a classic Combine api returning `AnyPublisher<Result, Error>`
+
+## Authentication
+
+Before querying any data, you need to authenticate the SDK. This process is asynchonous.
+```swift
+live.authenticateAsGuest()
+   .sink { 
+      // SDK is now authenticated \o/
+   }
+   .store(in: &cancellables)
 ```
 
-## 3. (Optional) Check if there is a live episode beforehand
-Typical usage is that you have a "Watch live" button that you only want to show if there is an actual episode currently live.
+# Api
+
+## VoD
+
+### Categories
+
+Fetch all VoD Categories
 ```swift
-LiveSDK.isEpisodeLive { isLive, error in			
-    // -> isLive is true if there is any episode live.
-    // Show player here. (step 4)
+live.fetchVodCategories().sink { categories in 
+   // categories
 }
+.store(in: &cancellables)
 ```
 
-You can also pass your `showID` as a parameter to query live episodes, but this time for a specific show.
-You can find your `showId` in your web dashboard. Select the show you want and grab it's id from the browser's url.
+Fetch a specific VoD Category
 
-This api exists with both **callbacks** and **Combine publishers** so your are free to choose the version that fits best with your app.
-
-## 4. Create a Player
 ```swift
-let livePlayerVC = LiveSDK.player() // Optionally pass a showId.
+live.fetch(category: category).sink { category in 
+   // category
+}
+.store(in: &cancellables)
+```
+
+### Playlists
+Fetch all playlists
+```swift
+live.fetchVodPlaylists().sink { playlists in 
+   // playlists
+}
+.store(in: &cancellables)
+```
+Fetch a specific playlist
+```swift
+live.fetch(playlist: playlist).sink { playlist in 
+   // playlist
+}
+.store(in: &cancellables)
+```
+
+### Videos
+
+Fetch all VoD Videos
+```swift
+live.fetchVodVideos().sink { videos in 
+   // videos
+}
+.store(in: &cancellables)
+```
+
+ Fetch a specific VoD Video
+ ```swift
+live.fetch(video: vodVideo).sink { video in 
+   // video
+}
+.store(in: &cancellables)
+```
+
+### Search
+
+Search Vod Videos only
+```swift
+live.searchVodVideos(query: query).sink { videos in 
+   // videos
+}
+.store(in: &cancellables)
+```
+
+ Search Vod Videos & Playlists
+```swift
+live.searchVod(query: query).sink { vodItems in 
+   // vodItems (VodVideo & VodPlaylist)
+}
+.store(in: &cancellables)
+```
+
+## Live
+
+### Episodes
+
+Fetch all episodes
+```swift
+live.fetchEpisodes().sink { episodes in 
+   // episodes
+}
+.store(in: &cancellables)
+```
+
+Fetch a specific episode
+```swift
+live.fetch(episode: Episode).sink { episode in 
+   // episode
+}
+.store(in: &cancellables)
+```
+
+# UI Components
+In order to have access to UI elements, you will need to import `LiveUI`.
+
+UI components provided are 100% build with SwiftUI. For apps that haven't made the switch yet, we also provide a UIKit compatible api.
+
+
+## Live Player
+
+SwiftUI
+```swift
+LivePlayer(episode: episode, close: { })
+```
+
+UIKIt
+```swift
+let livePlayerVC = LivePlayerViewController(episode: episode)
 livePlayerVC.delegate = self
-```
-Without a `showId` parameter, the player will display the first live show it finds.
-
-## 5. Present it like you would any UIViewController
-```swift
 present(livePlayerVC, animated: true, completion: nil)
 ```
+
+Here `showId` is optional and without it, it would play the first live stream found.
+
+## VOD Player
+
+SwiftUI
+```swift
+VodPlayer(url: vodUrl, close: {})
+```
+
+UIKit
+```swift
+let vodPlayerVC = VodPlayerViewController(url: vodUrl)
+vodPlayerVC.delegate = self
+present(vodPlayerVC, animated: true, completion: nil)
+```
+
 
 ## Example App
 Checkout the example App provided in this repository to see a typical integration.
@@ -58,3 +203,4 @@ With the test app, you can input your Organization api key and battle test your 
 
 ## Got a question? Found an issue? 
 Create a github issue and we'll help you from there ❤️
+
