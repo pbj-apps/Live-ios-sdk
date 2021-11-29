@@ -11,6 +11,7 @@ Stream your Live content from your iOS App.
 - [Introduction](#Introduction)
     - [Installation](#Installation)
     - [Initialization](#Initialization)
+    - [Authentication](#Authentication)
 - [Api](#Api)
     - [Vod](#Vod)
         - [Categories](#Categories)
@@ -37,7 +38,7 @@ https://github.com/pbj-apps/Live-ios-sdk
 ```
 
 ## Initialization
-You need to initialize the `Live` SDK with your credentials on App start
+You need to initialize the `Live` SDK with your credentials on App start.  
 A good place to do this is typically the `AppDelegate`.
 ```swift
 import Live
@@ -169,7 +170,7 @@ UI components provided are 100% build with SwiftUI. For apps that haven't made t
 
 SwiftUI
 ```swift
-LivePlayer(episode: episode, close: { }, proxy: proxy)
+LivePlayer(episode: episode, close: { })
 ```
 
 UIKIt
