@@ -40,7 +40,7 @@ extension JSONProductHighlightedTiming {
 	}
 }
 
-extension String {
+public extension String {
 	func toSeconds() -> Int? {
 		let timeComponents = components(separatedBy: ":")
 		if timeComponents.count == 3 {

@@ -7,8 +7,8 @@
 
 import Foundation
 
-struct JSONPage<T: Decodable>: Decodable {
+public struct JSONPage<T: Decodable>: Decodable {
 	let count: Int
 	let next: String?
-	let results: [T]
+	public let results: [T]
 }

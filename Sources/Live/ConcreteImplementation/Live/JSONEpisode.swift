@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct JSONEpisode: Decodable {
+public struct JSONEpisode: Decodable {
 	let id: String
 	let title: String
 	let description: String
@@ -50,7 +50,7 @@ struct JSONEpisode: Decodable {
 		case asset
 	}
 
-	init(from decoder: Decoder) throws {
+	public init(from decoder: Decoder) throws {
 		let values = try decoder.container(keyedBy: CodingKeys.self)
 		id = try values.decode(String.self, forKey: .id)
 		title = try values.decode(String.self, forKey: .title)
@@ -75,7 +75,7 @@ struct JSONEpisode: Decodable {
 	}
 }
 
-extension JSONEpisode {
+public extension JSONEpisode {
 	func toEpisode() -> Episode {
 		var episode = Episode(id: id,
 													title: title,

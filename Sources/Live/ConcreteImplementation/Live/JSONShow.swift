@@ -7,13 +7,13 @@
 
 import Foundation
 
-struct JSONShow: Decodable {
+public struct JSONShow: Decodable {
 	let title: String
 	let description: String
 	let preview_asset: JSONPreviewAsset?
 }
 
-extension JSONShow {
+public extension JSONShow {
 	func toShow() -> Show {
 
 		return Show(

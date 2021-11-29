@@ -140,16 +140,16 @@ extension RestApi: LiveRepository {
 	}
 }
 
-struct WatchJSONResponse: Decodable, NetworkingJSONDecodable {
-	let stream_type: String?
-	let broadcast_url: String
-	let elapsed_time: String?
+public struct WatchJSONResponse: Decodable, NetworkingJSONDecodable {
+	public let stream_type: String?
+	public let broadcast_url: String
+	public let elapsed_time: String?
 }
 
 extension JSONEpisode: NetworkingJSONDecodable {}
 extension JSONShow: NetworkingJSONDecodable {}
 
-private extension Date {
+public extension Date {
 	func isSameDay(as date: Date) -> Bool {
 		var calender = Calendar.current
 		calender.timeZone = TimeZone.current
