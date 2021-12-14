@@ -31,7 +31,7 @@ struct LivePlayerInfo: View {
 
 	let episode: Episode
 	let close: (() -> Void)?
-	let proxy: GeometryProxy?
+	let proxy: GeometryProxy
 
 	var canShowFeaturedProducts: Bool {
 		return episode.status == .broadcasting && !products.isEmpty
@@ -162,10 +162,12 @@ struct LivePlayerInfo: View {
 	var showDetails: some View {
 		VStack(alignment: .leading) {
 			UppercasedText(episode.messageToDisplay(), uppercased: isAllCaps)
-				.lineLimit(5)
 				.foregroundColor(Color.white)
 				.font(.custom(regularFont, size: 50))
+				.minimumScaleFactor(0.4)
 				.lineSpacing(0.1)
+				.frame(maxHeight: proxy.size.height / 2)
+				.fixedSize(horizontal: false, vertical: true)
 				.padding(.bottom, 55)
 			UppercasedText("Live in", uppercased: isAllCaps)
 				.foregroundColor(Color.white)
@@ -254,7 +256,7 @@ struct LivePlayerInfo: View {
 		ProductsCarrousel(
 			products: currentlyFeaturedProducts,
 			fontName: regularFont,
-			leadingSpace: max(proxy?.safeAreaInsets.leading ?? 11, 11),
+			leadingSpace: max(proxy.safeAreaInsets.leading, 11),
 			onTapProduct: { product in
 				if let productLink = product.link {
 					UIApplication.shared.open(productLink, options: [:], completionHandler: nil)
@@ -267,7 +269,7 @@ struct LivePlayerInfo: View {
 		ProductsCarrousel(
 			products: products,
 			fontName: regularFont,
-			leadingSpace: max(proxy?.safeAreaInsets.leading ?? 11, 11),
+			leadingSpace: max(proxy.safeAreaInsets.leading, 11),
 			onTapProduct: { product in
 				if let productLink = product.link {
 					UIApplication.shared.open(productLink, options: [:], completionHandler: nil)
@@ -279,22 +281,23 @@ struct LivePlayerInfo: View {
 	// When rotating landscape, safeAreaInsets.top == 0.
 	// that's why we have to check.
 	var topSpace: CGFloat {
-		if let topSafeArea = proxy?.safeAreaInsets.top, topSafeArea > 0 {
+		let topSafeArea = proxy.safeAreaInsets.top
+		if topSafeArea > 0 {
 			return topSafeArea
 		}
 		return 20
 	}
 
 	var leadingSpace: CGFloat {
-		max(proxy?.safeAreaInsets.leading ?? 0, 20)
+		max(proxy.safeAreaInsets.leading, 20)
 	}
 
 	var bottomSpace: CGFloat {
-		max(proxy?.safeAreaInsets.bottom ?? 0, 20)
+		max(proxy.safeAreaInsets.bottom, 20)
 	}
 
 	var trailingSpace: CGFloat {
-		max(proxy?.safeAreaInsets.trailing ?? 0, 20)
+		max(proxy.safeAreaInsets.trailing, 20)
 	}
 
 	var canShowChat: Bool {
