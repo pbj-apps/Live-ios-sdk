@@ -14,10 +14,15 @@ public struct VodPlayer: View {
 	
 	private let topLeftButton: AnyView?
 	private let close: () -> Void
+	private let didPlay: (() -> Void)?
 	
-	public init(url: URL, close: @escaping () -> Void, topLeftButton: AnyView? = nil) {
-		self._viewModel = StateObject(wrappedValue: VodPlayerViewModel(url: url))
+	public init(url: URL,
+							close: @escaping () -> Void,
+							didPlay: (() -> Void)? = nil,
+							topLeftButton: AnyView? = nil) {
+		self._viewModel = StateObject(wrappedValue: VodPlayerViewModel(url: url, didPlay: didPlay))
 		self.close = close
+		self.didPlay = didPlay
 		self.topLeftButton = topLeftButton
 	}
 	

@@ -20,9 +20,11 @@ public class VodPlayerViewModel: NSObject, ObservableObject {
 	private var timeObserver: Any?
 	private var fadeOutTimer: Timer?
 	private var playerItemContext = 0
+	private var didPlay: (() -> Void)?
 	
-	public init(url: URL) {
+	public init(url: URL, didPlay: (() -> Void)?) {
 		self.player	= AVPlayer(url: url)
+		self.didPlay = didPlay
 		super.init()
 		self.player.currentItem?.addObserver(self,
 																				 forKeyPath: #keyPath(AVPlayerItem.status),
@@ -44,6 +46,8 @@ public class VodPlayerViewModel: NSObject, ObservableObject {
 	
 	public func play() {
 		player.play()
+		didPlay?()
+		didPlay = nil
 		isPlaying = true
 		fadeOutControlsLater()
 	}
