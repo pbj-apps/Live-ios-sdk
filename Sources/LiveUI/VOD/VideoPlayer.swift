@@ -56,7 +56,7 @@ public struct VideoPlayer: UIViewRepresentable {
 		if isPlaying {
 			if isLive {
 				// Vod Live
-				if episode.vodId != nil {
+				if episode.isPreRecorded {
 					// Seek vod to correct timing whenever we are too far off. (1 sec)
 					if let elapsedTime = elapsedTime, let currentPlayerTime = context.coordinator.player?.currentTime().seconds {
 						let timeDifference = abs(currentPlayerTime - elapsedTime)

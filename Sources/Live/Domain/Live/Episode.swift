@@ -25,6 +25,7 @@ public struct Episode: Identifiable, Hashable {
 	public var elapsedTime: TimeInterval?
 	public var elapsedTimeDate: Date?
 	public var vodId: String?
+	public var isPreRecorded = false
 	public var isPushNotificationReminderSet: Bool
 
 	public func timeElapsed() -> TimeInterval? {

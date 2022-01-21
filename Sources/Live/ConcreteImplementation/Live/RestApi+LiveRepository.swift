@@ -91,15 +91,21 @@ extension RestApi: LiveRepository {
 			let streamType = response.stream_type
 			var newEpisode = episode
 
-			// BroadcastUrl
-			if streamType == nil || streamType == "live_stream" {
+			if streamType == nil || streamType == "live_stream" { // Regular LiveStream
+				
+				// BroadcastUrl
 				if episode.vodId == nil && !response.broadcast_url.isEmpty {
 					newEpisode.broadcastUrl = response.broadcast_url
 				}
-			}
+			} else if streamType == "pre_recorded_live_stream" { // VOD-backed livestream
+				newEpisode.isPreRecorded = true
 
-			// Elapsed time
-			if streamType == nil || streamType == "pre_recorded_live_stream" {
+				// BroadcastUrl
+				if !response.broadcast_url.isEmpty {
+					newEpisode.broadcastUrl = response.broadcast_url
+				}
+
+				// Elapsed time
 				if let elapsed_time = response.elapsed_time,
 					 let time = elapsed_time.split(separator: ".").first,
 					 let timeInt = String(time).toSeconds() {
