@@ -240,8 +240,11 @@ struct JSONUser: Decodable {
 		authToken = try? values.decode(String.self, forKey: .auth_token)
 		hasAnsweredSurvey = try? values.decode(Bool.self, forKey: .is_survey_attempted)
 		if let profileImageValues = try? values.nestedContainer(keyedBy: ProfileImageKeys.self, forKey: .profile_image) {
-			let imageValues = try profileImageValues.nestedContainer(keyedBy: ImageKeys.self, forKey: .image)
-			avatarUrl = try imageValues.decode(String.self, forKey: .small)
+			if let imageValues = try? profileImageValues.nestedContainer(keyedBy: ImageKeys.self, forKey: .image) {
+				avatarUrl = try? imageValues.decode(String.self, forKey: .small)
+			} else {
+				avatarUrl = nil
+			}
 		} else {
 			avatarUrl = nil
 		}
