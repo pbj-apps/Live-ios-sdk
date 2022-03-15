@@ -107,7 +107,6 @@ class Websocket: NSObject, URLSessionWebSocketDelegate {
     }
     
     private func buildWebSocketTask() {
-				statusUpdatePublisher = PassthroughSubject<EpisodeStatusUpdate, Error>()
         let urlSession = URLSession(configuration: .default, delegate: nil, delegateQueue: OperationQueue())
         webSocketTask = urlSession.webSocketTask(with: URL(string: "\(url)/episodes/stream?token=\(token())&org_api_key=\(apiKey)")!)
         webSocketTask?.resume()
