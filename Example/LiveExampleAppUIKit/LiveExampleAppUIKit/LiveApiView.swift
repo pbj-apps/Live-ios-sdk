@@ -152,7 +152,6 @@ struct LiveApiView: View {
 						Text("Fetch Current Episode")
 					}
 					
-					
 					HStack {
 						Button(action: {
 							viewModel.fetch(episode: Episode(id: viewModel.liveEpisodeId))
@@ -163,6 +162,18 @@ struct LiveApiView: View {
 						
 						TextField("Episode Id", text: $viewModel.liveEpisodeId)
 					}
+					
+					Button(action: {
+						viewModel.registerForEpisodeUpdates()
+					}) {
+						Text("Listen to Real Time Updates")
+					}.disabled(!viewModel.isInitialized)
+					
+					Button(action: {
+						viewModel.leaveEpisodeUpdates()
+					}) {
+						Text("Leave Real Time Updates")
+					}.disabled(!viewModel.isInitialized)
 					
 				}
 				.disabled(!viewModel.isInitialized)
@@ -200,6 +211,12 @@ struct LiveApiView: View {
 				Section(header: Text("Response")
 									.foregroundColor(.white)) {
 					TextEditor(text: $viewModel.response)
+						.font(Font.system(size: 12, design: .monospaced))
+						.frame(height: 150)
+				}
+				Section(header: Text("Real Time Updates")
+									.foregroundColor(.white)) {
+					TextEditor(text: $viewModel.realTimeUpdates)
 						.font(Font.system(size: 12, design: .monospaced))
 						.frame(height: 150)
 				}

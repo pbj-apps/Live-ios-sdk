@@ -16,6 +16,7 @@ class LiveApiViewModel: ObservableObject {
 	@Published var isInitialized = false
 	@Published var command = ""
 	@Published var response = ""
+	@Published var realTimeUpdates = ""
 	@Published var showsLivePlayer: Bool = false
 	@Published var showsVodPlayer: Bool = false
 	@Published var vodCategoryId: String = ""
@@ -181,6 +182,28 @@ class LiveApiViewModel: ObservableObject {
 		
 		command = """
 		live.fetch(episode: episode)
+		"""
+	}
+	
+	func registerForEpisodeUpdates() {
+		live.registerForEpisodeUpdates()
+			.receive(on: DispatchQueue.main)
+			.sink(receiveCompletion: { completion in
+				print(completion)
+			}, receiveValue: { [weak self] update in
+				self?.realTimeUpdates = "\(update)"
+			})
+			.store(in: &cancellables)
+		
+		command = """
+		live.registerForEpisodeUpdates()
+		"""
+	}
+	
+	func leaveEpisodeUpdates() {
+		live.leaveEpisodeUpdates()
+		command = """
+		live.leaveEpisodeUpdates()
 		"""
 	}
 }
