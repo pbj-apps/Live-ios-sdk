@@ -34,7 +34,7 @@ public final class RestApi: NetworkingService {
 							logLevels: LiveLogLevel = .off) {
 		self.baseUrl = apiUrl
 		let client = NetworkingClient(baseURL: apiUrl)
-		client.logLevels = logLevels.toNetworkingLogLevel()
+		client.logLevel = logLevels.toNetworkingLogLevel()
 		client.headers["Accept"] = "application/vnd.pbj+json; version=1.0"
 		client.headers["X-api-key"] = apiKey
 		client.parameterEncoding = .json

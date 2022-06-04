@@ -17,12 +17,21 @@ extension RestApi: GuestAuthenticationRepository {
 		}.eraseToAnyPublisher()
 	}
 	
-	public func fetchGuestToken() -> AnyPublisher<JSONGuestAuthResponse, Error> {
+	public func authenticateAsGuest() async throws {
+		let response = try await fetchGuestToken()
+		authenticationToken = response.auth_token
+	}
+	
+	private func fetchGuestToken() -> AnyPublisher<JSONGuestAuthResponse, Error> {
 		post("/auth/guest/session")
+	}
+	
+	private func fetchGuestToken() async throws -> JSONGuestAuthResponse {
+		try await post("/auth/guest/session")
 	}
 }
 
 
-public struct JSONGuestAuthResponse: Decodable, NetworkingJSONDecodable {
+public struct JSONGuestAuthResponse: Decodable {
 	public let auth_token: String
 }

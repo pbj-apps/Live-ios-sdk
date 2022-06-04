@@ -28,7 +28,6 @@ extension RestApi: SurveyRepository {
 	}
 }
 
-extension JSONSurveyPage: NetworkingJSONDecodable {}
 enum ParsingError: Error {
 	case `default`
 }

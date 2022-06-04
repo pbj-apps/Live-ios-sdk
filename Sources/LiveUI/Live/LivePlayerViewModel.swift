@@ -10,6 +10,7 @@ import SwiftUI
 import Live
 import Combine
 
+@MainActor
 public class LivePlayerViewModel: ObservableObject {
 
 	@Published public var episode: Episode
@@ -29,56 +30,42 @@ public class LivePlayerViewModel: ObservableObject {
 		self.currentlyFeaturedProducts = []
 		self.liveRepository = liveRepository
 		self.productRepository = productRepository
-		self.fetchProducts()
-		self.fetchCurrentlyFeaturedProducts()
 		
-		registerForEpisodeUpdates()
-		refresh()
-	}
-	
-	private func refresh() {
-		liveRepository.fetch(episode: episode).then { [weak self] fetchedEpisode in
-			self?.episode = fetchedEpisode
-			if self?.episode.status == .broadcasting {
-				self?.fetchBroadcastURL()
-			}
+		Task {
+			try await self.fetchProducts()
 		}
-		.sink()
-		.store(in: &cancellables)
+		Task {
+			try await self.fetchCurrentlyFeaturedProducts()
+		}
+		registerForEpisodeUpdates()
+		Task {
+			try await refresh()
+		}
 	}
 	
-	private func fetchBroadcastURL() {
-		liveRepository.fetchBroadcastUrl(for: episode)
-			.receive(on: RunLoop.main)
-			.then { [unowned self] fetchedEpisode in
-				self.episode = fetchedEpisode
-			}
-			.sink()
-			.store(in: &cancellables)
+	private func refresh() async throws {
+		episode = try await liveRepository.fetch(episode: episode)
+		if episode.status == .broadcasting {
+			try await fetchBroadcastURL()
+		}
+	}
+	
+	private func fetchBroadcastURL() async throws {
+		episode = try await liveRepository.fetchBroadcastUrl(for: episode)
 	}
 
-	public func fetchProducts() {
-		productRepository?.fetchProducts(for: episode)
-			.then { [unowned self] fetchedProducts in
-				withAnimation {
-					self.products = fetchedProducts
-					//					self.showProducts  = true
-				}
-			}
-			.sink()
-			.store(in: &cancellables)
+	public func fetchProducts() async throws {
+		let fetchedProducts = try await productRepository?.fetchProducts(for: episode)
+		withAnimation {
+			self.products = fetchedProducts ?? []
+		}
 	}
 
-	public func fetchCurrentlyFeaturedProducts() {
-		productRepository?.fetchCurrentlyFeaturedProducts(for: episode)
-			.then { [unowned self] fetchedProducts in
-				withAnimation {
-					self.currentlyFeaturedProducts = fetchedProducts
-					//                    self.showProducts  = true
-				}
-			}
-			.sink()
-			.store(in: &cancellables)
+	public func fetchCurrentlyFeaturedProducts() async throws {
+		let fetchedProducts = try await productRepository?.fetchCurrentlyFeaturedProducts(for: episode)
+		withAnimation {
+			self.currentlyFeaturedProducts = fetchedProducts ?? []
+		}
 	}
 
 	public func registerForProductHighlights() {
@@ -107,7 +94,9 @@ public class LivePlayerViewModel: ObservableObject {
 						episode.status = update.status
 					}
 					if update.status == .broadcasting {
-						self.fetchBroadcastURL()
+						Task {
+							try await self.fetchBroadcastURL()
+						}
 					}
 				}
 			}.store(in: &cancellables)

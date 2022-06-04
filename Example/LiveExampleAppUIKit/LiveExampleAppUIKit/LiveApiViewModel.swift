@@ -9,6 +9,7 @@ import Foundation
 import Live
 import Combine
 
+@MainActor
 class LiveApiViewModel: ObservableObject {
 	
 	@Published var apiKey: String = "pk_l1t4P9eEPvLkpQBYMJirItrffN4JSAqUstJtb8BfWN4Eqr8U3bSvaQnE8JwH9rhHJmpnSBVWM3Q34BNvP8nUXln9k0I927op1ptSnU1hHRpOVYZayRNWEiNSxB0NgPEwRmFmy6ULnBYM6u1ymmn"
@@ -46,139 +47,117 @@ class LiveApiViewModel: ObservableObject {
 		"""
 		isInitialized = true
 	}
-	
-	func fetchVodCategories() {
-		live.fetchVodCategories().sink { [weak self] categories in
-			self?.response = "\(categories)"
-			self?.vodCategoryId = categories.first?.id ?? ""
-		}
-		.store(in: &cancellables)
-
+    
+	func fetchVodCategories() async throws {
+		let categories = try await live.fetchVodCategories()
+		response = "\(categories)"
+		vodCategoryId = categories.first?.id ?? ""
+		
 		command = """
 		live.fetchVodCategories()
 		"""
 	}
 	
-	func fetch(category: VodCategory) {
-		live.fetch(category: category).sink { [weak self] category in
-			self?.response = "\(category)"
-			self?.vodCategoryId = category.id
-		}
-		.store(in: &cancellables)
+	func fetch(category: VodCategory) async throws {
+		let category = try await live.fetch(category: category)
+		response = "\(category)"
+		vodCategoryId = category.id
 		
 		command = """
 		live.fetch(category: category)
 		"""
 	}
 	
-	func fetchVodVideos() {
-		live.fetchVodVideos().sink { [weak self] videos in
-			self?.response = "\(videos)"
-			self?.vodVideo = videos.first
-			self?.vodVideoId = videos.first?.id ?? ""
-		}
-		.store(in: &cancellables)
+	func fetchVodVideos() async throws {
+		let videos = try await live.fetchVodVideos()
+		response = "\(videos)"
+		vodVideo = videos.first
+		vodVideoId = videos.first?.id ?? ""
 		
 		command = """
 		live.fetchAllVodVideos()
 		"""
 	}
 	
-	func fetch(video: VodVideo) {
-		live.fetch(video: video).sink { [weak self] fetchedVideo in
-			self?.response = "\(fetchedVideo)"
-			self?.vodVideo = fetchedVideo
-			self?.vodVideoId = fetchedVideo.id
-		}
-		.store(in: &cancellables)
+	func fetch(video: VodVideo) async throws {
+		let fetchedVideo = try await live.fetch(video: video)
+		response = "\(fetchedVideo)"
+		vodVideo = fetchedVideo
+		vodVideoId = fetchedVideo.id
 		
 		command = """
 		live.fetch(video: video)
 		"""
 	}
 	
-	func searchVodVideos(query: String) {
-		live.searchVodVideos(query: query).sink { [weak self] videos in
-			self?.response = "\(videos)"
-			self?.vodVideo = videos.first
-			self?.vodVideoId = videos.first?.id ?? ""
-		}
-		.store(in: &cancellables)
-		
+	func searchVodVideos(query: String) async throws {
+		let videos = try await live.searchVodVideos(query: query)
+		response = "\(videos)"
+		vodVideo = videos.first
+		vodVideoId = videos.first?.id ?? ""
+
 		command = """
 		live.searchVodVideos(query: query)
 		"""
 	}
 	
-	func searchVod(query: String) {
-		live.searchVod(query: query).sink { [weak self] vodItems in
-			self?.response = "\(vodItems)"
-		}
-		.store(in: &cancellables)
+	func searchVod(query: String) async throws {
+		let vodItems = try await live.searchVod(query: query)
+		response = "\(vodItems)"
 		command = """
 		live.searchVod(query: query)
 		"""
 	}
 	
-	func fetchVodPlaylists() {
-		live.fetchVodPlaylists().sink { [weak self] playlists in
-			self?.response = "\(playlists)"
-			self?.vodPlaylist = playlists.first
-			self?.vodPlaylistId = playlists.first?.id ?? ""
-		}
-		.store(in: &cancellables)
+	func fetchVodPlaylists() async throws {
+		let playlists = try await live.fetchVodPlaylists()
+		response = "\(playlists)"
+		vodPlaylist = playlists.first
+		vodPlaylistId = playlists.first?.id ?? ""
 		
 		command = """
 		live.fetchVodPlaylists()
 		"""
 	}
 	
-	func fetch(playlist: VodPlaylist) {
-		live.fetch(playlist: playlist).sink { [weak self] fetchedPlaylist in
-			self?.response = "\(fetchedPlaylist)"
-			self?.vodPlaylist = fetchedPlaylist
-			self?.vodPlaylistId = fetchedPlaylist.id
-		}
-		.store(in: &cancellables)
+	func fetch(playlist: VodPlaylist) async throws {
+		let fetchedPlaylist = try await live.fetch(playlist: playlist)
+		response = "\(fetchedPlaylist)"
+		vodPlaylist = fetchedPlaylist
+		vodPlaylistId = fetchedPlaylist.id
 		
 		command = """
 		live.fetch(playlist: playlist)
 		"""
 	}
 	
-	func fetchEpisodes() {
-		live.fetchEpisodes().sink { [weak self] episodes in
-			self?.response = "\(episodes)"
-			self?.liveEpisodeId = episodes.first?.id ?? ""
-			self?.episode = episodes.last
-		}
-		.store(in: &cancellables)
+	func fetchEpisodes() async throws {
+		let episodes = try await live.fetchEpisodes()
+		response = "\(episodes)"
+		liveEpisodeId = episodes.first?.id ?? ""
+		episode = episodes.last
 		
 		command = """
 		live.fetchEpisodes()
 		"""
 	}
 	
-	func fetchCurrentEpisode() {
-		live.fetchCurrentEpisode().sink { [weak self] fetchedEpisode in
-			self?.response = "\(fetchedEpisode)"
-			self?.liveEpisodeId = fetchedEpisode?.id ?? ""
-			self?.episode = fetchedEpisode
-		}
-		.store(in: &cancellables)
-		
+	func fetchCurrentEpisode() async throws {
+		let fetchedEpisode = try await live.fetchCurrentEpisode()
+		response = "\(fetchedEpisode)"
+		liveEpisodeId = fetchedEpisode?.id ?? ""
+		episode = fetchedEpisode
+
 		command = """
 		live.fetchCurrentEpisode()
 		"""
 	}
 	
-	func fetch(episode: Episode) {
-		live.fetch(episode: episode).sink { [weak self] fetchedEpisode in
-			self?.response = "\(fetchedEpisode)"
-			self?.liveEpisodeId = fetchedEpisode.id
-			self?.episode = fetchedEpisode
-		}
-		.store(in: &cancellables)
+	func fetch(episode: Episode) async throws {
+		let fetchedEpisode = try await live.fetch(episode: episode)
+		response = "\(fetchedEpisode)"
+		liveEpisodeId = fetchedEpisode.id
+		self.episode = fetchedEpisode
 		
 		command = """
 		live.fetch(episode: episode)

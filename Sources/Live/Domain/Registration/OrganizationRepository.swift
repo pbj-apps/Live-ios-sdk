@@ -10,4 +10,5 @@ import Combine
 
 public protocol OrganizationRepository {
 	func fetchCurrent() -> AnyPublisher<Organization, Error>
+	func fetchCurrent() async throws -> Organization
 }

@@ -111,8 +111,6 @@ struct JSONUploadAssetResponse: Decodable {
 	let id: String
 }
 
-extension JSONUploadAssetResponse: NetworkingJSONDecodable {}
-
 private extension Error {
 	func toSignupError() -> SignupError {
 		if let networkingError = self as? NetworkingError {
@@ -195,8 +193,6 @@ private extension Error {
 }
 
 typealias ID = String
-
-extension JSONUser: NetworkingJSONDecodable {}
 
 struct JSONUser: Decodable {
 

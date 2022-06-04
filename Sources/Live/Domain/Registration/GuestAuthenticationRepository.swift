@@ -9,5 +9,6 @@ import Foundation
 import Combine
 
 public protocol GuestAuthenticationRepository {
-	func authenticateAsGuest() -> AnyPublisher<(), Error>
+	func authenticateAsGuest() -> AnyPublisher<Void, Error>
+	func authenticateAsGuest() async throws
 }

@@ -11,7 +11,7 @@ let package = Package(
 				.library(name: "LiveUI", targets: ["LiveUI"])
 		],
 		dependencies: [
-				.package(url: "https://github.com/freshOS/Networking", .exact("0.3.4")),
+				.package(url: "https://github.com/freshOS/Networking", .exact("1.2.1")),
 				.package(url: "https://github.com/onevcat/Kingfisher", .exact("7.1.1"))
 		],
 		targets: [

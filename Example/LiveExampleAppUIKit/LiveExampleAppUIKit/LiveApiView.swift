@@ -62,14 +62,14 @@ struct LiveApiView: View {
 					
 					
 					Button(action: {
-						viewModel.fetchVodCategories()
+						Task { try await viewModel.fetchVodCategories() }
 					}) {
 						Text("Fetch All Categories")
 					}
 					
 					HStack {
 						Button(action: {
-							viewModel.fetch(category: VodCategory(id: viewModel.vodCategoryId))
+							Task { try await viewModel.fetch(category: VodCategory(id: viewModel.vodCategoryId)) }
 						}) {
 								Text("Fetch Category")
 						}
@@ -80,14 +80,14 @@ struct LiveApiView: View {
 					
 					
 					Button(action: {
-						viewModel.fetchVodVideos()
+						Task { try await viewModel.fetchVodVideos() }
 					}) {
 						Text("Fetch All Videos")
 					}
 					
 					HStack {
 						Button(action: {
-							viewModel.fetch(video: VodVideo(id: viewModel.vodVideoId))
+							Task { try await viewModel.fetch(video: VodVideo(id: viewModel.vodVideoId)) }
 						}) {
 								Text("Fetch Video")
 						}
@@ -97,14 +97,14 @@ struct LiveApiView: View {
 					}
 					
 					Button(action: {
-						viewModel.fetchVodPlaylists()
+						Task { try await viewModel.fetchVodPlaylists() }
 					}) {
 						Text("Fetch All Playlists")
 					}
 					
 					HStack {
 						Button(action: {
-							viewModel.fetch(playlist: VodPlaylist(id: viewModel.vodPlaylistId))
+							Task { try await viewModel.fetch(playlist: VodPlaylist(id: viewModel.vodPlaylistId)) }
 						}) {
 								Text("Fetch Playlist")
 						}
@@ -116,7 +116,7 @@ struct LiveApiView: View {
 					
 					HStack {
 						Button(action: {
-							viewModel.searchVodVideos(query: viewModel.searchTerm)
+							Task { try await viewModel.searchVodVideos(query: viewModel.searchTerm) }
 						}) {
 								Text("Search Videos")
 						}
@@ -126,7 +126,7 @@ struct LiveApiView: View {
 					
 					HStack {
 						Button(action: {
-							viewModel.searchVod(query: viewModel.searchTerm)
+							Task { try await viewModel.searchVod(query: viewModel.searchTerm) }
 						}) {
 								Text("Search Videos & Playlists")
 						}
@@ -141,20 +141,20 @@ struct LiveApiView: View {
 									.foregroundColor(.white)) {
 					
 					Button(action: {
-						viewModel.fetchEpisodes()
+						Task { try await viewModel.fetchEpisodes() }
 					}) {
 						Text("Fetch All Episodes")
 					}
 					
 					Button(action: {
-						viewModel.fetchCurrentEpisode()
+						Task { try await viewModel.fetchCurrentEpisode() }
 					}) {
 						Text("Fetch Current Episode")
 					}
 					
 					HStack {
 						Button(action: {
-							viewModel.fetch(episode: Episode(id: viewModel.liveEpisodeId))
+							Task { try await viewModel.fetch(episode: Episode(id: viewModel.liveEpisodeId)) }
 						}) {
 								Text("Fetch Episode")
 						}

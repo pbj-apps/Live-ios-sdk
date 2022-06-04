@@ -10,11 +10,17 @@ import Combine
 import Networking
 
 extension RestApi: OrganizationRepository {
+	
 	public func fetchCurrent() -> AnyPublisher<Organization, Error> {
 		get("/organizations/current").map { (jsonOrganization: JSONOrganization) in
 			return jsonOrganization.toOrganization()
 		}
 		.eraseToAnyPublisher()
+	}
+	
+	public func fetchCurrent() async throws -> Organization {
+		let jsonOrganization: JSONOrganization = try await get("/organizations/current")
+		return jsonOrganization.toOrganization()
 	}
 }
 
@@ -27,8 +33,6 @@ struct JSONOrganization: Decodable {
 	let name: String
 	let feature_flags: JSONOrganizationFeatureFlags
 }
-
-extension JSONOrganization: NetworkingJSONDecodable {}
 
 extension JSONOrganization {
 	func toOrganization() -> Organization {
