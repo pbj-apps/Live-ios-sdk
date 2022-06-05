@@ -19,7 +19,6 @@ public class LivePlayerViewModel: ObservableObject {
 	@Published public var products: [Product]
 	@Published public var currentlyFeaturedProducts: [Product]
 	@Published var showProducts = false
-	//    @Published var showCurrentlyFeaturedProducts = false
 	private var cancellables = Set<AnyCancellable>()
 
 	public init(episode: Episode,
@@ -33,9 +32,6 @@ public class LivePlayerViewModel: ObservableObject {
 		
 		Task {
 			try await self.fetchProducts()
-		}
-		Task {
-			try await self.fetchCurrentlyFeaturedProducts()
 		}
 		registerForEpisodeUpdates()
 		Task {
@@ -58,13 +54,7 @@ public class LivePlayerViewModel: ObservableObject {
 		let fetchedProducts = try await productRepository?.fetchProducts(for: episode)
 		withAnimation {
 			self.products = fetchedProducts ?? []
-		}
-	}
-
-	public func fetchCurrentlyFeaturedProducts() async throws {
-		let fetchedProducts = try await productRepository?.fetchCurrentlyFeaturedProducts(for: episode)
-		withAnimation {
-			self.currentlyFeaturedProducts = fetchedProducts ?? []
+			self.currentlyFeaturedProducts = products.filter { $0.isHighlighted }
 		}
 	}
 
@@ -75,7 +65,6 @@ public class LivePlayerViewModel: ObservableObject {
 				withAnimation {
 					self.currentlyFeaturedProducts = productUpdate.products
 				}
-				//            self.showCurrentlyFeaturedProducts  = true
 			}.store(in: &cancellables)
 	}
 

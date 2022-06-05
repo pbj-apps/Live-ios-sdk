@@ -14,6 +14,12 @@ import Live
 
 let sharedKeyboardResponder = KeyboardResponder()
 
+public protocol LivePlayerInfoViewFactory {
+	func makeLivePlayerInfoView(title: String,
+															startDate: Date,
+															close: @escaping () -> Void) -> AnyView
+}
+
 public struct LivePlayer: View {
 	
 	@StateObject var viewModel: LivePlayerViewModel
@@ -45,10 +51,12 @@ public struct LivePlayer: View {
 	@State var showInfo = true
 	@State var chatUsername: String?
 	
+	private let customInfoViewFactory: LivePlayerInfoViewFactory?
+	
 	public init(
 		episode: Episode,
 		liveRepository: LiveRepository = LiveSDKInstance.shared,
-		productRepository: ProductRepository? = nil,
+		productRepository: ProductRepository = LiveSDKInstance.shared,
 		nextEpisode: Episode? = nil,
 		close: (() -> Void)? = nil,
 		isAllCaps: Bool = false,
@@ -64,7 +72,8 @@ public struct LivePlayer: View {
 		chatMessages: [ChatMessage] = [],
 		fetchMessages: @escaping () -> Void = {},
 		sendMessage: @escaping (String, String?) -> Void = { _, _ in},
-		isInGuestMode: Bool = true
+		isInGuestMode: Bool = true,
+		customInfoViewFactory: LivePlayerInfoViewFactory? = nil
 	) {
 		_viewModel =  StateObject(wrappedValue: LivePlayerViewModel(episode: episode, liveRepository: liveRepository, productRepository: productRepository))
 		self.nextEpisode = nextEpisode
@@ -84,6 +93,7 @@ public struct LivePlayer: View {
 		self.fetchMessages = fetchMessages
 		self.sendMessage = sendMessage
 		self.isInGuestMode = isInGuestMode
+		self.customInfoViewFactory = customInfoViewFactory
 	}
 	
 	public var body: some View {
@@ -146,29 +156,41 @@ public struct LivePlayer: View {
 				}
 				if episode.status != .finished { //} && liveStream.status != .idle {
 					if showInfo {
-						LivePlayerInfo(
-							showProducts: $viewModel.showProducts,
-							isChatEnabled: isChatEnabled,
-							chatMessages: chatMessages,
-							fetchMessages: fetchMessages,
-							sendMessage: sendMessage,
-							products: viewModel.products,
-							currentlyFeaturedProducts: viewModel.currentlyFeaturedProducts,
-							isAllCaps: isAllCaps,
-							regularFont: regularFont,
-							lightFont: lightFont,
-							lightForegroundColor: lightForegroundColor,
-							isInGuestMode: isInGuestMode,
-							chatUsername: $chatUsername,
-							episode: episode,
-							close: {
+						
+						if let customInfoViewFactory = customInfoViewFactory {
+							customInfoViewFactory.makeLivePlayerInfoView(title: episode.messageToDisplay(), startDate: episode.startDate, close: {
 								isLivePlaying = false
 								close?()
-							},
-							proxy: proxy)
+							})
+								.transition(.opacity)
+								.padding(.bottom, keyboard.currentHeight)
+								.padding(.top, proxy.safeAreaInsets.top)
+								.zIndex(4)
+						} else {
+							LivePlayerInfo(
+								showProducts: $viewModel.showProducts,
+								isChatEnabled: isChatEnabled,
+								chatMessages: chatMessages,
+								fetchMessages: fetchMessages,
+								sendMessage: sendMessage,
+								products: viewModel.products,
+								currentlyFeaturedProducts: viewModel.currentlyFeaturedProducts,
+								isAllCaps: isAllCaps,
+								regularFont: regularFont,
+								lightFont: lightFont,
+								lightForegroundColor: lightForegroundColor,
+								isInGuestMode: isInGuestMode,
+								chatUsername: $chatUsername,
+								episode: episode,
+								close: {
+									isLivePlaying = false
+									close?()
+								},
+								proxy: proxy)
 							.transition(.opacity)
 							.padding(.bottom, keyboard.currentHeight)
 							.zIndex(4)
+						}
 					}
 				}
 			}

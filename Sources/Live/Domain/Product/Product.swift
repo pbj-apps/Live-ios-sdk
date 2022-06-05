@@ -14,6 +14,7 @@ public struct Product: Equatable {
 	public let detail: String
 	public let image: URL?
 	public let link: URL?
+	public let isHighlighted: Bool
 	public let highlightTimings: [ProductHighlightedTiming]?
 
 	public init(id: String,
@@ -22,6 +23,7 @@ public struct Product: Equatable {
 							detail: String,
 							image: URL?,
 							link: URL?,
+							isHighlighted: Bool,
 							highlightTimings: [ProductHighlightedTiming]?){
 		self.id = id
 		self.title = title
@@ -29,6 +31,7 @@ public struct Product: Equatable {
 		self.detail = detail
 		self.image = image
 		self.link = link
+		self.isHighlighted = isHighlighted
 		self.highlightTimings = highlightTimings
 	}
 }

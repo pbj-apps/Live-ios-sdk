@@ -10,6 +10,7 @@ import Foundation
 
 struct JSONProductResult: Decodable {
 	let id: String
+	let is_highlighted: Bool?
 	let product: JSONProduct
 	let highlight_timings: [JSONProductHighlightedTiming]?
 }
@@ -23,8 +24,8 @@ struct JSONProduct: Decodable {
 	let title: String
 	let description: String
 	let price: String
-	let store_url: String
-	let image: JSONProductImage
+	let store_url: String?
+	let preview_image: JSONPreviewAsset
 }
 
 struct JSONProductImage: Decodable {
@@ -60,8 +61,9 @@ extension JSONProductResult {
 			title: product.title,
 			price: product.price,
 			detail: product.description,
-			image: URL(string: product.image.src),
-			link: URL(string: product.store_url),
+			image: URL(string: product.preview_image.image.medium),
+			link: nil,//product.store_url?.compactMap { URL(string: $0) } ,
+			isHighlighted: is_highlighted ?? false,
 			highlightTimings: highlight_timings?.compactMap { $0.toProductHighlightedTiming() })
 	}
 }

@@ -49,6 +49,7 @@ struct ProductsCarrousel_Previews: PreviewProvider {
 			detail: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.`",
 			image: nil,
 			link: nil,
+			isHighlighted: false,
 			highlightTimings: nil)
 		let product2 = Product(
 			id: "123",
@@ -57,6 +58,7 @@ struct ProductsCarrousel_Previews: PreviewProvider {
 			detail: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.`",
 			image: nil,
 			link: nil,
+			isHighlighted: false,
 			highlightTimings: nil)
 		let product3 = Product(
 			id: "123",
@@ -65,6 +67,7 @@ struct ProductsCarrousel_Previews: PreviewProvider {
 			detail: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.`",
 			image: nil,
 			link: nil,
+			isHighlighted: false,
 			highlightTimings: nil)
 		ProductsCarrousel(products: [product1, product2, product3], fontName: "", leadingSpace: 10, onTapProduct: { _ in })
 	}

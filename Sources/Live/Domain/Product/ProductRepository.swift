@@ -15,9 +15,6 @@ public protocol ProductRepository {
 	func fetchProducts(for video: VodVideo) -> AnyPublisher<[Product], Error>
 	func fetchProducts(for video: VodVideo) async throws -> [Product]
 	
-	func fetchCurrentlyFeaturedProducts(for episode: Episode) -> AnyPublisher<[Product], Error>
-	func fetchCurrentlyFeaturedProducts(for episode: Episode) async throws -> [Product]
-	
 	func registerForProductHighlights(for episode: Episode) -> AnyPublisher<ProductUpdate, Never>
 	func unRegisterProductHighlights(for episode: Episode)
 }

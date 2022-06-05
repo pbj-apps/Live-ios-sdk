@@ -8,11 +8,11 @@
 import Foundation
 import Combine
 
-public typealias Live = VodRepository & LiveRepository & GuestAuthenticationRepository
+public typealias Live = VodRepository & LiveRepository & GuestAuthenticationRepository & ProductRepository
 
 
 public class LiveSDKInstance {
-	public static var shared: LiveRepository!
+	public static var shared: Live!
 }
 public enum LiveSDK {
 		

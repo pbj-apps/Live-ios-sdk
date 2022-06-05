@@ -34,6 +34,7 @@ struct ProductComponent_Previews: PreviewProvider {
 			detail: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.`",
 			image: nil,
 			link: nil,
+			isHighlighted: false,
 			highlightTimings: nil)
 		ProductComponent(product: product, fontName: "", onTap: {})
 			.previewLayout(.sizeThatFits)
