@@ -39,8 +39,7 @@ extension RestApi: ProductRepository {
 	}
 	
 	public func fetchProducts(for video: VodVideo) async throws -> [Product] {
-		let page: JSONPage<JSONProductResult> = try await get("/shopping/videos/featured-products",
-																													params: ["video" : video.id])
+		let page: JSONPage<JSONProductResult> = try await get("/v1/shopping/videos/\(video.id)/featured-products")
 		return page.results.map { $0.toProduct() }
 	}
 	
