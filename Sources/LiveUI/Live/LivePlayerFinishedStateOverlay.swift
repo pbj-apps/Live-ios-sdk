@@ -120,3 +120,18 @@ struct LivePlayerFinishedStateOverlay: View {
 		}
 	}
 }
+
+struct LivePlayerFinishedStateOverlay_Previews: PreviewProvider {
+	static var previews: some View {
+		LivePlayerFinishedStateOverlay(nextEpisode: fakeEpisode(with: .idle),
+																	 proxy: nil,
+																	 close: nil,
+																	 regularFont: "",
+																	 lightFont: "",
+																	 isAllCaps: false,
+																	 imagePlaceholderColor: .red,
+																	 lightForegroundColor: .blue,
+																	 accentColor: .yellow,
+																	 remindMeButtonBackgroundColor: .yellow)
+	}
+}

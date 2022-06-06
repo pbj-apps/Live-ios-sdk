@@ -10,7 +10,6 @@ import SwiftUI
 import Live
 import Combine
 
-@MainActor
 public class LivePlayerViewModel: ObservableObject {
 
 	@Published public var episode: Episode
@@ -39,6 +38,7 @@ public class LivePlayerViewModel: ObservableObject {
 		}
 	}
 	
+	@MainActor
 	private func refresh() async throws {
 		episode = try await liveRepository.fetch(episode: episode)
 		if episode.status == .broadcasting {
@@ -46,10 +46,12 @@ public class LivePlayerViewModel: ObservableObject {
 		}
 	}
 	
+	@MainActor
 	private func fetchBroadcastURL() async throws {
 		episode = try await liveRepository.fetchBroadcastUrl(for: episode)
 	}
 
+	@MainActor
 	public func fetchProducts() async throws {
 		let fetchedProducts = try await productRepository?.fetchProducts(for: episode)
 		withAnimation {
@@ -58,6 +60,7 @@ public class LivePlayerViewModel: ObservableObject {
 		}
 	}
 
+	@MainActor
 	public func registerForProductHighlights() {
 		productRepository?.registerForProductHighlights(for: episode)
 			.receive(on: RunLoop.main)

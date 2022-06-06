@@ -8,7 +8,8 @@
 import SwiftUI
 import Live
 
-struct LivePlayerInfo: View {
+struct LivePlayerInfo<PVF: ProductCardViewFactory,
+											LPIHF: LivePlayerInfoHeaderFactory>: View {
 
 	// Chat
 	@Binding var showProducts: Bool
@@ -32,6 +33,10 @@ struct LivePlayerInfo: View {
 	let episode: Episode
 	let close: (() -> Void)?
 	let proxy: GeometryProxy
+	
+	
+	let productCardViewFactory: PVF
+	let livePlayerInfoHeaderFactory: LPIHF
 
 	var canShowFeaturedProducts: Bool {
 		return episode.status == .broadcasting && !products.isEmpty
@@ -217,21 +222,9 @@ struct LivePlayerInfo: View {
 	}
 
 	var topBar: some View {
-		ZStack {
-			HStack {
-				LiveIndicatorView(isLive: episode.status == .broadcasting)
-				Spacer()
-				closeButton
-			}
-			HStack {
-				Spacer()
-				UppercasedText(episode.title, uppercased: isAllCaps)
-					.foregroundColor(Color.white)
-					.font(.custom(regularFont, size: 18))
-					.multilineTextAlignment(TextAlignment.center)
-				Spacer()
-			}.padding(.horizontal, 40)
-		}
+		livePlayerInfoHeaderFactory.makeLivePlayerInfoHeaderView(episode: episode,
+																														 regularFont: regularFont,
+																														 close: { close?() })
 		.padding(.leading, leadingSpace)
 		.padding(.trailing, trailingSpace)
 		.padding(.top, topSpace)
@@ -261,7 +254,7 @@ struct LivePlayerInfo: View {
 				if let productLink = product.link {
 					UIApplication.shared.open(productLink, options: [:], completionHandler: nil)
 				}
-			})
+			}, productCardViewViewFactory: productCardViewFactory)
 			.padding(.bottom, 6)
 	}
 
@@ -274,7 +267,7 @@ struct LivePlayerInfo: View {
 				if let productLink = product.link {
 					UIApplication.shared.open(productLink, options: [:], completionHandler: nil)
 				}
-			})
+			}, productCardViewViewFactory: productCardViewFactory)
 			.padding(.bottom, 6)
 	}
 
@@ -332,7 +325,7 @@ public func fakeEpisode(with state: Status) -> Episode {
 
 struct LivePlayerInfo_Previews: PreviewProvider {
 
-	static func info(with status: Status, proxy: GeometryProxy) -> LivePlayerInfo {
+	static func info(with status: Status, proxy: GeometryProxy) -> some View {
 		LivePlayerInfo(
 			showProducts: .constant(true),
 			isChatEnabled: true,
@@ -347,7 +340,10 @@ struct LivePlayerInfo_Previews: PreviewProvider {
 			lightForegroundColor: .white,
 			isInGuestMode: false,
 			chatUsername: .constant("John"),
-			episode: fakeEpisode(with: status), close: { }, proxy: proxy)
+			episode: fakeEpisode(with: status), close: { },
+			proxy: proxy,
+			productCardViewFactory: DefaultProductCardViewFactory(),
+			livePlayerInfoHeaderFactory: DefaultLivePlayerInfoHeaderFactory())
 	}
 
 	static var previews: some View {

@@ -8,32 +8,34 @@
 import SwiftUI
 import Live
 
-public struct ProductsCarrousel: View {
+public struct ProductsCarrousel<PVF: ProductCardViewFactory>: View {
 	
 	let products: [Product]
 	let fontName: String
 	let leadingSpace: CGFloat
 	let onTapProduct: (Product) -> Void
+	let productCardViewViewFactory: PVF
 	
 	public init(
 		products: [Product],
 		fontName: String,
 		leadingSpace: CGFloat,
-		onTapProduct: @escaping (Product) -> Void
+		onTapProduct: @escaping (Product) -> Void,
+		productCardViewViewFactory: PVF
 	) {
 		self.products = products
 		self.fontName = fontName
 		self.leadingSpace = leadingSpace
 		self.onTapProduct = onTapProduct
+		self.productCardViewViewFactory = productCardViewViewFactory
 	}
 	
 	public var body: some View {
 		ScrollView(.horizontal, showsIndicators: false) {
 			HStack(spacing: 10) {
 				ForEach(products, id:\.title) { product in
-					ProductComponent(product: product, fontName: fontName, onTap: {
-						onTapProduct(product)
-					}).padding(.leading, product == products.first ? leadingSpace : 0)
+					productCardViewViewFactory.makeProductCard(product: product)
+					.padding(.leading, product == products.first ? leadingSpace : 0)
 				}
 			}
 		}
@@ -69,6 +71,6 @@ struct ProductsCarrousel_Previews: PreviewProvider {
 			link: nil,
 			isHighlighted: false,
 			highlightTimings: nil)
-		ProductsCarrousel(products: [product1, product2, product3], fontName: "", leadingSpace: 10, onTapProduct: { _ in })
+		ProductsCarrousel(products: [product1, product2, product3], fontName: "", leadingSpace: 10, onTapProduct: { _ in }, productCardViewViewFactory: DefaultProductCardViewFactory())
 	}
 }

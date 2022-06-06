@@ -14,13 +14,46 @@ import Live
 
 let sharedKeyboardResponder = KeyboardResponder()
 
-public protocol LivePlayerInfoViewFactory {
-	func makeLivePlayerInfoView(title: String,
-															startDate: Date,
-															close: @escaping () -> Void) -> AnyView
+public class DefaultProductCardViewFactory: ProductCardViewFactory {
+	
+	public func makeProductCard(product: Product) -> some View {
+		ProductComponent(product: product, fontName: "", onTap: {})
+	}
+	
+	public init() {}
 }
 
-public struct LivePlayer: View {
+public class DefaultLivePlayerInfoHeaderFactory: LivePlayerInfoHeaderFactory {
+	
+	public func makeLivePlayerInfoHeaderView(episode: Episode, regularFont: String, close: @escaping () -> Void) -> some View {
+		LivePlayerInfoHeader(title: episode.title,
+												 isLive: episode.status == .broadcasting,
+												 regularFont: "",
+												 close: close)
+	}
+	
+	public init() {}
+}
+
+
+
+
+public protocol ProductCardViewFactory {
+	associatedtype ProductCardView: View
+	func makeProductCard(product: Product) -> ProductCardView
+}
+
+
+public protocol LivePlayerInfoHeaderFactory {
+	associatedtype LivePlayerInfoHeaderView: View
+	func makeLivePlayerInfoHeaderView(episode: Episode,
+																		regularFont: String,
+																		close: @escaping () -> Void) -> LivePlayerInfoHeaderView
+}
+
+
+public struct LivePlayer<PVF: ProductCardViewFactory,
+												 LPIHF: LivePlayerInfoHeaderFactory>: View {
 	
 	@StateObject var viewModel: LivePlayerViewModel
 	
@@ -51,9 +84,10 @@ public struct LivePlayer: View {
 	@State var showInfo = true
 	@State var chatUsername: String?
 	
-	private let customInfoViewFactory: LivePlayerInfoViewFactory?
+	private let productCardViewFactory: PVF
+	private let livePlayerInfoHeaderFactory: LPIHF
 	
-	public init(
+	public init (
 		episode: Episode,
 		liveRepository: LiveRepository = LiveSDKInstance.shared,
 		productRepository: ProductRepository = LiveSDKInstance.shared,
@@ -73,7 +107,8 @@ public struct LivePlayer: View {
 		fetchMessages: @escaping () -> Void = {},
 		sendMessage: @escaping (String, String?) -> Void = { _, _ in},
 		isInGuestMode: Bool = true,
-		customInfoViewFactory: LivePlayerInfoViewFactory? = nil
+		productCardViewFactory: PVF,
+		livePlayerInfoHeaderFactory: LPIHF
 	) {
 		_viewModel =  StateObject(wrappedValue: LivePlayerViewModel(episode: episode, liveRepository: liveRepository, productRepository: productRepository))
 		self.nextEpisode = nextEpisode
@@ -93,9 +128,53 @@ public struct LivePlayer: View {
 		self.fetchMessages = fetchMessages
 		self.sendMessage = sendMessage
 		self.isInGuestMode = isInGuestMode
-		self.customInfoViewFactory = customInfoViewFactory
+		self.productCardViewFactory = productCardViewFactory
+		self.livePlayerInfoHeaderFactory = livePlayerInfoHeaderFactory
 	}
 	
+	public init (
+		episode: Episode,
+		liveRepository: LiveRepository = LiveSDKInstance.shared,
+		productRepository: ProductRepository = LiveSDKInstance.shared,
+		nextEpisode: Episode? = nil,
+		close: (() -> Void)? = nil,
+		isAllCaps: Bool = false,
+		regularFont: String = "HelveticaNeue",
+		lightFont: String = "Helvetica-Light",
+		lightForegroundColor: Color = Color.white,
+		imagePlaceholderColor: Color = Color(#colorLiteral(red: 0.9499530196, green: 0.9499530196, blue: 0.9499530196, alpha: 1)),
+		accentColor: Color = Color.black,
+		remindMeButtonBackgroundColor: Color =  Color.white,
+		defaultsToAspectRatioFit: Bool = true,
+		// Chat
+		isChatEnabled: Bool = false,
+		chatMessages: [ChatMessage] = [],
+		fetchMessages: @escaping () -> Void = {},
+		sendMessage: @escaping (String, String?) -> Void = { _, _ in},
+		isInGuestMode: Bool = true
+	) where PVF == DefaultProductCardViewFactory, LPIHF == DefaultLivePlayerInfoHeaderFactory {
+		_viewModel =  StateObject(wrappedValue: LivePlayerViewModel(episode: episode, liveRepository: liveRepository, productRepository: productRepository))
+		self.nextEpisode = nextEpisode
+		self.close = close
+		
+		self.isAllCaps = isAllCaps
+		self.regularFont = regularFont
+		self.lightFont = lightFont
+		self.lightForegroundColor = lightForegroundColor
+		self.imagePlaceholderColor = imagePlaceholderColor
+		self.accentColor = accentColor
+		self.remindMeButtonBackgroundColor = remindMeButtonBackgroundColor
+		self.defaultsToAspectRatioFit = defaultsToAspectRatioFit
+		
+		self.isChatEnabled = isChatEnabled
+		self.chatMessages = chatMessages
+		self.fetchMessages = fetchMessages
+		self.sendMessage = sendMessage
+		self.isInGuestMode = isInGuestMode
+		self.productCardViewFactory = DefaultProductCardViewFactory()
+		self.livePlayerInfoHeaderFactory = DefaultLivePlayerInfoHeaderFactory()
+	}
+
 	public var body: some View {
 		GeometryReader { proxy in
 			ZStack {
@@ -156,17 +235,6 @@ public struct LivePlayer: View {
 				}
 				if episode.status != .finished { //} && liveStream.status != .idle {
 					if showInfo {
-						
-						if let customInfoViewFactory = customInfoViewFactory {
-							customInfoViewFactory.makeLivePlayerInfoView(title: episode.messageToDisplay(), startDate: episode.startDate, close: {
-								isLivePlaying = false
-								close?()
-							})
-								.transition(.opacity)
-								.padding(.bottom, keyboard.currentHeight)
-								.padding(.top, proxy.safeAreaInsets.top)
-								.zIndex(4)
-						} else {
 							LivePlayerInfo(
 								showProducts: $viewModel.showProducts,
 								isChatEnabled: isChatEnabled,
@@ -186,11 +254,13 @@ public struct LivePlayer: View {
 									isLivePlaying = false
 									close?()
 								},
-								proxy: proxy)
+								proxy: proxy,
+								productCardViewFactory: productCardViewFactory,
+								livePlayerInfoHeaderFactory: livePlayerInfoHeaderFactory)
 							.transition(.opacity)
 							.padding(.bottom, keyboard.currentHeight)
 							.zIndex(4)
-						}
+						
 					}
 				}
 			}
