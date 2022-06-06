@@ -12,12 +12,23 @@ import Combine
 public final class RestApi: NetworkingService {
 	
 	private let kAuthorizationKey = "Authorization"
+	
+	public var protectedAuthenticationToken: String?
+	
 	public var authenticationToken: String? {
-		didSet {
-			if let token = authenticationToken {
-				network.headers[kAuthorizationKey] = "Bearer \(token)"
-			} else {
-				network.headers[kAuthorizationKey] = nil
+		get {
+			return lockQueue.sync {
+				return protectedAuthenticationToken
+			}
+		}
+		set {
+			lockQueue.sync {
+				protectedAuthenticationToken = newValue
+				if let token = newValue {
+					self.network.headers[self.kAuthorizationKey] = "Bearer \(token)"
+				} else {
+					self.network.headers[self.kAuthorizationKey] = nil
+				}
 			}
 		}
 	}
@@ -27,6 +38,8 @@ public final class RestApi: NetworkingService {
 	internal let webSocket: Websocket!
 
 	var cancellables = Set<AnyCancellable>()
+	
+	let lockQueue = DispatchQueue(label: "RestApiQueue")
 
 	public init(apiUrl: String,
 							webSocketsUrl: String,
