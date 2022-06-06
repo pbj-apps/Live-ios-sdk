@@ -18,8 +18,12 @@ extension RestApi: GuestAuthenticationRepository {
 	}
 	
 	public func authenticateAsGuest() async throws {
-		let response = try await fetchGuestToken()
-		authenticationToken = response.auth_token
+		if authenticationToken == nil {
+			let response = try await fetchGuestToken()
+			authenticationToken = response.auth_token
+		} else {
+			print("already logged")
+		}
 	}
 	
 	private func fetchGuestToken() -> AnyPublisher<JSONGuestAuthResponse, Error> {
