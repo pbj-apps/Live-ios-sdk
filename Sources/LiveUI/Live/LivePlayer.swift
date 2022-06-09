@@ -14,46 +14,9 @@ import Live
 
 let sharedKeyboardResponder = KeyboardResponder()
 
-public class DefaultProductCardViewFactory: ProductCardViewFactory {
-	
-	public func makeProductCard(product: Product) -> some View {
-		ProductComponent(product: product, fontName: "", onTap: {})
-	}
-	
-	public init() {}
-}
-
-public class DefaultLivePlayerInfoHeaderFactory: LivePlayerInfoHeaderFactory {
-	
-	public func makeLivePlayerInfoHeaderView(episode: Episode, regularFont: String, close: @escaping () -> Void) -> some View {
-		LivePlayerInfoHeader(title: episode.title,
-												 isLive: episode.status == .broadcasting,
-												 regularFont: "",
-												 close: close)
-	}
-	
-	public init() {}
-}
-
-
-
-
-public protocol ProductCardViewFactory {
-	associatedtype ProductCardView: View
-	func makeProductCard(product: Product) -> ProductCardView
-}
-
-
-public protocol LivePlayerInfoHeaderFactory {
-	associatedtype LivePlayerInfoHeaderView: View
-	func makeLivePlayerInfoHeaderView(episode: Episode,
-																		regularFont: String,
-																		close: @escaping () -> Void) -> LivePlayerInfoHeaderView
-}
-
-
 public struct LivePlayer<PVF: ProductCardViewFactory,
-												 LPIHF: LivePlayerInfoHeaderFactory>: View {
+												 LPIHF: LivePlayerInfoHeaderFactory,
+												 LPPF: LivePlayerPreviewInfoFactory>: View {
 	
 	@StateObject var viewModel: LivePlayerViewModel
 	
@@ -86,6 +49,7 @@ public struct LivePlayer<PVF: ProductCardViewFactory,
 	
 	private let productCardViewFactory: PVF
 	private let livePlayerInfoHeaderFactory: LPIHF
+	private let livePlayerPreviewInfoFactory: LPPF
 	
 	public init (
 		episode: Episode,
@@ -108,7 +72,8 @@ public struct LivePlayer<PVF: ProductCardViewFactory,
 		sendMessage: @escaping (String, String?) -> Void = { _, _ in},
 		isInGuestMode: Bool = true,
 		productCardViewFactory: PVF,
-		livePlayerInfoHeaderFactory: LPIHF
+		livePlayerInfoHeaderFactory: LPIHF,
+		livePlayerPreviewInfoFactory: LPPF
 	) {
 		_viewModel =  StateObject(wrappedValue: LivePlayerViewModel(episode: episode, liveRepository: liveRepository, productRepository: productRepository))
 		self.nextEpisode = nextEpisode
@@ -130,6 +95,7 @@ public struct LivePlayer<PVF: ProductCardViewFactory,
 		self.isInGuestMode = isInGuestMode
 		self.productCardViewFactory = productCardViewFactory
 		self.livePlayerInfoHeaderFactory = livePlayerInfoHeaderFactory
+		self.livePlayerPreviewInfoFactory = livePlayerPreviewInfoFactory
 	}
 	
 	public init (
@@ -152,7 +118,9 @@ public struct LivePlayer<PVF: ProductCardViewFactory,
 		fetchMessages: @escaping () -> Void = {},
 		sendMessage: @escaping (String, String?) -> Void = { _, _ in},
 		isInGuestMode: Bool = true
-	) where PVF == DefaultProductCardViewFactory, LPIHF == DefaultLivePlayerInfoHeaderFactory {
+	) where PVF == DefaultProductCardViewFactory,
+	LPIHF == DefaultLivePlayerInfoHeaderFactory,
+	LPPF == DefaultLivePlayerPreviewInfoFactory {
 		_viewModel =  StateObject(wrappedValue: LivePlayerViewModel(episode: episode, liveRepository: liveRepository, productRepository: productRepository))
 		self.nextEpisode = nextEpisode
 		self.close = close
@@ -173,6 +141,7 @@ public struct LivePlayer<PVF: ProductCardViewFactory,
 		self.isInGuestMode = isInGuestMode
 		self.productCardViewFactory = DefaultProductCardViewFactory()
 		self.livePlayerInfoHeaderFactory = DefaultLivePlayerInfoHeaderFactory()
+		self.livePlayerPreviewInfoFactory = DefaultLivePlayerPreviewInfoFactory()
 	}
 
 	public var body: some View {
@@ -256,7 +225,8 @@ public struct LivePlayer<PVF: ProductCardViewFactory,
 								},
 								proxy: proxy,
 								productCardViewFactory: productCardViewFactory,
-								livePlayerInfoHeaderFactory: livePlayerInfoHeaderFactory)
+								livePlayerInfoHeaderFactory: livePlayerInfoHeaderFactory,
+								livePlayerPreviewInfoFactory: livePlayerPreviewInfoFactory)
 							.transition(.opacity)
 							.padding(.bottom, keyboard.currentHeight)
 							.zIndex(4)

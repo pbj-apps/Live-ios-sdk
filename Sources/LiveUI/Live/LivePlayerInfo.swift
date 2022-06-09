@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  LivePlayerInfo.swift
 //  
 //
 //  Created by Sacha on 03/09/2020.
@@ -9,7 +9,8 @@ import SwiftUI
 import Live
 
 struct LivePlayerInfo<PVF: ProductCardViewFactory,
-											LPIHF: LivePlayerInfoHeaderFactory>: View {
+											LPIHF: LivePlayerInfoHeaderFactory,
+											LPPF: LivePlayerPreviewInfoFactory>: View {
 
 	// Chat
 	@Binding var showProducts: Bool
@@ -37,6 +38,7 @@ struct LivePlayerInfo<PVF: ProductCardViewFactory,
 	
 	let productCardViewFactory: PVF
 	let livePlayerInfoHeaderFactory: LPIHF
+	let livePlayerPreviewInfoFactory: LPPF
 
 	var canShowFeaturedProducts: Bool {
 		return episode.status == .broadcasting && !products.isEmpty
@@ -165,25 +167,11 @@ struct LivePlayerInfo<PVF: ProductCardViewFactory,
 	}
 
 	var showDetails: some View {
-		VStack(alignment: .leading) {
-			UppercasedText(episode.messageToDisplay(), uppercased: isAllCaps)
-				.foregroundColor(Color.white)
-				.font(.custom(regularFont, size: 50))
-				.minimumScaleFactor(0.4)
-				.lineSpacing(0.1)
-				.frame(maxHeight: proxy.size.height / 2)
-				.fixedSize(horizontal: false, vertical: true)
-				.padding(.bottom, 55)
-			UppercasedText("Live in", uppercased: isAllCaps)
-				.foregroundColor(Color.white)
-				.font(.custom(regularFont, size: 14))
-			LiveCountDown(
-				date: episode.startDate,
-				isAllCaps: isAllCaps,
-				lightForegroundColor: lightForegroundColor,
-				regularFont: regularFont)
-				.padding(.bottom, 50)
-		}
+		livePlayerPreviewInfoFactory.makeLivePlayerPreviewInfoView(message: episode.messageToDisplay(),
+																															 startDate: episode.startDate,
+																															 isAllCaps: isAllCaps,
+																															 regularFont: regularFont,
+																															 lightForegroundColor: lightForegroundColor)
 		.transition(.opacity)
 		.padding(.leading, leadingSpace)
 		.padding(.trailing, trailingSpace)
@@ -343,7 +331,8 @@ struct LivePlayerInfo_Previews: PreviewProvider {
 			episode: fakeEpisode(with: status), close: { },
 			proxy: proxy,
 			productCardViewFactory: DefaultProductCardViewFactory(),
-			livePlayerInfoHeaderFactory: DefaultLivePlayerInfoHeaderFactory())
+			livePlayerInfoHeaderFactory: DefaultLivePlayerInfoHeaderFactory(),
+			livePlayerPreviewInfoFactory: DefaultLivePlayerPreviewInfoFactory())
 	}
 
 	static var previews: some View {
