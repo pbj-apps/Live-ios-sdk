@@ -7,20 +7,32 @@
 
 import SwiftUI
 import AVKit
+import Live
 
 public class VodPlayerViewModel: NSObject, ObservableObject {
 	
 	@Published var showsControls: Bool = true
 	@Published var isPlaying: Bool = false
-	@Published var sliderValue: Float = 0
+	@Published var progress: Float = 0
 	@Published var player: AVPlayer
-	@Published var currentTimeLabel: String = "0:00"
-	@Published var endTimeLabel: String = "0:00"
+	@Published var currentTimeSeconds: Double = 0
+	@Published var durationSeconds: Double = 0
+	@Published var products = [Product]()
 	private var isEditingSlider: Bool = false
 	private var timeObserver: Any?
 	private var fadeOutTimer: Timer?
 	private var playerItemContext = 0
 	private var didPlay: (() -> Void)?
+	
+	public convenience init(video: VodVideo,
+													productRepository: ProductRepository = LiveSDKInstance.shared,
+													didPlay: (() -> Void)?) {
+		self.init(url: video.videoURL ?? URL(string:"http://")!, didPlay: didPlay)
+		
+		Task { @MainActor in
+			products = try await productRepository.fetchProducts(for: video)
+		}
+	}
 	
 	public init(url: URL, didPlay: (() -> Void)?) {
 		self.player	= AVPlayer(url: url)
@@ -37,7 +49,7 @@ public class VodPlayerViewModel: NSObject, ObservableObject {
 				if !self.isEditingSlider {
 					let currentTime = (CMTimeGetSeconds(time) / self.player.currentItem!.duration.seconds)
 					withAnimation {
-						self.sliderValue = Float(currentTime)
+						self.progress = Float(currentTime)
 					}
 				}
 			}
@@ -73,18 +85,26 @@ public class VodPlayerViewModel: NSObject, ObservableObject {
 		isEditingSlider = isEditing
 	}
 	
-	public func endEditingSlider() {
+	public func endSeek() {
+		isEditingSlider = false
 		if isPlaying {
 			player.play()
 			fadeOutControlsLater()
 		}
 	}
 	
-	public func sliderChanged(value : Float) {
+	public func seekToSeconds(seconds: Double) {
+		isEditingSlider = true
+		player.pause()
+		player.seek(to: CMTime(seconds: seconds, preferredTimescale: 1))
+		progress = Float((seconds / (player.currentItem?.duration.seconds ?? 1)))
+	}
+	
+	public func sliderChanged(value :Float) {
 		player.pause()
 		let sec = Double(value * Float((player.currentItem?.duration.seconds)!))
 		player.seek(to: CMTime(seconds: sec, preferredTimescale: 1))
-		sliderValue = value
+		progress = value
 	}
 	
 	private func fadeOutControlsLater() {
@@ -143,18 +163,16 @@ public class VodPlayerViewModel: NSObject, ObservableObject {
 	}
 	
 	private func refreshCurrentTimeLabel() {
-		let currentTimeSeconds = self.player.currentTime().seconds
-		let currentTimeString = self.formattedTime(seconds: currentTimeSeconds)
-		if self.endTimeLabel != currentTimeString {
-			self.currentTimeLabel = currentTimeString
+		let currentTime = player.currentTime().seconds
+		if currentTimeSeconds != currentTime {
+			currentTimeSeconds = currentTime
 		}
 	}
 	
 	private func refreshEndTimeLabel() {
-		if let durationSeconds = player.currentItem?.duration.seconds {
-			let endTimeString = formattedTime(seconds: durationSeconds)
-			if endTimeLabel != endTimeString {
-				endTimeLabel = endTimeString
+		if let duration = player.currentItem?.duration.seconds {
+			if durationSeconds != duration {
+				durationSeconds = duration
 			}
 		}
 	}

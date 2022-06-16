@@ -7,8 +7,9 @@
 
 import SwiftUI
 import AVFoundation
+import Live
 
-public struct VodPlayerView: View {
+public struct VodPlayerView<OverlayFactory: VodPlayerOverlayFactory>: View {
 	
 	let player: AVPlayer
 	let showsControls: Bool
@@ -16,15 +17,16 @@ public struct VodPlayerView: View {
 	let tapped: () -> Void
 	let play: () -> Void
 	let pause: () -> Void
+	let seekToSeconds: (Double) -> Void
+	let endSeek: () -> Void
 	let stop: () -> Void
-	let currentTimeLabel: String
-	let endTimeLabel: String
-	let sliderValue: Float
-	let setSliderEditing: (Bool) -> Void
-	let sliderChanged: (Float) -> Void
-	let sliderDidEndEditing: () -> Void
+	let currentTimeSeconds: Double
+	let durationSeconds: Double
+	let progress: Float
 	let close: () -> Void
 	let topLeftButton: AnyView?
+	let overlayFactory: OverlayFactory
+	let products: [Product]
 	
 	public var body: some View {
 		GeometryReader { proxy in
@@ -36,103 +38,44 @@ public struct VodPlayerView: View {
 							tapped()
 						}
 					}
-				controlsOverlay(safeAreaInsets: proxy.safeAreaInsets)
-					.opacity(showsControls ? 1 : 0)
+				overlayFactory.makeVodPlayerOverlay(
+					products: products,
+					isPlaying: isPlaying,
+					toggleOverlay: tapped,
+					play: play,
+					pause: pause,
+					seekToSeconds: seekToSeconds,
+					endSeek: endSeek,
+					stop: stop,
+					durationSeconds: durationSeconds,
+					currentTimeSeconds: currentTimeSeconds,
+					progress: progress,
+					close: close,
+					safeAreaInsets: proxy.safeAreaInsets)
+				.opacity(showsControls ? 1 : 0)
 			}
 			.edgesIgnoringSafeArea(.all)
-		}
-	}
-	
-	func controlsOverlay(safeAreaInsets: EdgeInsets) -> some View {
-		ZStack {
-			Color.black.opacity(0.5)
-				.onTapGesture {
-					withAnimation {
-						tapped()
-					}
-				}
-			VStack {
-				HStack {
-					if let topLeftButton = topLeftButton {
-						topLeftButton
-					}
-					Spacer()
-					closeButton
-				}
-				Spacer()
-				HStack {
-					Spacer()
-					playPauseButton
-					Spacer()
-				}
-				Spacer()
-				let sliderBinding: Binding<Float> = Binding(get: {
-					sliderValue
-				}, set: { value in
-					sliderChanged(value)
-				})
-				Slider(value:sliderBinding, in: 0...1) { isEditing in
-					setSliderEditing(isEditing)
-					if !isEditing {
-						sliderDidEndEditing()
-					}
-				}
-				.padding()
-                HStack {
-                    timeLabel(text: currentTimeLabel)
-                    Spacer()
-                    timeLabel(text: endTimeLabel)
-                }
-                .padding(.horizontal)
-			}
-			.padding(.top, safeAreaInsets.top)
-			.padding(.leading, safeAreaInsets.leading)
-			.padding(.bottom, safeAreaInsets.bottom)
-			.padding(.trailing, safeAreaInsets.trailing)
-		}
-	}
-    
-    func timeLabel(text: String) -> some View {
-        Text(text)
-            .font(Font.system(size: 12))
-            .foregroundColor(.white)
-    }
-	
-	var playPauseButton: some View {
-		Button(action: {
-			withAnimation {
-				if isPlaying {
-					pause()
-				} else {
-					play()
-				}
-			}
-		}) {
-			Image(systemName: isPlaying ? "pause.circle.fill" : "play.circle.fill")
-				.resizable()
-				.foregroundColor(.white)
-				.frame(width: 70, height: 70)
-		}
-	}
-	
-	var closeButton: some View {
-		Button(action: {
-			withAnimation {
-				stop()
-				close()
-			}
-		}) {
-			Image(systemName: "xmark")
-				.resizable()
-				.foregroundColor(.white)
-				.frame(width: 20, height: 20)
-				.padding()
 		}
 	}
 }
 
 struct LiveVodPlayerView_Previews: PreviewProvider {
 	static var previews: some View {
-		Text("LiveVodPlayerView")
+		VodPlayerView(player: AVPlayer(),
+									showsControls: true,
+									isPlaying: true,
+									tapped: {},
+									play: {},
+									pause: {},
+									seekToSeconds: { _ in },
+									endSeek: {},
+									stop: {},
+									currentTimeSeconds: 62,
+									durationSeconds: 1000,
+									progress: 0.5,
+									close: {},
+									topLeftButton: nil,
+									overlayFactory: DefaultVodPlayerOverlayFactory(),
+									products: [])
 	}
 }

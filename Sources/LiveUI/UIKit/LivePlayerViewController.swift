@@ -15,7 +15,7 @@ public protocol LivePlayerViewControllerDelegate: AnyObject {
 	func livePlayerViewControllerDidTapClose()
 }
 
-///// Wraps LivePlayer to expose a clean UIKit api.
+///Wraps LivePlayer to expose a clean UIKit api.
 public class LivePlayerViewController: UIViewController {
 	
 	public weak var delegate: LivePlayerViewControllerDelegate?
