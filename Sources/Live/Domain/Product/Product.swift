@@ -39,4 +39,9 @@ public struct Product: Equatable, Identifiable {
 public struct ProductHighlightedTiming: Equatable {
 	public let startTime: Int
 	public let endTime: Int
+	
+	public init(startTime: Int, endTime: Int) {
+		self.startTime = startTime
+		self.endTime = endTime
+	}
 }
