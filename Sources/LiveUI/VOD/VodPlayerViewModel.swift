@@ -48,11 +48,12 @@ public class VodPlayerViewModel: NSObject, ObservableObject {
 				self.refreshCurrentTimeLabel()
 				if !self.isEditingSlider {
                     var currentTime: Float64 = 0
-                    if let duration = self.player.currentItem?.duration {
-                        currentTime = CMTimeGetSeconds(time) / CMTimeGetSeconds(duration)
+                    if let duration = self.player.currentItem?.duration.seconds {
+                        let seconds = CMTimeGetSeconds(time) / CMTimeGetSeconds(duration)
+                        currentTime = seconds.isNaN ? 0 : seconds
                     }
 					withAnimation {
-						self.progress = Float(currentTime)
+                        self.progress = Float(currentTime)
 					}
 				}
 			}
