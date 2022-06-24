@@ -19,3 +19,9 @@ struct JSONPreviewAsset: Decodable {
 		let full_size: String
 	}
 }
+
+extension JSONPreviewAsset {
+    var asImages: Images {
+        Images(fullsize: image.full_size, medium: image.medium, small: image.small)
+    }
+}
