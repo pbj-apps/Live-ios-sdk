@@ -13,7 +13,7 @@ extension RestApi: ProductRepository {
 	
 	public func fetchProducts(for episode: Episode) -> AnyPublisher<[Product], Error> {
 		if let vodId = episode.vodId {
-			let video = VodVideo(id: vodId, title: "", description: "", isFeatured: false, thumbnailImageUrl: nil, videoURL: nil, duration: nil)
+            let video = VodVideo(id: vodId, title: "", description: "", isFeatured: false, thumbnailImageUrl: nil, images: nil, videoURL: nil, duration: nil)
 			return fetchProducts(for: video)
 		}
 		return get("v1/shopping/episodes/\(episode.id)/featured-products")
@@ -24,7 +24,7 @@ extension RestApi: ProductRepository {
 	
 	public func fetchProducts(for episode: Episode) async throws -> [Product] {
 		if let vodId = episode.vodId {
-			let video = VodVideo(id: vodId, title: "", description: "", isFeatured: false, thumbnailImageUrl: nil, videoURL: nil, duration: nil)
+            let video = VodVideo(id: vodId, title: "", description: "", isFeatured: false, thumbnailImageUrl: nil, images: nil, videoURL: nil, duration: nil)
 			return try await fetchProducts(for: video)
 		}
 		let page: JSONPage<JSONProductResult> = try await get("/v1/shopping/episodes/\(episode.id)/featured-products")

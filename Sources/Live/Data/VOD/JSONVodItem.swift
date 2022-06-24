@@ -64,21 +64,22 @@ public extension JSONVodItem {
 		switch itemType {
 		case .video:
 			return VodItem(type: .video(VodVideo(id: id,
-																					 title: title,
-																					 description: description,
-																					 isFeatured: isFeatured,
-																					 thumbnailImageUrl: URL(string: thumbnailImageUrl),
-																					 videoURL: URL(string: videoUrl!),
-																					 duration: duration,
-																					 instructors: [])))
+                                                title: title,
+                                                description: description,
+                                                isFeatured: isFeatured,
+                                                thumbnailImageUrl: URL(string: thumbnailImageUrl),
+                                                images: nil,
+                                                videoURL: URL(string: videoUrl!),
+                                                duration: duration,
+                                                instructors: [])))
 		case .playlist:
 			return VodItem(type: .playlist(VodPlaylist(id: id,
-																								 title: title,
-																								 description: description,
-																								 isFeatured: isFeatured,
-																								 thumbnailImageUrl: URL(string: thumbnailImageUrl),
-																								 videos: [],
-																								 videoCount: videoCount!)))
+                                                       title: title,
+                                                       description: description,
+                                                       isFeatured: isFeatured,
+                                                       thumbnailImageUrl: URL(string: thumbnailImageUrl),
+                                                       videos: [],
+                                                       videoCount: videoCount!)))
 		}
 	}
 }

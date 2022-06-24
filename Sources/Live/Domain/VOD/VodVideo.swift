@@ -14,6 +14,7 @@ public struct VodVideo: IsVodItem, Hashable, Identifiable {
 	public let description: String
 	public var isFeatured: Bool
 	public let thumbnailImageUrl: URL?
+    public let images: Images?
 	public let videoURL: URL?
 	public let duration: Int?
 	public let instructors: [User]
@@ -29,6 +30,7 @@ public struct VodVideo: IsVodItem, Hashable, Identifiable {
 		description: String,
 		isFeatured: Bool,
 		thumbnailImageUrl: URL?,
+        images: Images?,
 		videoURL: URL?,
 		duration: Int?,
 		instructors: [User] = [User](),
@@ -40,6 +42,7 @@ public struct VodVideo: IsVodItem, Hashable, Identifiable {
 		self.isFeatured = isFeatured
 		self.thumbnailImageUrl = thumbnailImageUrl
 		self.videoURL = videoURL
+        self.images = images
 		self.duration = duration
 		self.instructors = instructors
 		self.categories = categories
@@ -52,6 +55,7 @@ public struct VodVideo: IsVodItem, Hashable, Identifiable {
 		self.description = ""
 		self.isFeatured = false
 		self.thumbnailImageUrl = nil
+        self.images = nil
 		self.videoURL = nil
 		self.duration = nil
 		self.instructors = []
