@@ -45,7 +45,8 @@ public struct ProductsCarrousel<PVF: ProductCardViewFactory>: View {
 struct ProductsCarrousel_Previews: PreviewProvider {
 	static var previews: some View {
 		let product1 = Product(
-			id: "123",
+            id: "123",
+            externalId: "456",
 			title: "Apple Airpods",
 			price: "$29.99",
 			detail: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.`",
@@ -55,6 +56,7 @@ struct ProductsCarrousel_Previews: PreviewProvider {
 			highlightTimings: nil)
 		let product2 = Product(
 			id: "123",
+            externalId: "456",
 			title: "Apple Airpods",
 			price: "$29.99",
 			detail: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.`",
@@ -64,6 +66,7 @@ struct ProductsCarrousel_Previews: PreviewProvider {
 			highlightTimings: nil)
 		let product3 = Product(
 			id: "123",
+            externalId: "456",
 			title: "Apple Airpods",
 			price: "$29.99",
 			detail: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.`",

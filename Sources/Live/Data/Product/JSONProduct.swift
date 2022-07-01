@@ -21,6 +21,7 @@ struct JSONProductHighlightedTiming: Decodable {
 }
 
 struct JSONProduct: Decodable {
+    let external_id: String?
 	let title: String
 	let description: String
 	let price: String
@@ -57,7 +58,8 @@ public extension String {
 extension JSONProductResult {
 	func toProduct() -> Product {
 		return Product(
-			id: id,
+            id: id,
+            externalId: product.external_id ?? "",
 			title: product.title,
 			price: product.price,
 			detail: product.description,

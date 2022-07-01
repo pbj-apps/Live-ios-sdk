@@ -28,7 +28,8 @@ struct ProductComponent: View {
 struct ProductComponent_Previews: PreviewProvider {
 	static var previews: some View {
 		let product = Product(
-			id: "123",
+            id: "123",
+            externalId: "456",
 			title: "Apple Airpods",
 			price: "$29.99",
 			detail: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.`",

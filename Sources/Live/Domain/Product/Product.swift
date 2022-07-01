@@ -9,6 +9,7 @@ import Foundation
 
 public struct Product: Equatable, Identifiable {
 	public let id: String
+    public let externalId: String
 	public let title: String
 	public let price: String
 	public let detail: String
@@ -18,14 +19,16 @@ public struct Product: Equatable, Identifiable {
 	public let highlightTimings: [ProductHighlightedTiming]?
 
 	public init(id: String,
-							title: String,
-							price: String,
-							detail: String,
-							image: URL?,
-							link: URL?,
-							isHighlighted: Bool,
-							highlightTimings: [ProductHighlightedTiming]?){
+                externalId: String,
+                title: String,
+                price: String,
+                detail: String,
+                image: URL?,
+                link: URL?,
+                isHighlighted: Bool,
+                highlightTimings: [ProductHighlightedTiming]?){
 		self.id = id
+        self.externalId = externalId
 		self.title = title
 		self.price = price
 		self.detail = detail
